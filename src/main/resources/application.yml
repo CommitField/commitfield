@@ -1,21 +1,21 @@
-server:
-  port: 8090
-  timezone: Asia/Seoul
-spring:
-  config:
-    import: application-secret.yml
-  output:
-    ansi:
-      enabled: ALWAYS
-  profiles:
-    active: dev
-    include: secret
-  datasource:
-    url: jdbc:mysql://localhost:3306/cmf_db?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
-    username: root
-    password: cmfgogo!!1236
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    open-in-view: false
-    hibernate:
-      ddl-auto: update
+#server:
+#  port: 8090
+#  timezone: Asia/Seoul
+#spring:
+#  config:
+#    import: application-secret.yml
+#  output:
+#    ansi:
+#      enabled: ALWAYS
+#  profiles:
+#    active: dev
+#    include: secret
+#  datasource:
+#    url: jdbc:mysql://localhost:3306/cmf_db?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+#    username: root
+#    password: cmfgogo!!1236
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#  jpa:
+#    open-in-view: false
+#    hibernate:
+#      ddl-auto: update
