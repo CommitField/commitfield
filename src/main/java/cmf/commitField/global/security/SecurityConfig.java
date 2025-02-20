@@ -1,5 +1,7 @@
 package cmf.commitField.global.security;
 
+import cmf.commitField.domain.user.entity.CustomOAuth2User;
+import cmf.commitField.domain.user.service.CustomOAuth2UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,9 +15,14 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    private final CustomOAuth2UserService customOAuth2UserService;
+
+    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService) {
+        this.customOAuth2UserService = customOAuth2UserService;
+    }
+
     @Bean
     protected SecurityFilterChain config(HttpSecurity http) throws Exception {
-
         //로그인 관련 설정
         http
                 .oauth2Login(oauth2 -> oauth2
@@ -23,6 +30,8 @@ public class SecurityConfig {
                         .successHandler((request, response, authentication) -> {
                             // 인증 정보가 SecurityContext에 추가되는 것을 보장
                             SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                            CustomOAuth2User customUser = (CustomOAuth2User) authentication.getPrincipal();
 
                             // 디버깅: authentication 정보 확인
                             System.out.println("Authentication: " + authentication);
