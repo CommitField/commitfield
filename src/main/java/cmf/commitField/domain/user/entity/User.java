@@ -31,7 +31,7 @@ public class User extends BaseEntity {
     public enum Role {
         USER, ADMIN
     }
-
+    //추가
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<ChatRoom> chatRooms;
 
