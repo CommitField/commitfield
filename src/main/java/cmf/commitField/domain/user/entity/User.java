@@ -4,12 +4,11 @@ import cmf.commitField.global.jpa.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Builder;
+import lombok.Getter;
 
 @Entity
-@Builder
-public class User extends BaseEntity {
-    @Id
-    private long id;
+@Getter
+class User extends BaseEntity {
     private String email;
     private String nickname;
     private String password;
