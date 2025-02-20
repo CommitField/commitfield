@@ -71,6 +71,7 @@ override.tf.json
 
 ### 도커 컴포즈 파일
 docker-compose.yml
+docker-compose.yaml
 
 ### db파일
 db/
