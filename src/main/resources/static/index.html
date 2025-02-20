@@ -8,10 +8,12 @@
 <body>
 <h1>GitHub OAuth2 로그인 테스트</h1>
 
-<a href="/oauth2/authorization/github">
+<!-- 로그인 버튼 -->
+<a href="/oauth2/authorization/github" id="loginBtn" style="display: none;">
   <button>GitHub 로그인</button>
 </a>
 
+<!-- 로그아웃 버튼 -->
 <button id="logoutBtn" style="display: none;">로그아웃</button>
 
 <h2>사용자 정보</h2>
@@ -20,23 +22,26 @@
 <script>
   async function fetchUser() {
       try {
-          const response = await fetch('/user');
+          const response = await fetch('/login');
           if (!response.ok) throw new Error("Not logged in");
 
           const data = await response.json();
           document.getElementById("userInfo").textContent = JSON.stringify(data, null, 2);
           document.getElementById("logoutBtn").style.display = "block";
+          document.getElementById("loginBtn").style.display = "none";
       } catch (error) {
           document.getElementById("userInfo").textContent = "로그인이 필요합니다.";
+          document.getElementById("logoutBtn").style.display = "none";
+          document.getElementById("loginBtn").style.display = "inline-block";
       }
   }
 
   document.getElementById("logoutBtn").addEventListener("click", async () => {
-      await fetch('/logout', { method: 'GET' });
-      location.reload();
+      await fetch('/logout', { method: 'POST' });  // POST 방식으로 로그아웃
+      fetchUser();  // 로그아웃 후 사용자 정보 갱신
   });
 
-  fetchUser();
+  fetchUser();  // 페이지 로드 시 사용자 정보 가져오기
 </script>
 </body>
 </html>
