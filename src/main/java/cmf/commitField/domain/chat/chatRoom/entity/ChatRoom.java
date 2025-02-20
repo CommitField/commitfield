@@ -6,15 +6,15 @@ import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.global.jpa.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Builder
+@SuperBuilder
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
