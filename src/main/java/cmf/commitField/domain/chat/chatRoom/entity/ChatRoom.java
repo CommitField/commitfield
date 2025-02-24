@@ -35,4 +35,18 @@ public class ChatRoom extends BaseEntity {
 
     @OneToMany(mappedBy = "chatRoom", fetch = FetchType.LAZY)
     private List<ChatMessage> chatMessages;
+
+    @Override
+    public String toString() {
+        return "ChatRoom{" +
+                // BaseEntity에서 상속받은 id 사용
+                "id=" + getId() +
+                ", title='" + title + '\'' +
+                ", tier='" + tier + '\'' +
+                ", roomCreator=" + roomCreator +
+                ", userCountMax=" + userCountMax +
+                ", user=" + (user != null ? user.getId() : "null") +  // user가 null일 수 있기 때문에 체크
+                ", userChatRooms=" + (userChatRooms != null ? userChatRooms.size() : 0) + // userChatRooms 리스트가 null일 수 있기 때문에 체크
+                '}';
+    }
 }
