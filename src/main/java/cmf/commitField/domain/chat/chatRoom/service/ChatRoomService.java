@@ -16,11 +16,11 @@ public interface ChatRoomService {
     List<ChatRoomDto> getRoomList(Pageable pageable);
 
     // 자신이 생성한 방 리스트 조회
-    List<ChatRoomDto> getUserByRoomList(Long userId, org.springframework.data.domain.Pageable pageable);
+    List<ChatRoomDto> getUserByRoomList(Long userId, Pageable pageable);
 
     List<ChatRoomDto> getUserByRoomPartList(Long userId, Pageable pageable);
-//
-//    void outRoom(Long userId, Long roomId);
+
+    void outRoom(Long userId, Long roomId);
 //
 //    void deleteRoom(Long userId, Long roomId);
 }
