@@ -47,6 +47,10 @@ dependencies {
 
 	//redis
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
+	implementation("org.springframework.session:spring-session-data-redis")
+
+	// actuator
+	implementation("org.springframework.boot:spring-boot-starter-actuator")
 
 	// Security
 	implementation("org.springframework.boot:spring-boot-starter-security")
@@ -62,6 +66,8 @@ dependencies {
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
 
+	// WebClient
+	implementation ("org.springframework.boot:spring-boot-starter-webflux")
 }
 
 tasks.withType<Test> {

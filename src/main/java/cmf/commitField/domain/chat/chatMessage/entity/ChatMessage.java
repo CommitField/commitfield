@@ -10,10 +10,12 @@ import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
 @Entity
+@SuperBuilder
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
