@@ -1,7 +1,7 @@
-package cmf.commitField.domain.totalCommit.controller;
+package cmf.commitField.domain.commit.totalCommit.controller;
 
-import cmf.commitField.domain.totalCommit.dto.TotalCommitResponseDto;
-import cmf.commitField.domain.totalCommit.service.TotalCommitService;
+import cmf.commitField.domain.commit.totalCommit.dto.TotalCommitResponseDto;
+import cmf.commitField.domain.commit.totalCommit.service.TotalCommitService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
