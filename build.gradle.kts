@@ -69,6 +69,11 @@ dependencies {
 
 	// WebClient
 	implementation ("org.springframework.boot:spring-boot-starter-webflux")
+
+	// Spring Security OAuth2
+	implementation ("org.springframework.security:spring-security-oauth2-client:6.4.2") // Or the version you're using
+	implementation ("org.springframework.security:spring-security-oauth2-core:6.4.2") // Or the version you're using
+
 }
 
 tasks.withType<Test> {

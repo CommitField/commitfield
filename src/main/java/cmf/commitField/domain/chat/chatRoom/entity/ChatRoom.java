@@ -8,7 +8,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -21,8 +20,11 @@ public class ChatRoom extends BaseEntity {
 
     private String title;
     private String tier;
+    private Long roomCreator;
+    //최대 인원 100명
+    private Integer userCountMax;
 
-    private LocalDateTime deletedAt;
+//    private LocalDateTime deletedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

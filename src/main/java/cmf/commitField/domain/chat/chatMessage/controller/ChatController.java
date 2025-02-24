@@ -23,9 +23,9 @@ public class ChatController {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
-    private final SimpMessagingTemplate messagingTemplate; // 특정 채널로 메시지를 보내기 위함
+    private final SimpMessagingTemplate messagingTemplate;
 
-    @MessageMapping("/chat.sendMessage")
+    @MessageMapping("/chat.sendMessage") // 클라이언트에서 "/app/chat.sendMessage"로 보낼 때 처리됨
     public void sendMessage(ChatMessage chatMessage) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
