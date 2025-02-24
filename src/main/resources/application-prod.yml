@@ -31,3 +31,9 @@ logging:
     org.hibernate.orm.jdbc.bind: INFO
     org.hibernate.orm.jdbc.extract: INFO
     org.springframework.transaction.interceptor: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics  # 특정 엔드포인트만 공개

@@ -27,6 +27,10 @@ spring:
         use_sql_comments: true
     websocket:
       enabled: true
+  autoconfigure: # 로컬에서 실행할 때는 Redis와 Session 설정을 제외
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.session.SessionAutoConfiguration
   custom:
     dev:
       cookieDomain: localhost

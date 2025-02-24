@@ -1,4 +1,4 @@
-package cmf.commitField.domain.totalCommit.dto;
+package cmf.commitField.domain.commit.totalCommit.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

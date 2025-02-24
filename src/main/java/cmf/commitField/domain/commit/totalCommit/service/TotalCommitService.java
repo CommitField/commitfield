@@ -1,7 +1,7 @@
-package cmf.commitField.domain.totalCommit.service;
+package cmf.commitField.domain.commit.totalCommit.service;
 
-import cmf.commitField.domain.totalCommit.dto.TotalCommitGraphQLResponse;
-import cmf.commitField.domain.totalCommit.dto.TotalCommitResponseDto;
+import cmf.commitField.domain.commit.totalCommit.dto.TotalCommitGraphQLResponse;
+import cmf.commitField.domain.commit.totalCommit.dto.TotalCommitResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
