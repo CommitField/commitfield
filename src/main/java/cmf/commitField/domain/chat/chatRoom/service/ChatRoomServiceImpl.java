@@ -104,7 +104,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     // 채팅방 전체 조회
     @Override
-//    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public List<ChatRoomDto> getRoomList(Pageable pageable) {
         Page<ChatRoom> all = chatRoomRepository.findAll(pageable);
         return getChatRoomDtos(all);
@@ -147,7 +147,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     // 자신이 생성한 방 리스트 조회
     @Override
-//
+    @Transactional(readOnly = true)
     public List<ChatRoomDto> getUserByRoomList(Long userId, Pageable pageable) {
         Page<ChatRoom> all = chatRoomRepository.findAllByUserId(userId, pageable);
         return getChatRoomDtos(all);
