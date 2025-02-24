@@ -1,7 +1,7 @@
 package cmf.commitField.global.security;
 
-import cmf.commitField.domain.user.entity.CustomOAuth2User;
 import cmf.commitField.domain.user.service.CustomOAuth2UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,6 +11,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -23,56 +28,56 @@ public class SecurityConfig {
 
     @Bean
     protected SecurityFilterChain config(HttpSecurity http) throws Exception {
-        //로그인 관련 설정
         http
-                .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/login")  // 로그인 페이지 지정
-                        .successHandler((request, response, authentication) -> {
-                            // 인증 정보가 SecurityContext에 추가되는 것을 보장
-                            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                            CustomOAuth2User customUser = (CustomOAuth2User) authentication.getPrincipal();
-
-                            // 디버깅: authentication 정보 확인
-                            System.out.println("Authentication: " + authentication);
-                            System.out.println("Principal: " + authentication.getPrincipal());
-
-                            if (authentication != null && authentication.getPrincipal() != null) {
-                                //인가가 있으면 유저 정보를 저장
-                                OAuth2User principal = (OAuth2User) authentication.getPrincipal();
-                                String username = principal.getAttribute("login");
-
-                                // 세션에 사용자 정보를 추가
-                                request.getSession().setAttribute("user", username);
-
-                                response.sendRedirect("/");  // 로그인 성공 후 리다이렉트
-                            } else {
-                                // 인증 실패 시 처리
-                                response.sendRedirect("/login?error=authenticationFailed");
-                            }
-                        })
-                )
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정 추가
+                .csrf(AbstractHttpConfigurer::disable) // CSRF 보호 비활성화
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)  // 세션 정책 설정
                         .invalidSessionUrl("/login?error=invalidSession")  // 세션이 유효하지 않으면 이동할 URL
                         .maximumSessions(1)  // 하나의 계정으로 한 번에 로그인할 수 있도록 제한
                         .expiredUrl("/login?error=sessionExpired")  // 세션 만료 후 이동할 URL 설정
-                );
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")  // 로그인 페이지 지정
+                        .successHandler((request, response, authentication) -> {
+                            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        //로그아웃 관련 설정
-        http
+                            OAuth2User principal = (OAuth2User) authentication.getPrincipal();
+                            String username = principal.getAttribute("login");
+
+                            // 디버깅 로그
+                            System.out.println("OAuth2 로그인 성공: " + username);
+
+                            response.sendRedirect("http://localhost:5173/home");  // 로그인 성공 후 리다이렉트
+                        })
+                )
                 .logout(logout -> logout
-                        .logoutUrl("/logout")  // 로그아웃 URL 설정
-                        .logoutSuccessUrl("/")  // 로그아웃 성공 후 이동할 URL
+                        .logoutUrl("api/logout")  // 로그아웃 URL 설정
                         .invalidateHttpSession(true)  // 로그아웃 시 세션 무효화
                         .clearAuthentication(true)  // 인증 정보 지우기
                         .deleteCookies("JSESSIONID")  // 세션 쿠키 삭제
-                );
-        http
-                .csrf(
-                        AbstractHttpConfigurer::disable  // CSRF 보호 비활성화
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            System.out.println("로그아웃 성공");
+                            response.setStatus(HttpServletResponse.SC_OK);
+                            response.sendRedirect("http://localhost:5173/"); // 로그아웃 후 홈으로 이동
+                        })
                 );
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+
+        // setAllowedOrigins 대신 setAllowedOriginPatterns 사용
+        config.setAllowedOrigins(List.of("http://localhost:5173/"));
+
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }
