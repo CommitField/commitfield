@@ -59,7 +59,10 @@ dependencies {
 
 	//Swagger
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
+
+	//Web Socket
 	implementation("org.java-websocket:Java-WebSocket:1.5.2")
+	implementation ("org.springframework:spring-messaging")
 
 	// JWT
 	implementation("io.jsonwebtoken:jjwt-api:0.12.6")
@@ -68,6 +71,11 @@ dependencies {
 
 	// WebClient
 	implementation ("org.springframework.boot:spring-boot-starter-webflux")
+
+	// Spring Security OAuth2
+	implementation ("org.springframework.security:spring-security-oauth2-client:6.4.2") // Or the version you're using
+	implementation ("org.springframework.security:spring-security-oauth2-core:6.4.2") // Or the version you're using
+
 }
 
 tasks.withType<Test> {
