@@ -2,6 +2,7 @@ package cmf.commitField.domain.season.controller;
 
 import cmf.commitField.domain.season.entity.Season;
 import cmf.commitField.domain.season.service.SeasonService;
+import cmf.commitField.global.scheduler.SeasonScheduler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,11 +14,9 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class ApiV1SeasonController {
     private final SeasonService seasonService;
+    private final SeasonScheduler seasonScheduler;
 
-//    입력 예시
-//    name: 2025 1분기
-//    start: 2025-01-01T00:00:00Z
-//    end: 2025-02-28T23:59:59Z
+    // 예시로 Season 데이터 입력 해보기
     @PostMapping
     public Season createSeason() {
         String name = "2025 1분기";
@@ -30,5 +29,11 @@ public class ApiV1SeasonController {
     @GetMapping("/active")
     public Season getActiveSeason() {
         return seasonService.getActiveSeason();
+    }
+
+    //Season scheduler 테스트 코드
+    @GetMapping("/scheduler")
+    public void testResetSeason() {
+        seasonScheduler.resetSeason();
     }
 }

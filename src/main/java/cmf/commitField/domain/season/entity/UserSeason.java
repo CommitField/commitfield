@@ -1,9 +1,10 @@
 package cmf.commitField.domain.season.entity;
 
-import cmf.commitField.domain.mock.user.entity.MockUser;
+import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.global.jpa.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
@@ -12,12 +13,13 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@SuperBuilder
 @Table(name = "user_season")
 public class UserSeason extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private MockUser user;
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "season_id")
