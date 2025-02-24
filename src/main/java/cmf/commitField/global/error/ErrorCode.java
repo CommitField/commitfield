@@ -31,8 +31,14 @@ public enum ErrorCode {
     TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "토큰이 만료되었습니다."),
 
     // member
-    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다");
+    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다"),
 
+    //chatroom
+    NOT_FOUND_ROOM(HttpStatus.NOT_FOUND, "이미 삭제된 방이거나 방을 찾을 수 없습니다."),
+    ROOM_USER_FULL(HttpStatus.BAD_REQUEST, "방에 사용자가 다 차 있습니다."),
+    NONE_ROOM(HttpStatus.NOT_FOUND, "현재 방이 없습니다."),
+    CHAT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "채팅 전송에 오류가 있습니다."),
+    NOT_ROOM_CREATOR(HttpStatus.FORBIDDEN, "방 생성자가 아닙니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

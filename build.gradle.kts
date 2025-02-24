@@ -40,12 +40,12 @@ dependencies {
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
 
-	//DB
+	// DB
 	runtimeOnly("com.h2database:h2")
 	runtimeOnly("com.mysql:mysql-connector-j")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 
-	//redis
+	// redis
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
 	implementation("org.springframework.session:spring-session-data-redis")
 
@@ -59,7 +59,10 @@ dependencies {
 
 	//Swagger
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
+
+	//Web Socket
 	implementation("org.java-websocket:Java-WebSocket:1.5.2")
+	implementation ("org.springframework:spring-messaging")
 
 	// JWT
 	implementation("io.jsonwebtoken:jjwt-api:0.12.6")
@@ -68,6 +71,16 @@ dependencies {
 
 	// WebClient
 	implementation ("org.springframework.boot:spring-boot-starter-webflux")
+
+
+	// aws
+	implementation(platform("software.amazon.awssdk:bom:2.24.0"))
+	implementation("software.amazon.awssdk:s3")
+
+	// Spring Security OAuth2
+	implementation ("org.springframework.security:spring-security-oauth2-client:6.4.2") // Or the version you're using
+	implementation ("org.springframework.security:spring-security-oauth2-core:6.4.2") // Or the version you're using
+
 }
 
 tasks.withType<Test> {

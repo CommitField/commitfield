@@ -11,15 +11,15 @@ public class AppConfig {
     @Getter
     private static String siteCookieDomain;
 
-    @Value("${custom.site.frontUrl}")
+    @Value("${custom.dev.frontUrl}")
     public void setSiteFrontUrl(String siteFrontUrl) {
         this.siteFrontUrl = siteFrontUrl;
     }
-    @Value("${custom.site.backUrl}")
+    @Value("${custom.dev.backUrl}")
     public void setSiteBackUrl(String siteBackUrl) {
         this.siteBackUrl = siteBackUrl;
     }
-    @Value("${custom.site.cookieDomain}")
+    @Value("${custom.dev.cookieDomain}")
     public void setSiteCookieDomain(String siteCookieDomain) {
         this.siteCookieDomain = siteCookieDomain;
     }

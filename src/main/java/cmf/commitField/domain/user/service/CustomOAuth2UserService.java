@@ -47,4 +47,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         return new CustomOAuth2User(oauthUser, user);
     }
+
+    // id로 user 조회
+    public Optional<User> getUserById(Long userId) {
+        return userRepository.findById(userId);
+    }
 }
