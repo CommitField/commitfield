@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class ChatRoomController {
     private final ChatRoomService chatRoomService;
 
+    //채팅방 생성
     @PostMapping("/room")
     public GlobalResponse<Object> createRoom(
             @RequestBody @Valid ChatRoomRequest chatRoomRequest) {
@@ -32,6 +33,7 @@ public class ChatRoomController {
         }
     }
 
+    //채팅방 입장
     @PostMapping("/room/join/{roomId}")
     public GlobalResponse<Object> joinRoom(@PathVariable Long roomId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
