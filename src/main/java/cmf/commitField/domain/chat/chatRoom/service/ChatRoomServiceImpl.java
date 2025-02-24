@@ -1,6 +1,8 @@
 package cmf.commitField.domain.chat.chatRoom.service;
 
+import cmf.commitField.domain.chat.chatMessage.repository.ChatMessageRepository;
 import cmf.commitField.domain.chat.chatRoom.controller.request.ChatRoomRequest;
+import cmf.commitField.domain.chat.chatRoom.dto.ChatRoomDto;
 import cmf.commitField.domain.chat.chatRoom.entity.ChatRoom;
 import cmf.commitField.domain.chat.chatRoom.repository.ChatRoomRepository;
 import cmf.commitField.domain.chat.userChatRoom.entity.UserChatRoom;
@@ -9,11 +11,16 @@ import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
 import cmf.commitField.global.error.ErrorCode;
 import cmf.commitField.global.exception.CustomException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +29,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
     private final UserChatRoomRepository userChatRoomRepository;
+    private final ChatMessageRepository chatMessageRepository;
 
     @Override
     @Transactional
@@ -29,6 +37,11 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         // 유저정보 조회
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+
+        // findUser가 null이 아닐 경우, User의 ID를 사용
+        if (findUser == null) {
+            throw new CustomException(ErrorCode.NOT_FOUND_USER); // 예외 처리 추가
+        }
 
         // ChatRoom 생성
         ChatRoom chatRoom = ChatRoom.builder()
@@ -74,4 +87,78 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 .build();
         userChatRoomRepository.save(userChatRoom);
     }
+
+    // 방 조회 DTO 변환 메서드 추출
+    private static List<ChatRoomDto> getChatRoomDtos(Page<ChatRoom> all) {
+        List<ChatRoomDto> chatRoomList = new ArrayList<>();
+
+        for (ChatRoom list : all) {
+            ChatRoomDto dto = ChatRoomDto.builder()
+                    .id(list.getId())
+                    .title(list.getTitle())
+                    .currentUserCount((long) list.getUserChatRooms().size())
+                    .userCountMax(list.getUserCountMax())
+                    .build();
+
+            chatRoomList.add(dto);
+        }
+        return chatRoomList;
+    }
+
+    // 채팅방 전체 조회
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChatRoomDto> getRoomList(Pageable pageable) {
+        Page<ChatRoom> all = chatRoomRepository.findAll(pageable);
+        return getChatRoomDtos(all);
+    }
+
+    // 자신이 생성한 방 리스트 조회
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChatRoomDto> getUserByRoomList(Long userId, Pageable pageable) {
+        Page<ChatRoom> all = chatRoomRepository.findAllByUserId(userId, pageable);
+        return getChatRoomDtos(all);
+    }
+
+    // 자신이 참여한 방 리스트 조회
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChatRoomDto> getUserByRoomPartList(Long userId, Pageable pageable) {
+        Page<ChatRoom> allByUserIdAndUserChatRooms = chatRoomRepository
+                .findAllByUserChatRoomsUserId(userId, pageable);
+        return getChatRoomDtos(allByUserIdAndUserChatRooms);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void outRoom(Long userId, Long roomId) {
+        Long roomCreatorId = chatRoomRepository
+                .findChatRoomByRoomCreator(roomId);
+        // 방장이 아니라면
+        if (!Objects.equals(roomCreatorId, userId)) {
+            userChatRoomRepository.deleteUserChatRoomByUserId(userId);
+            return;
+        }
+        // 방장이라면 방 삭제
+        userChatRoomRepository.deleteUserChatRoomByChatRoom_Id(roomId);
+        chatRoomRepository.deleteById(roomId);
+    }
+
+////    chatMsgRepository.deleteById(roomId); 방 삭제 시 채팅도 다 삭제 되어야 함.
+//    @Override
+//    @Transactional
+//    public void deleteRoom(Long userId, Long roomId) {
+//        Long roomCreatorId = chatRoomRepository
+//                .findChatRoomByRoomCreator(roomId);
+//        if (!Objects.equals(roomCreatorId, userId)) {
+//            throw new CustomException(ErrorCode.NOT_ROOM_CREATOR);
+//        }
+//        userChatRoomRepository.deleteUserChatRoomByChatRoom_Id(roomId);
+//        chatRoomRepository.deleteById(roomId);
+    // 채팅 메시지 구현 시, 방 삭제할 때 메시지도 같이 삭제되는 메서드 구현
+//}
+
+
+
 }
