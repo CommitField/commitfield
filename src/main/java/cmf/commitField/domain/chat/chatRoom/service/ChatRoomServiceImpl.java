@@ -110,13 +110,22 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         return getChatRoomDtos(all);
     }
 
-//    // 자신이 참여한 방 리스트 조회
-//    @Override
-//    public List<ChatRoomDto> getUserByRoomPartList(Long userId, Pageable pageable) {
-//        Page<ChatRoom> allByUserIdAndUserChatRooms = chatRoomRepository
-//                .findAllByUserChatRoomsUserId(userId, pageable);
-//        return getChatRoomDtos(allByUserIdAndUserChatRooms);
-//    }
+    // 자신이 생성한 방 리스트 조회
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChatRoomDto> getUserByRoomList(Long userId, Pageable pageable) {
+        Page<ChatRoom> all = chatRoomRepository.findAllByUserId(userId, pageable);
+        return getChatRoomDtos(all);
+    }
+
+    // 자신이 참여한 방 리스트 조회
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChatRoomDto> getUserByRoomPartList(Long userId, Pageable pageable) {
+        Page<ChatRoom> allByUserIdAndUserChatRooms = chatRoomRepository
+                .findAllByUserChatRoomsUserId(userId, pageable);
+        return getChatRoomDtos(allByUserIdAndUserChatRooms);
+    }
 
 //    @Override
 //    @Transactional
@@ -143,15 +152,9 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 //        }
 //        userChatRoomRepository.deleteUserChatRoomByChatRoom_Id(roomId);
 //        chatRoomRepository.deleteById(roomId);
-//        // todo : 채팅 메시지 구현 시, 방 삭제할 때 메시지도 같이 삭제되는 메서드 구현
+    // 채팅 메시지 구현 시, 방 삭제할 때 메시지도 같이 삭제되는 메서드 구현
 
-    // 자신이 생성한 방 리스트 조회
-    @Override
-    @Transactional(readOnly = true)
-    public List<ChatRoomDto> getUserByRoomList(Long userId, Pageable pageable) {
-        Page<ChatRoom> all = chatRoomRepository.findAllByUserId(userId, pageable);
-        return getChatRoomDtos(all);
-    }
+
 
 
 }

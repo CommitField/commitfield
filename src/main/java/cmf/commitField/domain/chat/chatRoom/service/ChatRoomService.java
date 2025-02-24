@@ -18,7 +18,7 @@ public interface ChatRoomService {
     // 자신이 생성한 방 리스트 조회
     List<ChatRoomDto> getUserByRoomList(Long userId, org.springframework.data.domain.Pageable pageable);
 
-//    List<ChatRoomDto> getUserByRoomPartList(Long userId, Pageable pageable);
+    List<ChatRoomDto> getUserByRoomPartList(Long userId, Pageable pageable);
 //
 //    void outRoom(Long userId, Long roomId);
 //

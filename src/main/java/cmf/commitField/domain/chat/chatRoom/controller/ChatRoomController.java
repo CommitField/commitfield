@@ -79,4 +79,54 @@ public class ChatRoomController {
         }
     }
 
+    // 사용자(자신)가 들어가 있는 방 리스트 조회
+    @GetMapping("/room/part")
+    @LoginCheck
+    public ResponseEntity<Object> getByUserRoomPartList(Pageable pageable) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication instanceof OAuth2AuthenticationToken) {
+            CustomOAuth2User principal = (CustomOAuth2User) authentication.getPrincipal();
+            Long userId = principal.getId();  // getId()를 통해 userId를 추출
+            List<ChatRoomDto> userByRoomPartList = chatRoomService.getUserByRoomPartList(userId, pageable);
+            return ResponseEntity.ok().body(userByRoomPartList);
+        } else {
+            throw new IllegalArgumentException("User not logged in.");
+        }
+    }
+
+//    // 채팅방 나가기
+//    @DeleteMapping("/room/out/{roomId}")
+//    @LoginCheck
+//    public ResponseEntity<Object> outRoom(
+//            @PathVariable Long roomId) {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//
+//        if (authentication instanceof OAuth2AuthenticationToken) {
+//            CustomOAuth2User principal = (CustomOAuth2User) authentication.getPrincipal();
+//            Long userId = principal.getId();  // getId()를 통해 userId를 추출
+//            chatRoomService.outRoom(userId, roomId);
+//            return ResponseEntity.ok().body("success");
+//        } else {
+//            throw new IllegalArgumentException("User not logged in.");
+//        }
+//    }
+//
+//    // 채팅방 삭제
+//    @DeleteMapping("/room/delete/{roomId}")
+//    @LoginCheck
+//    public ResponseEntity<Object> deleteRoom(
+//            @PathVariable Long roomId) {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//
+//        if (authentication instanceof OAuth2AuthenticationToken) {
+//            CustomOAuth2User principal = (CustomOAuth2User) authentication.getPrincipal();
+//            Long userId = principal.getId();  // getId()를 통해 userId를 추출
+//            chatRoomService.deleteRoom(userId, roomId);
+//            return ResponseEntity.ok().body("success");
+//        } else {
+//            throw new IllegalArgumentException("User not logged in.");
+//        }
+//    }
+
 }
