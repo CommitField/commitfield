@@ -23,6 +23,13 @@ public class SecurityConfig {
 
     @Bean
     protected SecurityFilterChain config(HttpSecurity http) throws Exception {
+        // 권한 설정
+        http
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/actuator/**").permitAll() // actuator 엔드포인트 허용
+                        .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
+                );
+
         //로그인 관련 설정
         http
                 .oauth2Login(oauth2 -> oauth2
