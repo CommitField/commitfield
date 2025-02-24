@@ -69,8 +69,15 @@ class ServiceManager:
             response = requests.get(url, timeout=5)  # 5초 이내 응답 없으면 예외 발생
             if response.status_code == 200 and response.json().get('status') == 'UP':
                 return True
-        except requests.RequestException:
-            pass
+        except requests.RequestException as e:
+                print(f"Request failed: {e}")
+                # `response` 객체가 존재한다면 응답 본문 출력
+                if 'response' in locals():
+                    print(f"Invalid JSON response: {response.text}")
+                else:
+                    print("No response received.")
+        except ValueError as e:
+            print(f"JSON parsing failed: {e}")
         return False
 
     # 서비스를 업데이트하는 함수

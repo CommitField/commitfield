@@ -1,4 +1,4 @@
-package cmf.commitField.domain.totalCommit.config;
+package cmf.commitField.domain.commit.totalCommit.config;
 
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
