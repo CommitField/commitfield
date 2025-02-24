@@ -5,9 +5,7 @@ import cmf.commitField.domain.chat.userChatRoom.entity.UserChatRoom;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.global.jpa.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
@@ -16,11 +14,13 @@ import java.util.List;
 @Entity
 @SuperBuilder
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatRoom extends BaseEntity {
 
     private String title;
+    private String tier;
 
     private LocalDateTime deletedAt;
 
