@@ -22,11 +22,11 @@ import lombok.experimental.SuperBuilder;
 public class UserPet extends BaseEntity {
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "pet_id")
+    @JoinColumn(name = "pet_id", nullable = false)
     private Pet pet;
 
     private boolean isHatched;  // 부화 여부
