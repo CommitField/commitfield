@@ -30,10 +30,4 @@ public class ApiV1SeasonController {
     public Season getActiveSeason() {
         return seasonService.getActiveSeason();
     }
-
-    //Season scheduler 테스트 코드
-    @GetMapping("/scheduler")
-    public void testResetSeason() {
-        seasonScheduler.resetSeason();
-    }
 }

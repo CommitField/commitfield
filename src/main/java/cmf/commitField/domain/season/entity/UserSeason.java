@@ -18,14 +18,14 @@ import java.time.LocalDateTime;
 public class UserSeason extends BaseEntity {
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "season_id")
+    @JoinColumn(name = "season_id", nullable = false)
     private Season season;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "`rank`")  // 백틱(`)을 사용하여 예약어 문제 해결
+    @Column(name = "`rank`", nullable = false)  // 백틱(`)을 사용하여 예약어 문제 해결
     private Rank rank; // 예: SEED, TREE 등등
 }

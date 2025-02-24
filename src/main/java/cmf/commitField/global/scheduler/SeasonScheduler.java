@@ -6,15 +6,17 @@ import cmf.commitField.domain.season.entity.SeasonStatus;
 import cmf.commitField.domain.season.entity.UserSeason;
 import cmf.commitField.domain.season.repository.SeasonRepository;
 import cmf.commitField.domain.season.repository.UserSeasonRepository;
+import cmf.commitField.domain.season.service.SeasonService;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.List;
 
 @Component
@@ -25,37 +27,38 @@ public class SeasonScheduler {
     private final SeasonRepository seasonRepository;
     private final UserSeasonRepository userSeasonRepository;
     private final UserRepository userRepository;
+    private final SeasonService seasonService;
 
-    @Scheduled(cron = "0 0 0 1 1,4,7,10 *")  // 1월, 4월, 7월, 10월 1일 00:00:00에 실행
-    @Transactional
-    public void resetSeason() {
-        log.info("🕒 시즌 초기화 스케줄러 실행");
+    // 매일 자정마다 시즌 확인 및 생성
+    @Scheduled(cron = "0 0 0 * * *")
+    public void checkAndCreateNewSeason() {
+        LocalDate today = LocalDate.now();
+        String seasonName = today.getYear() + " " + getSeasonName(today.getMonthValue());
 
-        // 현재 활성화된 시즌 종료
-        Season currentSeason = seasonRepository.findByStatus(SeasonStatus.ACTIVE);
-        if (currentSeason != null) {
-            currentSeason.setStatus(SeasonStatus.INACTIVE);
-            seasonRepository.save(currentSeason);
-            log.info("✅ 기존 시즌 '{}' 종료됨", currentSeason.getName());
+        // 현재 활성 시즌 조회
+        Season activeSeason = seasonService.getActiveSeason();
+
+        // 현재 활성 시즌이 없거나, 현재 시즌과 다르면 새로운 시즌 생성
+        if (activeSeason == null || !activeSeason.getName().equals(seasonName)) {
+            LocalDateTime startDate = getSeasonStartDate(today.getYear(), today.getMonth());
+            LocalDateTime endDate = startDate.plusMonths(3).minusSeconds(1);
+
+            //현재 활성 시즌 종료
+            if (activeSeason != null) {
+                activeSeason.setStatus(SeasonStatus.INACTIVE);
+                seasonRepository.save(activeSeason);
+                log.info("✅ 기존 시즌 '{}' 종료됨", activeSeason.getName());
+            }
+
+            Season newSeason = seasonService.createNewSeason(seasonName, startDate, endDate);
+
+            // 모든 유저의 랭크 초기화
+            resetUserRanks(newSeason);
+
+            System.out.println("새 시즌 생성: " + newSeason.getName());
+        } else {
+            System.out.println("이미 활성화된 시즌: " + activeSeason.getName());
         }
-
-        // 새로운 시즌 생성
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime start = now.withDayOfMonth(1);
-        LocalDateTime end = start.plusMonths(3).minusSeconds(1);
-
-        Season newSeason = Season.builder()
-                .name("Season " + start.getYear() + " Q" + ((start.getMonthValue() - 1) / 3 + 1))
-                .startDate(start)
-                .endDate(end)
-                .status(SeasonStatus.ACTIVE)
-                .build();
-
-        seasonRepository.save(newSeason);
-        log.info("🌟 새로운 시즌 '{}' 생성됨 (기간: {} ~ {})", newSeason.getName(), start, end);
-
-        // 모든 유저의 랭크 초기화
-        resetUserRanks(newSeason);
     }
 
     private void resetUserRanks(Season newSeason) {
@@ -70,5 +73,29 @@ public class SeasonScheduler {
             userSeasonRepository.save(userSeason);
             log.info("🔄 유저 '{}'의 시즌 랭크 초기화 ({} -> 씨앗)", user.getNickname(), newSeason.getName());
         }
+    }
+
+    // 월을 기준으로 시즌 이름 정하기 (예: 2025 Spring, 2025 Summer)
+    private String getSeasonName(int month) {
+        if (month >= 3 && month <= 5) {
+            return "Spring"; // 봄
+        } else if (month >= 6 && month <= 8) {
+            return "Summer"; // 여름
+        } else if (month >= 9 && month <= 11) {
+            return "Fall"; // 가을
+        } else {
+            return "Winter"; // 겨울
+        }
+    }
+
+    // 해당 시즌의 시작 날짜 반환
+    private LocalDateTime getSeasonStartDate(int year, Month month) {
+        int startMonth = switch (month) {
+            case MARCH, APRIL, MAY -> 3;  // 봄
+            case JUNE, JULY, AUGUST -> 6; // 여름
+            case SEPTEMBER, OCTOBER, NOVEMBER -> 9; // 가을
+            default -> 12; // 겨울 (12월부터 시작)
+        };
+        return LocalDateTime.of(year, startMonth, 1, 0, 0);
     }
 }
