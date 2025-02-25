@@ -1,5 +1,7 @@
 package cmf.commitField.global.websocket;
 
+import cmf.commitField.global.error.ErrorCode;
+import cmf.commitField.global.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -8,20 +10,28 @@ import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Component
 @Slf4j
 public class ChatWebSocketHandler implements WebSocketHandler {
 
-    private List<WebSocketSession> list = new ArrayList<>();
+    private Map<Long, List<WebSocketSession>> chatRooms = new HashMap<>();
+    // 방의 키값
+
 
     // 연결이 되었을 때
     @Override
     public void afterConnectionEstablished(WebSocketSession session)
             throws Exception {
-        list.add(session);
+//        list.add(session);
+        Long roomId = extractRoomId(session);
+        // roomId 가 없을 경우, session list (new ArrayList)
+        List<WebSocketSession> roomSessions = chatRooms.getOrDefault(roomId, new ArrayList<>());
+        // 세션 추가
+        roomSessions.add(session);
+        // 해당 방의 키값에 session list 추가
+        chatRooms.put(roomId, roomSessions);
         log.info(session + "의 클라이언트 접속");
     }
 
@@ -30,15 +40,22 @@ public class ChatWebSocketHandler implements WebSocketHandler {
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message)
             throws Exception {
         // 메시지 처리 로직
-        String payload = message.getPayload().toString();
-        log.info("전송 메시지 : " + payload);
-        // 받은 메시지 다른 client에게 전달
-        for (WebSocketSession s : list) {
-            try {
-                s.sendMessage(message);
-            } catch (IOException e) {
-                e.printStackTrace();
+        Long roomId = extractRoomId(session);
+        List<WebSocketSession> roomSessions = chatRooms.get(roomId);
+        if (roomSessions != null) {
+            String payload = message.getPayload().toString();
+            log.info("전송 메시지: " + payload);
+
+            for (WebSocketSession msg : roomSessions) {
+                try {
+                    msg.sendMessage(message);
+                } catch (IOException e) {
+                    throw new CustomException(ErrorCode.CHAT_ERROR);
+                }
             }
+        } else {
+            log.info("해당 채팅방에 클라이언트가 없습니다.");
+            throw new CustomException(ErrorCode.NOT_EXIST_CLIENT);
         }
     }
 
@@ -53,7 +70,12 @@ public class ChatWebSocketHandler implements WebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus)
             throws Exception {
-        list.remove(session);
+        Long roomId = extractRoomId(session); // 클라이언트가 속한 채팅방 ID를 추출
+
+        List<WebSocketSession> roomSessions = chatRooms.get(roomId);
+        if (roomSessions != null) {
+            roomSessions.remove(session);
+        }
         log.info(session + "의 클라이언트 접속 해제");
     }
 
@@ -62,5 +84,17 @@ public class ChatWebSocketHandler implements WebSocketHandler {
     @Override
     public boolean supportsPartialMessages() {
         return false;
+    }
+
+    private Long extractRoomId(WebSocketSession session) {
+        Long roomId = null;
+        String uri = Objects.requireNonNull(session.getUri()).toString();
+        String[] uriParts = uri.split("/");
+        // EX_URL) /chat/room/{roomId} 일 때 roomId 추출
+        // 늘어난다면 수 변경해주면.. (일단 임시로 설정)
+        if (uriParts.length >= 3 && uriParts[2].equals("room")) {
+            roomId = Long.valueOf(uriParts[3]);
+        }
+        return roomId;
     }
 }
