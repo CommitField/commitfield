@@ -131,7 +131,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public void outRoom(Long userId, Long roomId) {
         Long roomCreatorId = chatRoomRepository
                 .findChatRoomByRoomCreator(roomId);
@@ -143,21 +143,21 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         // 방장이라면 방 삭제
         userChatRoomRepository.deleteUserChatRoomByChatRoom_Id(roomId);
         chatRoomRepository.deleteById(roomId);
+        //    chatMsgRepository.deleteById(roomId); 방 삭제 시 채팅도 다 삭제
     }
 
-////    chatMsgRepository.deleteById(roomId); 방 삭제 시 채팅도 다 삭제 되어야 함.
-//    @Override
-//    @Transactional
-//    public void deleteRoom(Long userId, Long roomId) {
-//        Long roomCreatorId = chatRoomRepository
-//                .findChatRoomByRoomCreator(roomId);
-//        if (!Objects.equals(roomCreatorId, userId)) {
-//            throw new CustomException(ErrorCode.NOT_ROOM_CREATOR);
-//        }
-//        userChatRoomRepository.deleteUserChatRoomByChatRoom_Id(roomId);
-//        chatRoomRepository.deleteById(roomId);
-    // 채팅 메시지 구현 시, 방 삭제할 때 메시지도 같이 삭제되는 메서드 구현
-//}
+
+    @Override
+    @Transactional
+    public void deleteRoom(Long userId, Long roomId) {
+        Long roomCreatorId = chatRoomRepository
+                .findChatRoomByRoomCreator(roomId);
+        if (!Objects.equals(roomCreatorId, userId)) {
+            throw new CustomException(ErrorCode.NOT_ROOM_CREATOR);
+        }
+        userChatRoomRepository.deleteUserChatRoomByChatRoom_Id(roomId);
+        chatRoomRepository.deleteById(roomId);
+}
 
 
 
