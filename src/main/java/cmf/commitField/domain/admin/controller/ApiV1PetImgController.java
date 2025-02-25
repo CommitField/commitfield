@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/admin/pet")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class ApiV1PetImgController {
     private final S3Client s3Client;
