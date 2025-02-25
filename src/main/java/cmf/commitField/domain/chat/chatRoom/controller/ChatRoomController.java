@@ -110,22 +110,22 @@ public class ChatRoomController {
             throw new IllegalArgumentException("User not logged in.");
         }
     }
-//
-//    // 채팅방 삭제
-//    @DeleteMapping("/room/delete/{roomId}")
-//    @LoginCheck
-//    public ResponseEntity<Object> deleteRoom(
-//            @PathVariable Long roomId) {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//
-//        if (authentication instanceof OAuth2AuthenticationToken) {
-//            CustomOAuth2User principal = (CustomOAuth2User) authentication.getPrincipal();
-//            Long userId = principal.getId();  // getId()를 통해 userId를 추출
-//            chatRoomService.deleteRoom(userId, roomId);
-//            return ResponseEntity.ok().body("success");
-//        } else {
-//            throw new IllegalArgumentException("User not logged in.");
-//        }
-//    }
+
+    // 채팅방 삭제
+    @DeleteMapping("/room/delete/{roomId}")
+    @LoginCheck
+    public GlobalResponse<Object> deleteRoom(
+            @PathVariable Long roomId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication instanceof OAuth2AuthenticationToken) {
+            CustomOAuth2User principal = (CustomOAuth2User) authentication.getPrincipal();
+            Long userId = principal.getId();  // getId()를 통해 userId를 추출
+            chatRoomService.deleteRoom(userId, roomId);
+            return GlobalResponse.success();
+        } else {
+            throw new IllegalArgumentException("User not logged in.");
+        }
+    }
 
 }

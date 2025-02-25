@@ -21,6 +21,6 @@ public interface ChatRoomService {
     List<ChatRoomDto> getUserByRoomPartList(Long userId, Pageable pageable);
 
     void outRoom(Long userId, Long roomId);
-//
-//    void deleteRoom(Long userId, Long roomId);
+
+    void deleteRoom(Long userId, Long roomId);
 }
