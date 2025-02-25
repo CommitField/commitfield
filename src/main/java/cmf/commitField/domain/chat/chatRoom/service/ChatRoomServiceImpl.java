@@ -74,11 +74,16 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
         // 현재 인원 수 조회
         Long currentUserCount = userChatRoomRepository.countByChatRoomId(roomId);
-
         // 채팅방이 꽉 찼을 경우 예외 처리
         if (currentUserCount >= chatRoom.getUserCountMax()) {
             throw new CustomException(ErrorCode.ROOM_USER_FULL);
         }
+
+        // 이미 참여한 방인지 확인
+        if (userChatRoomRepository.existsByChatRoomIdAndUserId(roomId, userId)) {
+            throw new CustomException(ErrorCode.ALREADY_JOIN_ROOM);
+        }
+
 
         // user_chatroom 관계 생성
         UserChatRoom userChatRoom = UserChatRoom.builder()
@@ -131,33 +136,36 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public void outRoom(Long userId, Long roomId) {
         Long roomCreatorId = chatRoomRepository
                 .findChatRoomByRoomCreator(roomId);
         // 방장이 아니라면
         if (!Objects.equals(roomCreatorId, userId)) {
-            userChatRoomRepository.deleteUserChatRoomByUserId(userId);
+            userChatRoomRepository.deleteUserChatRoomByChatRoom_IdAndUserId(roomId, userId);
             return;
         }
         // 방장이라면 방 삭제
         userChatRoomRepository.deleteUserChatRoomByChatRoom_Id(roomId);
         chatRoomRepository.deleteById(roomId);
+        //    chatMsgRepository.deleteById(roomId); 방 삭제 시 채팅도 다 삭제(필요 시)
     }
 
-////    chatMsgRepository.deleteById(roomId); 방 삭제 시 채팅도 다 삭제 되어야 함.
-//    @Override
-//    @Transactional
-//    public void deleteRoom(Long userId, Long roomId) {
-//        Long roomCreatorId = chatRoomRepository
-//                .findChatRoomByRoomCreator(roomId);
-//        if (!Objects.equals(roomCreatorId, userId)) {
-//            throw new CustomException(ErrorCode.NOT_ROOM_CREATOR);
-//        }
-//        userChatRoomRepository.deleteUserChatRoomByChatRoom_Id(roomId);
-//        chatRoomRepository.deleteById(roomId);
-    // 채팅 메시지 구현 시, 방 삭제할 때 메시지도 같이 삭제되는 메서드 구현
-//}
+
+    @Override
+    @Transactional
+    public void deleteRoom(Long userId, Long roomId) {
+        Long roomCreatorId = chatRoomRepository
+                .findChatRoomByRoomCreator(roomId);
+        //방장이 아닐 경우, 삭제 불가
+        if (!Objects.equals(roomCreatorId, userId)) {
+            throw new CustomException(ErrorCode.NOT_ROOM_CREATOR);
+        }
+        //모든 사용자 제거 후 방 삭제
+        userChatRoomRepository.deleteUserChatRoomByChatRoom_Id(roomId);
+        chatRoomRepository.deleteById(roomId);
+//        chatMessageRepository.deleteId(roomId);
+}
 
 
 

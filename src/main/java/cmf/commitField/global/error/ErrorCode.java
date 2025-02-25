@@ -23,6 +23,7 @@ public enum ErrorCode {
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
 
     // Auth
+    LOGIN_REQUIRED(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
     ACCESS_DENIED(HttpStatus.UNAUTHORIZED, "인증되지 않은 유저입니다."),
     SC_FORBIDDEN(HttpStatus.UNAUTHORIZED, "권한이 없는 유저입니다."),
     INVALID_JWT_SIGNATURE(HttpStatus.UNAUTHORIZED, "서명 검증에 실패했습니다." ),
@@ -36,9 +37,15 @@ public enum ErrorCode {
     //chatroom
     NOT_FOUND_ROOM(HttpStatus.NOT_FOUND, "이미 삭제된 방이거나 방을 찾을 수 없습니다."),
     ROOM_USER_FULL(HttpStatus.BAD_REQUEST, "방에 사용자가 다 차 있습니다."),
-    NONE_ROOM(HttpStatus.NOT_FOUND, "현재 방이 없습니다."),
     CHAT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "채팅 전송에 오류가 있습니다."),
-    NOT_ROOM_CREATOR(HttpStatus.FORBIDDEN, "방 생성자가 아닙니다.");
+    NO_ROOM_FOUND(HttpStatus.NOT_FOUND, "채팅방이 없습니다."),
+
+    //user_chatroom
+    NONE_ROOM(HttpStatus.NOT_FOUND, "사용자가 들어가 있는 방이 없습니다."),
+    NOT_ROOM_CREATOR(HttpStatus.FORBIDDEN, "방 생성자가 아닙니다."),
+    USER_CREATED_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자가 생성한 방이 없습니다."),
+    ALREADY_JOIN_ROOM(HttpStatus.BAD_REQUEST, "사용자는 이미 해당 방에 참여하고 있습니다."),
+    NOT_EXIST_CLIENT(HttpStatus.NOT_FOUND, "채팅방에 사용자가 존재하지 않습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
