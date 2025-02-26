@@ -121,7 +121,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     // 자신이 생성한 방 리스트 조회
     @Override
     @Transactional(readOnly = true)
-    public List<ChatRoomDto> getUserByRoomList(Long userId, Pageable pageable) {
+    public List<ChatRoomDto> roomsByCreatorUser(Long userId, Pageable pageable) {
         Page<ChatRoom> all = chatRoomRepository.findAllByUserId(userId, pageable);
         return getChatRoomDtos(all);
     }
@@ -138,10 +138,11 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     @Override
     @Transactional
     public void outRoom(Long userId, Long roomId) {
-        Long roomCreatorId = chatRoomRepository
-                .findChatRoomByRoomCreator(roomId);
+        ChatRoom room = chatRoomRepository
+                .findChatRoomById(roomId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NO_ROOM_FOUND));
         // 방장이 아니라면
-        if (!Objects.equals(roomCreatorId, userId)) {
+        if (!Objects.equals(room.getRoomCreator(), userId)) {
             userChatRoomRepository.deleteUserChatRoomByChatRoom_IdAndUserId(roomId, userId);
             return;
         }
@@ -156,10 +157,11 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     @Override
     @Transactional
     public void deleteRoom(Long userId, Long roomId) {
-        Long roomCreatorId = chatRoomRepository
-                .findChatRoomByRoomCreator(roomId);
+        ChatRoom room = chatRoomRepository
+                .findChatRoomById(roomId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NONE_ROOM));
         //방장이 아닐 경우, 삭제 불가
-        if (!Objects.equals(roomCreatorId, userId)) {
+        if (!Objects.equals(room.getRoomCreator(), userId)) {
             throw new CustomException(ErrorCode.NOT_ROOM_CREATOR);
         }
         //모든 사용자 제거 후 방 삭제
