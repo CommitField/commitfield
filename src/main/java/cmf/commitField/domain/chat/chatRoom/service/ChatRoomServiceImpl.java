@@ -122,8 +122,8 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     @Override
     @Transactional(readOnly = true)
     public List<ChatRoomDto> roomsByCreatorUser(Long userId, Pageable pageable) {
-        Page<ChatRoom> all = chatRoomRepository.findAllByUserId(userId, pageable);
-        return getChatRoomDtos(all);
+        Page<ChatRoom> userCreateAll = chatRoomRepository.findAllByUserId(userId, pageable);
+        return getChatRoomDtos(userCreateAll);
     }
 
     // 자신이 참여한 방 리스트 조회

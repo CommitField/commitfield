@@ -16,7 +16,7 @@ import java.util.*;
 @Slf4j
 public class ChatWebSocketHandler implements WebSocketHandler {
 
-    private Map<Long, List<WebSocketSession>> chatRooms = new HashMap<>();
+    private final Map<Long, List<WebSocketSession>> chatRooms = new HashMap<>();
     // 방의 키값
 
 
@@ -92,8 +92,15 @@ public class ChatWebSocketHandler implements WebSocketHandler {
         String[] uriParts = uri.split("/");
         // EX_URL) /chat/room/{roomId} 일 때 roomId 추출
         // 늘어난다면 수 변경해주면.. (일단 임시로 설정)
-        if (uriParts.length >= 3 && uriParts[2].equals("room")) {
-            roomId = Long.valueOf(uriParts[3]);
+//        if (uriParts.length >= 3 && uriParts[2].equals("room")) {
+//            roomId = Long.valueOf(uriParts[3]);
+        if (uriParts.length >= 4 && uriParts[2].equals("msg")) {
+            return Long.valueOf(uriParts[3]);
+        }
+        // /chat/room/join/{roomId}, /chat/room/out/{roomId}, /chat/room/delete/{roomId} 일 때 roomId 추출
+        if (uriParts.length >= 5 && uriParts[2].equals("room") &&
+                (uriParts[3].equals("join") || uriParts[3].equals("out") || uriParts[3].equals("delete"))) {
+            roomId = Long.valueOf(uriParts[4]);
         }
         return roomId;
     }
