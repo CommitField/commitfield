@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -49,12 +48,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         } else {
             //유저 정보가 db에 존재하지 않을 경우 회원가입 시킨다.
             //유저 생성 및 펫 생성
-            user = new User(username, email, name, avatarUrl, User.Role.USER, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+            user = new User(username, email, name, avatarUrl, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
             userRepository.save(user);
 
-            Random random = new Random(); //펫 랜덤 생성
-            pet = new Pet(random.nextInt(3), "알알", "temp-Url", user); // 변경 필요
+            pet = new Pet("알알", user); // 변경 필요
             petRepository.save(pet);
+
+            user.addPets(pet);
         }
 
         return new CustomOAuth2User(oauthUser, user);
