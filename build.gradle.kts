@@ -40,17 +40,13 @@ dependencies {
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
 
-	// DB
+	//DB
 	runtimeOnly("com.h2database:h2")
 	runtimeOnly("com.mysql:mysql-connector-j")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 
-	// redis
+	//redis
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
-	implementation("org.springframework.session:spring-session-data-redis")
-
-	// actuator
-	implementation("org.springframework.boot:spring-boot-starter-actuator")
 
 	// Security
 	implementation("org.springframework.boot:spring-boot-starter-security")
@@ -59,10 +55,7 @@ dependencies {
 
 	//Swagger
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
-
-	//Web Socket
 	implementation("org.java-websocket:Java-WebSocket:1.5.2")
-	implementation ("org.springframework:spring-messaging")
 
 	// JWT
 	implementation("io.jsonwebtoken:jjwt-api:0.12.6")
@@ -81,6 +74,17 @@ dependencies {
 	implementation ("org.springframework.security:spring-security-oauth2-client:6.4.2") // Or the version you're using
 	implementation ("org.springframework.security:spring-security-oauth2-core:6.4.2") // Or the version you're using
 
+	// Spring Kafka
+	implementation("org.springframework.kafka:spring-kafka")
+
+	// Kafka 클라이언트 (Redpanda와 호환)
+	implementation("org.apache.kafka:kafka-clients:3.6.0")
+
+	// JSON 직렬화/역직렬화 (Kafka 메시지 처리)
+	implementation("com.fasterxml.jackson.core:jackson-databind")
+
+	// 테스트용 Kafka 임베디드 서버 (선택 사항)
+	testImplementation("org.springframework.kafka:spring-kafka-test")
 }
 
 tasks.withType<Test> {
