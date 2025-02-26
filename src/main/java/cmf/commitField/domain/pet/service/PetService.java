@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -26,8 +27,8 @@ public class PetService {
         if (imageFile != null && !imageFile.isEmpty()) {
             imageUrl = s3Service.uploadFile(imageFile, "pet-images");
         }
-
-        Pet pet = new Pet(name, imageUrl);
+        Random random = new Random();
+        Pet pet = new Pet(random.nextInt(3), name, imageUrl);
         return petRepository.save(pet);
     }
 
