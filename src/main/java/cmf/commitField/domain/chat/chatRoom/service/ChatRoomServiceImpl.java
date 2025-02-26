@@ -146,9 +146,10 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             return;
         }
         // 방장이라면 방 삭제
+        chatMessageRepository.deleteChatMsgByChatRoom_Id(roomId); //방 삭제 시 채팅도 다 삭제(필요 시)
         userChatRoomRepository.deleteUserChatRoomByChatRoom_Id(roomId);
         chatRoomRepository.deleteById(roomId);
-        //    chatMsgRepository.deleteById(roomId); 방 삭제 시 채팅도 다 삭제(필요 시)
+
     }
 
 
@@ -162,9 +163,10 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             throw new CustomException(ErrorCode.NOT_ROOM_CREATOR);
         }
         //모든 사용자 제거 후 방 삭제
+        chatMessageRepository.deleteChatMsgByChatRoom_Id(roomId);
         userChatRoomRepository.deleteUserChatRoomByChatRoom_Id(roomId);
         chatRoomRepository.deleteById(roomId);
-//        chatMessageRepository.deleteId(roomId);
+
 }
 
 

@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class ChatMessage extends BaseEntity {
+public class ChatMsg extends BaseEntity {
 
     private String message;
 

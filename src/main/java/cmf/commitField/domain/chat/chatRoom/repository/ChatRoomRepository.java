@@ -21,6 +21,8 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value ="1000")})
     Optional<ChatRoom> findById(Long aLong);
 
+    Optional<ChatRoom> findChatRoomById(Long id);
+
     @Query("select c from ChatRoom c where c.roomCreator=:userId")
     Page<ChatRoom> findAllByUserId(@Param("userId")Long userId,Pageable pageable);
 
@@ -28,4 +30,5 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
     @Query(value = "SELECT ROOM_CREATOR FROM chat_room WHERE ID = ?", nativeQuery = true)
     Long findChatRoomByRoomCreator(Long roomId);
+
 }
