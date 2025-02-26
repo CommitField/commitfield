@@ -19,7 +19,6 @@ public class RedisConfig {
     @Value("${spring.redis.port}")
     public int port;
 
-
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
