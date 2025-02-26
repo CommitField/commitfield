@@ -40,6 +40,7 @@ public enum ErrorCode {
     ROOM_USER_FULL(HttpStatus.BAD_REQUEST, "방에 사용자가 다 차 있습니다."),
     CHAT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "채팅 전송에 오류가 있습니다."),
     NO_ROOM_FOUND(HttpStatus.NOT_FOUND, "채팅방이 없습니다."),
+    NO_ROOM(HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),
 
     //user_chatroom
     NONE_ROOM(HttpStatus.NOT_FOUND, "사용자가 들어가 있는 방이 없습니다."),

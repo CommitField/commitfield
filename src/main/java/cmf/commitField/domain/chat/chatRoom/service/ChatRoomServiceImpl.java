@@ -159,7 +159,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     public void deleteRoom(Long userId, Long roomId) {
         ChatRoom room = chatRoomRepository
                 .findChatRoomById(roomId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NONE_ROOM));
+                .orElseThrow(() -> new CustomException(ErrorCode.NO_ROOM));
         //방장이 아닐 경우, 삭제 불가
         if (!Objects.equals(room.getRoomCreator(), userId)) {
             throw new CustomException(ErrorCode.NOT_ROOM_CREATOR);
