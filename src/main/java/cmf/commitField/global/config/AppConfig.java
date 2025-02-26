@@ -23,4 +23,5 @@ public class AppConfig {
     public void setSiteCookieDomain(String siteCookieDomain) {
         this.siteCookieDomain = siteCookieDomain;
     }
+
 }
