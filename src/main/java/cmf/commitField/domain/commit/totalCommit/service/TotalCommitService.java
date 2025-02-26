@@ -32,14 +32,53 @@ public class TotalCommitService {
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .build();
 
-    // 기존 메서드
+//    // 기존 메서드
+//    public TotalCommitResponseDto getTotalCommitCount(String username) {
+//        Map<String, String> requestBody = Map.of(
+//                "query", String.format(
+//                        "query { user(login: \"%s\") { contributionsCollection { totalCommitContributions restrictedContributionsCount } } }",
+//                        username
+//                )
+//        );
+//
+//        TotalCommitGraphQLResponse response = webClient.post()
+//                .header("Authorization", "bearer " + PAT)
+//                .bodyValue(requestBody)
+//                .retrieve()
+//                .bodyToMono(TotalCommitGraphQLResponse.class)
+//                .block();
+//
+//        TotalCommitGraphQLResponse.ContributionsCollection contributions =
+//                response.getData().getUser().getContributionsCollection();
+//
+//        return new TotalCommitResponseDto(
+//                contributions.getTotalCommitContributions(),
+//                contributions.getRestrictedContributionsCount()
+//        );
+//        // streak 계산 부분 추가
+//        List<LocalDate> commitDates = extractCommitDates(contributions.getContributionCalendar());
+//        StreakResult streaks = calculateStreaks(commitDates);
+//
+//        return new TotalCommitResponseDto(
+//                contributions.getTotalCommitContributions(),
+//                contributions.getRestrictedContributionsCount(),
+//                streaks.currentStreak,
+//                streaks.maxStreak
+//        );
+//    }
+
+    // 연속 커밋 수 정보도 같이 반환
     public TotalCommitResponseDto getTotalCommitCount(String username) {
-        Map<String, String> requestBody = Map.of(
-                "query", String.format(
-                        "query { user(login: \"%s\") { contributionsCollection { totalCommitContributions restrictedContributionsCount } } }",
-                        username
-                )
+        // GraphQL 쿼리를 수정하여 contributionCalendar도 함께 요청
+        String query = String.format(
+                "query { user(login: \"%s\") { contributionsCollection { " +
+                        "totalCommitContributions restrictedContributionsCount " +
+                        "contributionCalendar { totalContributions weeks { contributionDays { contributionCount date } } } " +
+                        "} } }",
+                username
         );
+
+        Map<String, String> requestBody = Map.of("query", query);
 
         TotalCommitGraphQLResponse response = webClient.post()
                 .header("Authorization", "bearer " + PAT)
@@ -48,12 +87,32 @@ public class TotalCommitService {
                 .bodyToMono(TotalCommitGraphQLResponse.class)
                 .block();
 
+        if (response == null || response.getData() == null || response.getData().getUser() == null) {
+            throw new RuntimeException("Failed to fetch GitHub data");
+        }
+
         TotalCommitGraphQLResponse.ContributionsCollection contributions =
                 response.getData().getUser().getContributionsCollection();
 
+        // streak 기본값 설정
+        int currentStreak = 0;
+        int maxStreak = 0;
+
+        // contributionCalendar가 존재하는 경우에만 streak 계산
+        if (contributions.getContributionCalendar() != null) {
+            List<LocalDate> commitDates = extractCommitDates(contributions.getContributionCalendar());
+            if (!commitDates.isEmpty()) {
+                StreakResult streaks = calculateStreaks(commitDates);
+                currentStreak = streaks.currentStreak;
+                maxStreak = streaks.maxStreak;
+            }
+        }
+
         return new TotalCommitResponseDto(
                 contributions.getTotalCommitContributions(),
-                contributions.getRestrictedContributionsCount()
+                contributions.getRestrictedContributionsCount(),
+                currentStreak,
+                maxStreak
         );
     }
 
