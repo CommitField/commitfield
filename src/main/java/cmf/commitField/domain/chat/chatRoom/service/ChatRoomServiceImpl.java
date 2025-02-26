@@ -121,9 +121,9 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     // 자신이 생성한 방 리스트 조회
     @Override
     @Transactional(readOnly = true)
-    public List<ChatRoomDto> getUserByRoomList(Long userId, Pageable pageable) {
-        Page<ChatRoom> all = chatRoomRepository.findAllByUserId(userId, pageable);
-        return getChatRoomDtos(all);
+    public List<ChatRoomDto> roomsByCreatorUser(Long userId, Pageable pageable) {
+        Page<ChatRoom> userCreateAll = chatRoomRepository.findAllByUserId(userId, pageable);
+        return getChatRoomDtos(userCreateAll);
     }
 
     // 자신이 참여한 방 리스트 조회
@@ -138,33 +138,37 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     @Override
     @Transactional
     public void outRoom(Long userId, Long roomId) {
-        Long roomCreatorId = chatRoomRepository
-                .findChatRoomByRoomCreator(roomId);
+        ChatRoom room = chatRoomRepository
+                .findChatRoomById(roomId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NO_ROOM_FOUND));
         // 방장이 아니라면
-        if (!Objects.equals(roomCreatorId, userId)) {
+        if (!Objects.equals(room.getRoomCreator(), userId)) {
             userChatRoomRepository.deleteUserChatRoomByChatRoom_IdAndUserId(roomId, userId);
             return;
         }
         // 방장이라면 방 삭제
+        chatMessageRepository.deleteChatMsgByChatRoom_Id(roomId); //방 삭제 시 채팅도 다 삭제(필요 시)
         userChatRoomRepository.deleteUserChatRoomByChatRoom_Id(roomId);
         chatRoomRepository.deleteById(roomId);
-        //    chatMsgRepository.deleteById(roomId); 방 삭제 시 채팅도 다 삭제(필요 시)
+
     }
 
 
     @Override
     @Transactional
     public void deleteRoom(Long userId, Long roomId) {
-        Long roomCreatorId = chatRoomRepository
-                .findChatRoomByRoomCreator(roomId);
+        ChatRoom room = chatRoomRepository
+                .findChatRoomById(roomId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NO_ROOM));
         //방장이 아닐 경우, 삭제 불가
-        if (!Objects.equals(roomCreatorId, userId)) {
+        if (!Objects.equals(room.getRoomCreator(), userId)) {
             throw new CustomException(ErrorCode.NOT_ROOM_CREATOR);
         }
         //모든 사용자 제거 후 방 삭제
+        chatMessageRepository.deleteChatMsgByChatRoom_Id(roomId);
         userChatRoomRepository.deleteUserChatRoomByChatRoom_Id(roomId);
         chatRoomRepository.deleteById(roomId);
-//        chatMessageRepository.deleteId(roomId);
+
 }
 
 

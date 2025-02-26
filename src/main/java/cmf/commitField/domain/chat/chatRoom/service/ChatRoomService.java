@@ -16,7 +16,7 @@ public interface ChatRoomService {
     List<ChatRoomDto> getRoomList(Pageable pageable);
 
     // 자신이 생성한 방 리스트 조회
-    List<ChatRoomDto> getUserByRoomList(Long userId, Pageable pageable);
+    List<ChatRoomDto> roomsByCreatorUser(Long userId, Pageable pageable);
 
     List<ChatRoomDto> getUserByRoomPartList(Long userId, Pageable pageable);
 

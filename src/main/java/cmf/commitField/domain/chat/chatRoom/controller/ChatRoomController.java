@@ -78,7 +78,7 @@ public class ChatRoomController {
             CustomOAuth2User principal = (CustomOAuth2User) authentication.getPrincipal();
             Long userId = principal.getId();  // getId()를 통해 userId를 추출
 
-            List<ChatRoomDto> userByRoomList = chatRoomService.getUserByRoomList(userId, pageable);
+            List<ChatRoomDto> userByRoomList = chatRoomService.roomsByCreatorUser(userId, pageable);
 
             // 방 리스트가 비어 있으면 notFound 응답 반환
             if (userByRoomList.isEmpty()) {
