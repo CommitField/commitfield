@@ -7,23 +7,20 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
-
-import java.time.LocalDateTime;
 
 @Entity
 @SuperBuilder
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-public class ChatMessage extends BaseEntity {
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+public class ChatMsg extends BaseEntity {
 
     private String message;
 
-    private LocalDateTime sendTime;
+//    private LocalDateTime sendTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

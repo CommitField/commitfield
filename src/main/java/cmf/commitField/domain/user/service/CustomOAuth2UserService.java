@@ -8,6 +8,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 
@@ -41,10 +42,15 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user.setAvatarUrl(avatarUrl);
             user.setEmail(email);  // GitHub에서 이메일이 변경될 수도 있으니 업데이트\
         } else {
-            user = new User(username, email, name, avatarUrl, User.Role.USER, null, null, null);
+            user = new User(username, email, name, avatarUrl, User.Role.USER, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
             userRepository.save(user);
         }
 
         return new CustomOAuth2User(oauthUser, user);
+    }
+
+    // id로 user 조회
+    public Optional<User> getUserById(Long userId) {
+        return userRepository.findById(userId);
     }
 }
