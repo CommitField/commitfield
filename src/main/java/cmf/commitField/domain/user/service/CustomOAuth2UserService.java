@@ -64,4 +64,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     public Optional<User> getUserById(Long userId) {
         return userRepository.findById(userId);
     }
+
+    // email로 user 조회
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
 }
