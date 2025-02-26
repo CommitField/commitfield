@@ -35,7 +35,6 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-	implementation ("org.springframework.kafka:spring-kafka") // Kafka 통합
 
 	// Lombok
 	compileOnly("org.projectlombok:lombok")
@@ -48,10 +47,6 @@ dependencies {
 
 	//redis
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
-	implementation("org.springframework.session:spring-session-data-redis")
-
-	// actuator
-	implementation("org.springframework.boot:spring-boot-starter-actuator")
 
 	// Security
 	implementation("org.springframework.boot:spring-boot-starter-security")
@@ -69,6 +64,16 @@ dependencies {
 
 	// WebClient
 	implementation ("org.springframework.boot:spring-boot-starter-webflux")
+
+
+	// aws
+	implementation(platform("software.amazon.awssdk:bom:2.24.0"))
+	implementation("software.amazon.awssdk:s3")
+
+	// Spring Security OAuth2
+	implementation ("org.springframework.security:spring-security-oauth2-client:6.4.2") // Or the version you're using
+	implementation ("org.springframework.security:spring-security-oauth2-core:6.4.2") // Or the version you're using
+
 }
 
 tasks.withType<Test> {

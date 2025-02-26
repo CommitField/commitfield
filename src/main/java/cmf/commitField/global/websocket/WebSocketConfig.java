@@ -7,7 +7,8 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 @Configuration
-@EnableWebSocketMessageBroker
+@RequiredArgsConstructor
+@EnableWebSocketMessageBroker  // STOMP를 사용하기 위해 변경
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
@@ -25,9 +26,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        // 메시지 송신 prefix
+        // 클라이언트가 메시지를 보낼 때 사용할 경로(prefix)
         registry.setApplicationDestinationPrefixes("/app");
-        // 메시지 수신 prefix
+
+        // 메시지를 구독하는 경로(prefix)
         registry.enableSimpleBroker("/sub", "/topic", "/queue");
     }
 }
