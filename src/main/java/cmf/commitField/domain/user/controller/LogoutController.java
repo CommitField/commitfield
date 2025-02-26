@@ -15,13 +15,12 @@ public class LogoutController {
     public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
         // 세션 만료
         request.getSession().invalidate();
-
+        System.out.println("로그아웃 성공!");
         // 세션 쿠키 삭제
         Cookie cookie = new Cookie("JSESSIONID", null);
         cookie.setPath("/");  // 기본 경로 설정
         cookie.setMaxAge(0);  // 쿠키 만료 시간 설정
         response.addCookie(cookie);
-
         // CORS 대응을 위해 상태 코드만 반환하고, 프론트에서 리디렉션 처리하도록 함
         response.setStatus(HttpServletResponse.SC_OK);
     }
