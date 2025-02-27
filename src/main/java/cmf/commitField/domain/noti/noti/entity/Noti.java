@@ -3,6 +3,8 @@ package cmf.commitField.domain.noti.noti.entity;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.global.jpa.BaseEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,10 +21,15 @@ import static lombok.AccessLevel.PROTECTED;
 @Getter
 @Setter
 public class Noti extends BaseEntity {
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "actor_id", nullable = false)
     private User actor;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "receiver_id", nullable = false)
     private User receiver;
+
     private String relTypeCode;
     private long relId;
     private String typeCode;
