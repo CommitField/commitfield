@@ -35,4 +35,9 @@ public class BaseEntity {
     @CreatedDate
     @Getter
     private LocalDateTime modifiedAt;
+
+    public String getModelName() {
+        String simpleName = this.getClass().getSimpleName();
+        return Character.toLowerCase(simpleName.charAt(0)) + simpleName.substring(1);
+    }
 }
