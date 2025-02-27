@@ -1,5 +1,6 @@
 package cmf.commitField.domain.user.service;
 
+import cmf.commitField.domain.commit.sinceCommit.service.CommitCacheService;
 import cmf.commitField.domain.pet.entity.Pet;
 import cmf.commitField.domain.pet.repository.PetRepository;
 import cmf.commitField.domain.user.entity.CustomOAuth2User;
@@ -20,6 +21,7 @@ import java.util.Optional;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final UserRepository userRepository;
     private final PetRepository petRepository;
+    private final CommitCacheService commitCacheService;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) {
@@ -55,6 +57,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             petRepository.save(pet);
 
             user.addPets(pet);
+
+            // 회원가입한 유저는 커밋 기록에 상관없이 Redis에 입력해둔다.
+            commitCacheService.updateCachedCommitCount(user.getUsername(),0);
         }
 
         return new CustomOAuth2User(oauthUser, user);
