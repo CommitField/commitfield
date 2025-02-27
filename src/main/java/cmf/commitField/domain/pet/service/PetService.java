@@ -2,6 +2,7 @@ package cmf.commitField.domain.pet.service;
 
 import cmf.commitField.domain.pet.entity.Pet;
 import cmf.commitField.domain.pet.repository.PetRepository;
+import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.global.aws.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -19,15 +21,15 @@ public class PetService {
     private final S3Service s3Service;
 
     // 새로운 펫 생성
-    public Pet createPet(String name, MultipartFile imageFile) throws IOException {
+    public Pet createPet(String name, MultipartFile imageFile, User user) throws IOException {
 
         // ✅ S3 업로드 로직 추가
         String imageUrl = null;
         if (imageFile != null && !imageFile.isEmpty()) {
             imageUrl = s3Service.uploadFile(imageFile, "pet-images");
         }
-
-        Pet pet = new Pet(name, imageUrl);
+        Random random = new Random();
+        Pet pet = new Pet(random.nextInt(3), name, imageUrl, user);
         return petRepository.save(pet);
     }
 
