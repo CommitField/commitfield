@@ -47,6 +47,9 @@ dependencies {
 
 	//redis
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
+	implementation ("org.redisson:redisson-spring-boot-starter:3.42.0") // redis message broker(lock)
+	implementation ("org.springframework.session:spring-session-data-redis")
+
 
 	// Security
 	implementation("org.springframework.boot:spring-boot-starter-security")
