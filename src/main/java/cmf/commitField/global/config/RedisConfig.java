@@ -36,6 +36,7 @@ public class RedisConfig {
         configuration.setPort(port);
         return new LettuceConnectionFactory(configuration);
     }
+
     @Bean
     public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
         StringRedisTemplate template = new StringRedisTemplate();

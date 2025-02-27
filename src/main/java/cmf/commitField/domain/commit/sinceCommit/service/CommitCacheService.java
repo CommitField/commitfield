@@ -14,9 +14,10 @@ public class CommitCacheService {
     private final StringRedisTemplate redisTemplate;
 
     public Integer getCachedCommitCount(String username) {
-        String key = "commit:" + username;
-        String value = redisTemplate.opsForValue().get(key);
-        return value != null ? Integer.parseInt(value) : null;
+        log.info("Redis Template: {}", redisTemplate);
+        String key = "commit:" + username; // Redis 키 생성 (ex: commit:hongildong)
+        String value = redisTemplate.opsForValue().get(key); // Redis에서 값 가져오기
+        return value != null ? Integer.parseInt(value) : null; // 값이 있으면 정수 변환, 없으면 null 반환
     }
 
     public void updateCachedCommitCount(String username, int count) {
