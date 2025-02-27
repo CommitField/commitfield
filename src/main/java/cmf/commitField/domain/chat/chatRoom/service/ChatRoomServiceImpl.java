@@ -4,6 +4,7 @@ import cmf.commitField.domain.chat.chatMessage.repository.ChatMessageRepository;
 import cmf.commitField.domain.chat.chatRoom.controller.request.ChatRoomRequest;
 import cmf.commitField.domain.chat.chatRoom.controller.request.ChatRoomUpdateRequest;
 import cmf.commitField.domain.chat.chatRoom.dto.ChatRoomDto;
+import cmf.commitField.domain.chat.chatRoom.dto.ChatRoomUserDto;
 import cmf.commitField.domain.chat.chatRoom.entity.ChatRoom;
 import cmf.commitField.domain.chat.chatRoom.repository.ChatRoomRepository;
 import cmf.commitField.domain.chat.userChatRoom.entity.UserChatRoom;
@@ -216,6 +217,37 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 .findChatRoomById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NONE_ROOM));
 
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChatRoomUserDto> getRoomUsers(Long roomId, Long userId) {
+        // 방 정보
+        getChatRoom(roomId);
+        // 로그인 유저 정보
+        getUser(userId);
+        // 방에 있는 유저 정보
+        List<UserChatRoom> userIds = userChatRoomRepository
+                .findUserChatRoomByChatRoomId(roomId);
+        // 방에 있지 않은 유저는 볼 수 없음
+        List<Long> userIdList = new ArrayList<>();
+        for (UserChatRoom chatRoom : userIds) {
+            Long id = chatRoom.getUser().getId();
+            userIdList.add(id);
+        }
+        if (!userIdList.contains(userId)) {
+            throw new CustomException(ErrorCode.NOT_ROOM_MEMBER);
+        }
+        // DTO 담기
+        List<ChatRoomUserDto> chatRoomUserDtos = new ArrayList<>();
+        for (UserChatRoom userChatRoom : userIds) {
+            ChatRoomUserDto build = ChatRoomUserDto.builder()
+                    .nickname(userChatRoom.getUser().getNickname())
+                    .status(userChatRoom.getUser().getStatus())
+                    .build();
+            chatRoomUserDtos.add(build);
+        }
+        return chatRoomUserDtos;
     }
 
 }

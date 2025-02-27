@@ -49,7 +49,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         } else {
             //유저 정보가 db에 존재하지 않을 경우 회원가입 시킨다.
             //유저 생성 및 펫 생성
-            user = new User(username, email, name, avatarUrl, User.Role.USER, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+            user = new User(username, email, name, avatarUrl,true, User.Role.USER, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
             userRepository.save(user);
 
             Random random = new Random(); //펫 랜덤 생성

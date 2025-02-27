@@ -25,6 +25,7 @@ public class User extends BaseEntity {
     private String email; // 이메일
     private String nickname; // 닉네임
     private String avatarUrl; //아바타
+    private Boolean status; //로그인 true, 로그아웃 false
 
     @Enumerated(EnumType.STRING)  // DB에 저장될 때 String 형태로 저장됨
     private Role role;

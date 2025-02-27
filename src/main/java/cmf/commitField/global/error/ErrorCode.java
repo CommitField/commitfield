@@ -55,6 +55,7 @@ public enum ErrorCode {
     USER_CREATED_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자가 생성한 방이 없습니다."),
     ALREADY_JOIN_ROOM(HttpStatus.BAD_REQUEST, "사용자는 이미 해당 방에 참여하고 있습니다."),
     NOT_EXIST_CLIENT(HttpStatus.NOT_FOUND, "채팅방에 사용자가 존재하지 않습니다."),
+    NOT_ROOM_MEMBER(HttpStatus.FORBIDDEN, "채팅방에 속한 유저가 아닙니다."),
 
     //chatMessage
     EMPTY_MESSAGE(HttpStatus.BAD_REQUEST, "채팅 메시지는 공백으로 보낼 수 없습니다."),
