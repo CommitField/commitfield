@@ -23,7 +23,7 @@ public class CommitScheduler {
 
     @Scheduled(fixedRate = 60000) // 1분마다 실행
     public void updateUserCommits() {
-        List<User> activeUsers = userRepository.findAll(); // 💫 변경 필요, 차후 active 상태인 user만 찾게끔 변경해야 함.
+        List<User> activeUsers = userRepository.findActiveUser(); // 💫 변경 필요, 차후 active 상태인 user만 찾게끔 변경해야 함.
 
         for (User user : activeUsers) {
             Integer cachedCount = commitCacheService.getCachedCommitCount(user.getUsername());

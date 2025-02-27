@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,7 @@ public class User extends BaseEntity {
     private String email; // 이메일
     private String nickname; // 닉네임
     private String avatarUrl; //아바타
+    private LocalDateTime lastCommitted; // 마지막 커밋 시간
 
     @Enumerated(EnumType.STRING)  // DB에 저장될 때 String 형태로 저장됨
     private Role role;
@@ -59,5 +61,6 @@ public class User extends BaseEntity {
         this.chatRooms = cr;
         this.userChatRooms = ucr;
         this.chatMsgs = cmsg;
+        this.lastCommitted = LocalDateTime.now();
     }
 }
