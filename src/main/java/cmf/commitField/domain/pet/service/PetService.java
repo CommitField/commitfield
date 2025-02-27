@@ -29,7 +29,7 @@ public class PetService {
             imageUrl = s3Service.uploadFile(imageFile, "pet-images");
         }
         Random random = new Random();
-        Pet pet = new Pet(random.nextInt(3), name, imageUrl, user);
+        Pet pet = new Pet(name, user);
         return petRepository.save(pet);
     }
 
