@@ -1,7 +1,9 @@
 package cmf.commitField.domain.chat.chatRoom.controller;
 
 import cmf.commitField.domain.chat.chatRoom.controller.request.ChatRoomRequest;
+import cmf.commitField.domain.chat.chatRoom.controller.request.ChatRoomUpdateRequest;
 import cmf.commitField.domain.chat.chatRoom.dto.ChatRoomDto;
+import cmf.commitField.domain.chat.chatRoom.dto.ChatRoomUserDto;
 import cmf.commitField.domain.chat.chatRoom.service.ChatRoomService;
 import cmf.commitField.domain.user.entity.CustomOAuth2User;
 import cmf.commitField.global.error.ErrorCode;
@@ -113,6 +115,23 @@ public class ChatRoomController {
         }
     }
 
+    @PutMapping("/room/update/{roomId}")
+    @LoginCheck
+    public GlobalResponse<Object> updateRoom(
+            @PathVariable Long roomId,
+            @RequestBody @Valid ChatRoomUpdateRequest chatRoomUpdateRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication instanceof OAuth2AuthenticationToken) {
+            CustomOAuth2User principal = (CustomOAuth2User) authentication.getPrincipal();
+            Long userId = principal.getId();  // getId()를 통해 userId를 추출
+            chatRoomService.updateRoom(roomId, chatRoomUpdateRequest, userId);  // userId를 전달
+            return GlobalResponse.success("채팅방을 업데이트 했습니다.");
+        } else {
+            throw new IllegalArgumentException("로그인 후에 이용해 주세요.");
+        }
+    }
+
     // 채팅방 나가기
     @DeleteMapping("/room/out/{roomId}")
     @LoginCheck
@@ -146,5 +165,24 @@ public class ChatRoomController {
             throw new IllegalArgumentException("로그인 후에 이용해 주세요.");
         }
     }
+
+    //채팅방 유저 목록 조회
+    @GetMapping("/room/users/{roomId}")
+    @LoginCheck
+    public GlobalResponse<Object> getRoomUsers(
+            @PathVariable Long roomId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication instanceof OAuth2AuthenticationToken) {
+            CustomOAuth2User principal = (CustomOAuth2User) authentication.getPrincipal();
+            Long userId = principal.getId();  // Extract userId from the principal
+            List<ChatRoomUserDto> roomUsers = chatRoomService.getRoomUsers(roomId, userId);
+            return GlobalResponse.success(roomUsers);
+        } else {
+            throw new IllegalArgumentException("로그인 후에 이용해 주세요.");
+        }
+    }
+
+
 
 }

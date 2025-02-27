@@ -27,6 +27,7 @@ public class User extends BaseEntity {
     private String email; // 이메일
     private String nickname; // 닉네임
     private String avatarUrl; //아바타
+    private Boolean status; //로그인 true, 로그아웃 false
     private LocalDateTime lastCommitted; // 마지막 커밋 시간
 
     @Enumerated(EnumType.STRING)  // DB에 저장될 때 String 형태로 저장됨
@@ -48,19 +49,20 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Pet> pets = new ArrayList<>();
 
-    public void addPets(Pet pet){
-        pets.add(pet);
-    }
-
-    public User(String username, String email, String nickname, String avatarUrl, List<ChatRoom> cr, List<UserChatRoom> ucr, List<ChatMsg> cmsg){
+    public User(String username, String email, String nickname, String avatarUrl, Boolean status, List<ChatRoom> cr, List<UserChatRoom> ucr, List<ChatMsg> cmsg){
         this.username=username;
         this.email=email;
         this.nickname=nickname;
         this.avatarUrl=avatarUrl;
+        this.status= status;
         this.role = Role.USER;
         this.chatRooms = cr;
         this.userChatRooms = ucr;
         this.chatMsgs = cmsg;
         this.lastCommitted = LocalDateTime.now();
+    }
+
+    public void addPets(Pet pet){
+        pets.add(pet);
     }
 }

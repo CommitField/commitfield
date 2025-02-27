@@ -6,6 +6,8 @@ import cmf.commitField.domain.pet.repository.PetRepository;
 import cmf.commitField.domain.user.entity.CustomOAuth2User;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -21,6 +23,7 @@ import java.util.Optional;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final UserRepository userRepository;
     private final PetRepository petRepository;
+    private final HttpServletRequest request;  // HttpServletRequest를 주입 받음.
     private final CommitCacheService commitCacheService;
 
     @Override
@@ -47,10 +50,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user = existingUser.get();
             user.setAvatarUrl(avatarUrl);
             user.setEmail(email);  // GitHub에서 이메일이 변경될 수도 있으니 업데이트
+            user.setStatus(true);  // 로그인 시 status를 true로 설정
+            userRepository.save(user);  // 저장
         } else {
             //유저 정보가 db에 존재하지 않을 경우 회원가입 시킨다.
             //유저 생성 및 펫 생성
-            user = new User(username, email, name, avatarUrl, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+            user = new User(username, email, name, avatarUrl,true, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
             userRepository.save(user);
 
             pet = new Pet("알알", user); // 변경 필요
@@ -62,6 +67,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             commitCacheService.updateCachedCommitCount(user.getUsername(),0);
         }
 
+        // 세션에 사용자 정보 저장
+        HttpSession session = request.getSession();
+        session.setAttribute("username", user.getUsername());
         return new CustomOAuth2User(oauthUser, user);
     }
 
