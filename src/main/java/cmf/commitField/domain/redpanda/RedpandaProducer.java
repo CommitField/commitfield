@@ -21,7 +21,7 @@ public class RedpandaProducer {
 
     // 커밋 업데이트 전송 메서드
     public void sendCommitUpdate(String username, long commitCount) {
-        String message = String.format("{\"user\": \"%s\", \"commits\": %d}", username, commitCount);
+        String message = String.format("{\"user\": \"%s\", \"update-commits\": %d}", username, commitCount);
         kafkaTemplate.send(TOPIC, message);
         System.out.println("📨 Sent commit update to Redpanda: " + message);
     }
