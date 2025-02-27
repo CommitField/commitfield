@@ -23,9 +23,8 @@ import java.util.Optional;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final UserRepository userRepository;
     private final PetRepository petRepository;
-    private final HttpServletRequest request;  // HttpServletRequest를 주입받습니다.
+    private final HttpServletRequest request;  // HttpServletRequest를 주입 받음.
     private final CommitCacheService commitCacheService;
-    private final HttpServletRequest request;  // HttpServletRequest를 주입받습니다.
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) {
@@ -56,7 +55,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         } else {
             //유저 정보가 db에 존재하지 않을 경우 회원가입 시킨다.
             //유저 생성 및 펫 생성
-            user = new User(username, email, name, avatarUrl, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+            user = new User(username, email, name, avatarUrl,true, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
             userRepository.save(user);
 
             pet = new Pet("알알", user); // 변경 필요

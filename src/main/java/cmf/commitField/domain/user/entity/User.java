@@ -49,11 +49,12 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Pet> pets = new ArrayList<>();
 
-    public User(String username, String email, String nickname, String avatarUrl, List<ChatRoom> cr, List<UserChatRoom> ucr, List<ChatMsg> cmsg){
+    public User(String username, String email, String nickname, String avatarUrl, Boolean status, List<ChatRoom> cr, List<UserChatRoom> ucr, List<ChatMsg> cmsg){
         this.username=username;
         this.email=email;
         this.nickname=nickname;
         this.avatarUrl=avatarUrl;
+        this.status= status;
         this.role = Role.USER;
         this.chatRooms = cr;
         this.userChatRooms = ucr;
