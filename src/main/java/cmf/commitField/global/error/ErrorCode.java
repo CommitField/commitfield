@@ -46,6 +46,9 @@ public enum ErrorCode {
     NO_ROOM_FOUND(HttpStatus.NOT_FOUND, "채팅방이 없습니다."),
     NO_ROOM(HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),
 
+    //chatroom_title
+    REQUEST_SAME_AS_CURRENT_TITLE(HttpStatus.BAD_REQUEST, "현재 제목과 바꾸려는 제목이 같습니다."),
+
     //user_chatroom
     NONE_ROOM(HttpStatus.NOT_FOUND, "사용자가 들어가 있는 방이 없습니다."),
     NOT_ROOM_CREATOR(HttpStatus.FORBIDDEN, "방 생성자가 아닙니다."),

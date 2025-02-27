@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -48,5 +49,9 @@ public class ChatRoom extends BaseEntity {
                 ", user=" + (user != null ? user.getId() : "null") +  // user가 null일 수 있기 때문에 체크
                 ", userChatRooms=" + (userChatRooms != null ? userChatRooms.size() : 0) + // userChatRooms 리스트가 null일 수 있기 때문에 체크
                 '}';
+    }
+    public void update(String title, LocalDateTime modifiedAt) {
+        this.setTitle(title);
+        this.setModifiedAt(modifiedAt);
     }
 }

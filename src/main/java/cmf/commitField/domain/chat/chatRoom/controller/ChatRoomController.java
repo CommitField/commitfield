@@ -1,6 +1,7 @@
 package cmf.commitField.domain.chat.chatRoom.controller;
 
 import cmf.commitField.domain.chat.chatRoom.controller.request.ChatRoomRequest;
+import cmf.commitField.domain.chat.chatRoom.controller.request.ChatRoomUpdateRequest;
 import cmf.commitField.domain.chat.chatRoom.dto.ChatRoomDto;
 import cmf.commitField.domain.chat.chatRoom.service.ChatRoomService;
 import cmf.commitField.domain.user.entity.CustomOAuth2User;
@@ -108,6 +109,23 @@ public class ChatRoomController {
             }
 
             return GlobalResponse.success("사용자가 들어가 있는 방 리스트 조회 성공.",userByRoomPartList);
+        } else {
+            throw new IllegalArgumentException("로그인 후에 이용해 주세요.");
+        }
+    }
+
+    @PutMapping("/room/update/{roomId}")
+    @LoginCheck
+    public GlobalResponse<Object> updateRoom(
+            @PathVariable Long roomId,
+            @RequestBody @Valid ChatRoomUpdateRequest chatRoomUpdateRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication instanceof OAuth2AuthenticationToken) {
+            CustomOAuth2User principal = (CustomOAuth2User) authentication.getPrincipal();
+            Long userId = principal.getId();  // getId()를 통해 userId를 추출
+            chatRoomService.updateRoom(roomId, chatRoomUpdateRequest, userId);  // userId를 전달
+            return GlobalResponse.success("채팅방을 업데이트 했습니다.");
         } else {
             throw new IllegalArgumentException("로그인 후에 이용해 주세요.");
         }

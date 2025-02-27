@@ -1,6 +1,7 @@
 package cmf.commitField.domain.chat.chatRoom.service;
 
 import cmf.commitField.domain.chat.chatRoom.controller.request.ChatRoomRequest;
+import cmf.commitField.domain.chat.chatRoom.controller.request.ChatRoomUpdateRequest;
 import cmf.commitField.domain.chat.chatRoom.dto.ChatRoomDto;
 import org.springframework.data.domain.Pageable;
 
@@ -23,4 +24,6 @@ public interface ChatRoomService {
     void outRoom(Long userId, Long roomId);
 
     void deleteRoom(Long userId, Long roomId);
+    //채팅방 제목 수정
+    void updateRoom(Long roomId, ChatRoomUpdateRequest chatRoomUpdateRequest, Long userId);
 }
