@@ -1,5 +1,6 @@
 package cmf.commitField.domain.user.service;
 
+import cmf.commitField.domain.commit.sinceCommit.service.CommitCacheService;
 import cmf.commitField.domain.pet.entity.Pet;
 import cmf.commitField.domain.pet.repository.PetRepository;
 import cmf.commitField.domain.user.entity.CustomOAuth2User;
@@ -14,13 +15,13 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final UserRepository userRepository;
     private final PetRepository petRepository;
+    private final CommitCacheService commitCacheService;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) {
@@ -49,12 +50,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         } else {
             //유저 정보가 db에 존재하지 않을 경우 회원가입 시킨다.
             //유저 생성 및 펫 생성
-            user = new User(username, email, name, avatarUrl, User.Role.USER, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+            user = new User(username, email, name, avatarUrl, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
             userRepository.save(user);
 
-            Random random = new Random(); //펫 랜덤 생성
-            pet = new Pet(random.nextInt(3), "알알", "temp-Url", user); // 변경 필요
+            pet = new Pet("알알", user); // 변경 필요
             petRepository.save(pet);
+
+            user.addPets(pet);
+
+            // 회원가입한 유저는 커밋 기록에 상관없이 Redis에 입력해둔다.
+            commitCacheService.updateCachedCommitCount(user.getUsername(),0);
         }
 
         return new CustomOAuth2User(oauthUser, user);

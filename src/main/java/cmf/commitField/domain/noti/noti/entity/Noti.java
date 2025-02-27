@@ -34,4 +34,5 @@ public class Noti extends BaseEntity {
     // TODO: 알림이 연결된 객체 어떻게 처리할지 고민 필요.
 //    private String relTypeCode; // 알림이 연결된 실제 객체 유형
 //    private long relId; // 알림 객체의 Id
+
 }
