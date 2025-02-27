@@ -35,6 +35,10 @@ public enum ErrorCode {
     // member
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다"),
 
+    // season
+    NOT_FOUND_SEASON(HttpStatus.NOT_FOUND, "시즌을 찾을 수 없습니다."),
+    NOT_FOUND_SEASON_RANK(HttpStatus.NOT_FOUND, "해당 시즌의 랭킹을 찾을 수 없습니다."),
+
     //chatroom
     NOT_FOUND_ROOM(HttpStatus.NOT_FOUND, "이미 삭제된 방이거나 방을 찾을 수 없습니다."),
     ROOM_USER_FULL(HttpStatus.BAD_REQUEST, "방에 사용자가 다 차 있습니다."),
@@ -51,7 +55,10 @@ public enum ErrorCode {
 
     //chatMessage
     EMPTY_MESSAGE(HttpStatus.BAD_REQUEST, "채팅 메시지는 공백으로 보낼 수 없습니다."),
-    CHAT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 채팅방의 메시지들을 찾지 못했습니다.");
+    CHAT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 채팅방의 메시지들을 찾지 못했습니다."),
+
+    // Lock
+    FAILED_GET_LOCK(HttpStatus.LOCKED, "락을 획득하지 못했습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

@@ -12,24 +12,33 @@ import cmf.commitField.domain.user.repository.UserRepository;
 import cmf.commitField.global.error.ErrorCode;
 import cmf.commitField.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 public class ChatRoomServiceImpl implements ChatRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
-    private final UserRepository userRepository;
-    private final UserChatRoomRepository userChatRoomRepository;
+
     private final ChatMessageRepository chatMessageRepository;
+
+    private final UserRepository userRepository;
+
+    private final UserChatRoomRepository userChatRoomRepository;
+
+    private final RedissonClient redissonClient;
 
     @Override
     @Transactional
@@ -61,38 +70,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         userChatRoomRepository.save(userChatRoom);
     }
 
-    @Override
-    @Transactional
-    public void joinRoom(Long roomId, Long userId) {
-        // 유저 조회
-        User findUser = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
-
-        // room 조회
-        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ROOM));
-
-        // 현재 인원 수 조회
-        Long currentUserCount = userChatRoomRepository.countByChatRoomId(roomId);
-        // 채팅방이 꽉 찼을 경우 예외 처리
-        if (currentUserCount >= chatRoom.getUserCountMax()) {
-            throw new CustomException(ErrorCode.ROOM_USER_FULL);
-        }
-
-        // 이미 참여한 방인지 확인
-        if (userChatRoomRepository.existsByChatRoomIdAndUserId(roomId, userId)) {
-            throw new CustomException(ErrorCode.ALREADY_JOIN_ROOM);
-        }
-
-
-        // user_chatroom 관계 생성
-        UserChatRoom userChatRoom = UserChatRoom.builder()
-                .user(findUser)
-                .chatRoom(chatRoom)
-                .build();
-        userChatRoomRepository.save(userChatRoom);
-    }
-
     // 방 조회 DTO 변환 메서드 추출
     private static List<ChatRoomDto> getChatRoomDtos(Page<ChatRoom> all) {
         List<ChatRoomDto> chatRoomList = new ArrayList<>();
@@ -109,6 +86,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         }
         return chatRoomList;
     }
+
 
     // 채팅방 전체 조회
     @Override
@@ -136,11 +114,56 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     }
 
     @Override
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    public void joinRoom(Long roomId, Long userId) {
+        RLock lock = redissonClient.getLock("joinRoomLock:" + roomId);
+        try {
+            boolean available = lock.tryLock(1, TimeUnit.SECONDS);
+
+            if (!available) {
+                throw new CustomException(ErrorCode.FAILED_GET_LOCK);
+            }
+            // 유저 조회
+            User findUser = getUser(userId);
+
+            // room 조회
+            ChatRoom chatRoom = chatRoomRepository.findById(roomId) // lock (기존)
+                    .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ROOM));
+
+            // user_chatroom 현재 인원 카운트 (비즈니스 로직)
+            Long currentUserCount = userChatRoomRepository.countNonLockByChatRoomId(roomId); // lock (기존)
+
+            List<Long> userChatRoomByChatRoomId = userChatRoomRepository
+                    .findUserChatRoomByChatRoom_Id(roomId);
+
+            if (userChatRoomByChatRoomId.contains(userId)) {
+                throw new CustomException(ErrorCode.ALREADY_JOIN_ROOM);
+            }
+
+            // chatroom 입장
+            if (currentUserCount >= chatRoom.getUserCountMax()) {
+                throw new CustomException(ErrorCode.ROOM_USER_FULL);
+            }
+
+            UserChatRoom userChatRoom = UserChatRoom.builder()
+                    .user(findUser)
+                    .chatRoom(chatRoom)
+                    .build();
+            userChatRoomRepository.save(userChatRoom);
+            // 비즈니스 로직 끝
+        } catch (InterruptedException e) {
+            throw new CustomException(ErrorCode.FAILED_GET_LOCK);
+        } finally {
+            lock.unlock();
+        }
+
+
+    }
+
+    @Override
     @Transactional
     public void outRoom(Long userId, Long roomId) {
-        ChatRoom room = chatRoomRepository
-                .findChatRoomById(roomId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NO_ROOM_FOUND));
+        ChatRoom room = getChatRoom(roomId);
         // 방장이 아니라면
         if (!Objects.equals(room.getRoomCreator(), userId)) {
             userChatRoomRepository.deleteUserChatRoomByChatRoom_IdAndUserId(roomId, userId);
@@ -153,13 +176,10 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     }
 
-
     @Override
     @Transactional
     public void deleteRoom(Long userId, Long roomId) {
-        ChatRoom room = chatRoomRepository
-                .findChatRoomById(roomId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NO_ROOM));
+        ChatRoom room = getChatRoom(roomId);
         //방장이 아닐 경우, 삭제 불가
         if (!Objects.equals(room.getRoomCreator(), userId)) {
             throw new CustomException(ErrorCode.NOT_ROOM_CREATOR);
@@ -169,8 +189,19 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         userChatRoomRepository.deleteUserChatRoomByChatRoom_Id(roomId);
         chatRoomRepository.deleteById(roomId);
 
-}
+    }
+
+    private User getUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+    }
 
 
+    private ChatRoom getChatRoom(Long roomId) {
+        return chatRoomRepository
+                .findChatRoomById(roomId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NONE_ROOM));
+
+    }
 
 }

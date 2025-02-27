@@ -23,11 +23,16 @@ public class CommitScheduler {
 
     @Scheduled(fixedRate = 60000) // 1분마다 실행
     public void updateUserCommits() {
-        List<User> activeUsers = userRepository.findActiveUser(); // 💫 변경 필요, 차후 active 상태인 user만 찾게끔 변경해야 함.
+        log.info("🔍 updateUserCommits 실행중");
+        List<User> activeUsers = userRepository.findAll(); // 💫 변경 필요, 차후 active 상태인 user만 찾게끔 변경해야 함.
+
+        log.info("🔍 Active User Count: {}", activeUsers.size());
 
         for (User user : activeUsers) {
             Integer cachedCount = commitCacheService.getCachedCommitCount(user.getUsername());
             int newCommitCount = githubService.getUserCommitCount(user.getUsername());
+
+            log.info("🔍 User: {}, Commit Count: {}", user.getUsername(), newCommitCount);
 
             if (cachedCount == null || cachedCount != newCommitCount) { // 변화가 있을 때만 처리
                 commitCacheService.updateCachedCommitCount(user.getUsername(), newCommitCount);
