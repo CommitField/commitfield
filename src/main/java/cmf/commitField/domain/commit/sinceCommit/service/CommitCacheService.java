@@ -14,7 +14,7 @@ public class CommitCacheService {
     private final StringRedisTemplate redisTemplate;
 
     public Integer getCachedCommitCount(String username) {
-        String key = "commit_active:" + username; // Redis 키 생성 (ex: commit:hongildong)
+        String key = "commit_active:" + username; // Redis 키 생성
         String value = redisTemplate.opsForValue().get(key); // Redis에서 값 가져오기
 
         if (value != null) {
