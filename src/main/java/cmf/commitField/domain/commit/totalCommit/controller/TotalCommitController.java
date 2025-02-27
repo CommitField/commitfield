@@ -6,6 +6,7 @@ import cmf.commitField.domain.user.entity.CustomOAuth2User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
@@ -16,10 +17,11 @@ import java.time.temporal.TemporalAdjusters;
 public class TotalCommitController {
     private final TotalCommitService totalCommitService;
 
-//    @GetMapping("/api/commits/{username}")
-//    public TotalCommitResponseDto getTotalCommits(@PathVariable String username) {
-//        return totalCommitService.getTotalCommitCount(username);
-//    }
+    // Postman 테스트용
+    @GetMapping("/api/commits/{username}")
+    public TotalCommitResponseDto getTotalCommits(@PathVariable String username) {
+        return totalCommitService.getTotalCommitCount(username);
+    }
 
     // 로그인한 사용자의 username 이용
     @GetMapping("/api/commits")

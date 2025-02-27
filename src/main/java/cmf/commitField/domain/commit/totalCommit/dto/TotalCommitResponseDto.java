@@ -18,9 +18,4 @@ public class TotalCommitResponseDto {
         this.currentStreakDays = currentStreakDays;
         this.maxStreakDays = maxStreakDays;
     }
-
-    public TotalCommitResponseDto(long totalCommitContributions, long restrictedContributionsCount) {
-        this.totalCommitContributions = totalCommitContributions;
-        this.restrictedContributionsCount = restrictedContributionsCount;
-    }
 }
