@@ -52,6 +52,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         // 유저정보 조회
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+        String password = chatRoomRequest.getPassword();
 
         // findUser가 null이 아닐 경우, User의 ID를 사용
         if (findUser == null) {
@@ -65,7 +66,12 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 .userCountMax(chatRoomRequest.getUserCountMax())
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
+                .isPrivate(false)
                 .build();
+        if (password != null) {
+            chatRoom.setPassword(password);
+            chatRoom.setIsPrivate(true);
+        }
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
 
         // 연관관계 user_chat room 생성
@@ -74,6 +80,11 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 .chatRoom(savedChatRoom)
                 .build();
         userChatRoomRepository.save(userChatRoom);
+    }
+
+    @Override
+    public void joinRoom(Long roomId, Long userId) {
+
     }
 
     // 방 조회 DTO 변환 메서드 추출
@@ -111,7 +122,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     @Override
     @Transactional
-    public void joinRoom(Long roomId, Long userId) {
+    public void joinRoom(Long roomId, Long userId, ChatRoomRequest chatRoomRequest) {
         RLock lock = redissonClient.getLock("joinRoomLock:" + roomId);
         try {
             boolean available = lock.tryLock(1, TimeUnit.SECONDS);
@@ -129,6 +140,15 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             // user_chatroom 현재 인원 카운트 (비즈니스 로직)
             Long currentUserCount = userChatRoomRepository.countNonLockByChatRoomId(roomId); // lock (기존)
 
+            if (chatRoom.getIsPrivate() && chatRoomRequest.getPassword() == null) {
+                throw new CustomException(ErrorCode.NEED_TO_PASSWORD);
+
+
+
+            }
+            if (chatRoom.getIsPrivate() && !chatRoomRequest.getPassword().equals(chatRoom.getPassword())) {
+                throw new CustomException(ErrorCode.ROOM_PASSWORD_MISMATCH);
+            }
             List<Long> userChatRoomByChatRoomId = userChatRoomRepository
                     .findUserChatRoomByChatRoom_Id(roomId);
 
@@ -160,6 +180,17 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     @Transactional
     public void outRoom(Long userId, Long roomId) {
         ChatRoom room = getChatRoom(roomId);
+        List<UserChatRoom> userByChatRoomId = userChatRoomRepository
+                .findUserByChatRoomId(roomId);
+        List<Long> userIds = new ArrayList<>();
+        for (UserChatRoom userChatRoom : userByChatRoomId) {
+            Long id = userChatRoom.getUser().getId();
+            userIds.add(id);
+        }
+        // 만약 방에 없는데 나가기를 시도한 경우
+        if (!userIds.contains(userId)) {
+            throw new CustomException(ErrorCode.METHOD_NOT_ALLOWED);
+        }
         // 방장이 아니라면
         if (!Objects.equals(room.getRoomCreator(), userId)) {
             userChatRoomRepository.deleteUserChatRoomByChatRoom_IdAndUserId(roomId, userId);

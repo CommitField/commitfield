@@ -41,6 +41,10 @@ public class ChatRoom extends BaseEntity {
     @OneToMany(mappedBy = "chatRoom", fetch = FetchType.LAZY)
     private List<Heart> hearts;
 
+    private String password;
+
+    private Boolean isPrivate;
+
     @Override
     public String toString() {
         return "ChatRoom{" +

@@ -21,5 +21,7 @@ public class ChatRoomRequest {
     @Max(100)
     private Integer userCountMax;
 
+    @Length(min = 4, max = 20)
+    private String password;
 
 }
