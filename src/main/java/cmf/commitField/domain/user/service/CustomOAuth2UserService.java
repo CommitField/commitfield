@@ -1,7 +1,6 @@
 package cmf.commitField.domain.user.service;
 
 import cmf.commitField.domain.commit.sinceCommit.service.CommitCacheService;
-import cmf.commitField.domain.commit.totalCommit.service.TotalCommitService;
 import cmf.commitField.domain.pet.entity.Pet;
 import cmf.commitField.domain.pet.repository.PetRepository;
 import cmf.commitField.domain.user.entity.CustomOAuth2User;
@@ -9,7 +8,6 @@ import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -29,10 +27,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final CommitCacheService commitCacheService;
 
     @Override
-    @Transactional
     public OAuth2User loadUser(OAuth2UserRequest userRequest) {
         OAuth2User oauthUser = super.loadUser(userRequest);
-        TotalCommitService totalCommitService = new TotalCommitService();
 
         Map<String, Object> attributes = oauthUser.getAttributes();
         String username = (String) attributes.get("login");  // GitHub ID
@@ -66,8 +62,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             petRepository.save(pet);
 
             user.addPets(pet);
-            user.setLastCommitCount(totalCommitService.getTotalCommitCount(user.getUsername()).getTotalCommitContributions());
-            // 가입 시점의 전체 커밋 수를 계산
 
             // 회원가입한 유저는 커밋 기록에 상관없이 Redis에 입력해둔다.
             commitCacheService.updateCachedCommitCount(user.getUsername(),0);
