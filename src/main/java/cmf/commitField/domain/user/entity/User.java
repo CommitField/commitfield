@@ -3,6 +3,7 @@ package cmf.commitField.domain.user.entity;
 import cmf.commitField.domain.chat.chatMessage.entity.ChatMsg;
 import cmf.commitField.domain.chat.chatRoom.entity.ChatRoom;
 import cmf.commitField.domain.chat.userChatRoom.entity.UserChatRoom;
+import cmf.commitField.domain.heart.entity.Heart;
 import cmf.commitField.domain.pet.entity.Pet;
 import cmf.commitField.global.jpa.BaseEntity;
 import jakarta.persistence.*;
@@ -48,6 +49,9 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Pet> pets = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Heart> hearts;
 
     public User(String username, String email, String nickname, String avatarUrl, Boolean status, List<ChatRoom> cr, List<UserChatRoom> ucr, List<ChatMsg> cmsg){
         this.username=username;

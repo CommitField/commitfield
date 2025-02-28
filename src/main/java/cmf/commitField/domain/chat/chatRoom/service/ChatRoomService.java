@@ -29,4 +29,9 @@ public interface ChatRoomService {
     void updateRoom(Long roomId, ChatRoomUpdateRequest chatRoomUpdateRequest, Long userId);
 
     List<ChatRoomUserDto> getRoomUsers(Long roomId, Long userId);
+
+    List<ChatRoomDto> getRoomHeartSortList(Pageable pageable);
+
+    List<ChatRoomDto> myHeartRoomList(Long userId, Pageable pageable);
+
 }

@@ -2,6 +2,7 @@ package cmf.commitField.domain.chat.chatRoom.entity;
 
 import cmf.commitField.domain.chat.chatMessage.entity.ChatMsg;
 import cmf.commitField.domain.chat.userChatRoom.entity.UserChatRoom;
+import cmf.commitField.domain.heart.entity.Heart;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.global.jpa.BaseEntity;
 import jakarta.persistence.*;
@@ -36,6 +37,9 @@ public class ChatRoom extends BaseEntity {
 
     @OneToMany(mappedBy = "chatRoom", fetch = FetchType.LAZY)
     private List<ChatMsg> chatMsgs;
+
+    @OneToMany(mappedBy = "chatRoom", fetch = FetchType.LAZY)
+    private List<Heart> hearts;
 
     @Override
     public String toString() {
