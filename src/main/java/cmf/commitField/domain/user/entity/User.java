@@ -29,6 +29,7 @@ public class User extends BaseEntity {
     private String avatarUrl; //아바타
     private Boolean status; //로그인 true, 로그아웃 false
     private LocalDateTime lastCommitted; // 마지막 커밋 시간
+    private long lastCommitCount; // 마지막으로 반영한 커밋 개수
 
     @Enumerated(EnumType.STRING)  // DB에 저장될 때 String 형태로 저장됨
     private Role role;
@@ -60,6 +61,7 @@ public class User extends BaseEntity {
         this.userChatRooms = ucr;
         this.chatMsgs = cmsg;
         this.lastCommitted = LocalDateTime.now();
+        this.lastCommitCount = 0; // 반영 커밋 개수, 0으로 시작
     }
 
     public void addPets(Pet pet){

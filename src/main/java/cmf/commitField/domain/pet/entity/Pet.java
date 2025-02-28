@@ -39,7 +39,7 @@ public class Pet extends BaseEntity {
                 break;
         }
         this.name = name;
-        this.exp = 0;
+        this.exp = 0; //10, 20, 30마다 성장한다고 가정함. 
         this.grow = Grow.EGG;
         this.user = user;
     }
