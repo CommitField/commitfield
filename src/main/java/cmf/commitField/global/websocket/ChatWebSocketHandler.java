@@ -4,10 +4,7 @@ import cmf.commitField.global.error.ErrorCode;
 import cmf.commitField.global.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.WebSocketHandler;
-import org.springframework.web.socket.WebSocketMessage;
-import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -103,5 +100,14 @@ public class ChatWebSocketHandler implements WebSocketHandler {
             roomId = Long.valueOf(uriParts[4]);
         }
         return roomId;
+    }
+    //메세지 전송
+    public void sendMessage(String payload) throws Exception {
+        for (List<WebSocketSession> sessions : chatRooms.values()) {
+            for (WebSocketSession session : sessions) {
+                TextMessage msg = new TextMessage(payload);
+                session.sendMessage(msg);
+            }
+        }
     }
 }
