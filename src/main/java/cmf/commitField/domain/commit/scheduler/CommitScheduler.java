@@ -2,7 +2,6 @@ package cmf.commitField.domain.commit.scheduler;
 
 import cmf.commitField.domain.commit.sinceCommit.service.CommitCacheService;
 import cmf.commitField.domain.commit.totalCommit.service.TotalCommitService;
-import cmf.commitField.domain.redpanda.RedpandaProducer;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CommitScheduler {
     private final TotalCommitService totalCommitService;
     private final CommitCacheService commitCacheService;
-    private final RedpandaProducer redpandaProducer;
     private final UserRepository userRepository;
     private final StringRedisTemplate redisTemplate;
     private final AtomicInteger counter = new AtomicInteger(0);
@@ -68,7 +66,7 @@ public class CommitScheduler {
         }
 
         // 현재 커밋 개수 조회
-        long currentCommitCount = totalCommitService.getSeasonCommits(
+        long currentCommitCount = totalCommitService.getUpdateCommits(
                 user.getUsername(),
                 lastCommitted,  // 🚀 Redis에 저장된 lastCommitted 기준으로 조회
                 LocalDateTime.now()
@@ -93,9 +91,6 @@ public class CommitScheduler {
 
         // 2️⃣ Redis에 최신 커밋 개수 저장 (3시간 동안 유지)
         commitCacheService.updateCachedCommitCount(user.getUsername(), currentCommitCount);
-
-        // 3️⃣ 메시지 큐 전송
-        redpandaProducer.sendCommitUpdate(user.getUsername(), newCommitCount);
 
         log.info("✅ 커밋 반영 완료 - User: {}, New Commits: {}", user.getUsername(), newCommitCount);
     }
