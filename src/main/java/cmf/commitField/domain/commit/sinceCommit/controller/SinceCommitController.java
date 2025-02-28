@@ -2,13 +2,11 @@ package cmf.commitField.domain.commit.sinceCommit.controller;
 
 import cmf.commitField.domain.commit.sinceCommit.dto.CommitAnalysisResponseDto;
 import cmf.commitField.domain.commit.sinceCommit.dto.SinceCommitResponseDto;
-import cmf.commitField.domain.commit.sinceCommit.service.GithubService;
 import cmf.commitField.domain.commit.sinceCommit.service.SinceCommitService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,7 +18,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SinceCommitController {
     private final SinceCommitService sinceCommitService;
-    private final GithubService githubService;
 
     @GetMapping("/api/github/commits-since")
     public ResponseEntity<List<SinceCommitResponseDto>> getCommits(
@@ -104,11 +101,4 @@ public class SinceCommitController {
         return ResponseEntity.ok(analysis);
     }
 
-    // api 테스트 메소드 추가
-    @GetMapping("/api/commit-count/{username}")
-    public ResponseEntity<Integer> getCommitCount(@PathVariable String username) {
-        System.out.println("⚡ API 엔드포인트 호출: " + username);
-        int commitCount = githubService.getUserCommitCount(username);
-        return ResponseEntity.ok(commitCount);
-    }
 }
