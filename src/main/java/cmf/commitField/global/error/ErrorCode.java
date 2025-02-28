@@ -66,8 +66,8 @@ public enum ErrorCode {
 
     //Heart
     NOT_EXIST_ROOM_HEART(HttpStatus.BAD_REQUEST, "해당 채팅방에 좋아요가 눌러져 있지 않습니다."),
-    ALREADY_HEART_TO_ROOM(HttpStatus.BAD_REQUEST, "이미 해당 채팅방에 좋아요를 누르셨습니다.");
-
+    ALREADY_HEART_TO_ROOM(HttpStatus.BAD_REQUEST, "이미 해당 채팅방에 좋아요를 누르셨습니다."),
+    NOT_FOUND_HEART(HttpStatus.NOT_FOUND, "좋아요 누른 채팅방이 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

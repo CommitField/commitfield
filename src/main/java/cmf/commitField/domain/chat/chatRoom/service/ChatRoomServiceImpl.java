@@ -9,6 +9,8 @@ import cmf.commitField.domain.chat.chatRoom.entity.ChatRoom;
 import cmf.commitField.domain.chat.chatRoom.repository.ChatRoomRepository;
 import cmf.commitField.domain.chat.userChatRoom.entity.UserChatRoom;
 import cmf.commitField.domain.chat.userChatRoom.repository.UserChatRoomRepository;
+import cmf.commitField.domain.heart.entity.Heart;
+import cmf.commitField.domain.heart.repository.HeartRepository;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
 import cmf.commitField.global.error.ErrorCode;
@@ -41,6 +43,8 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private final UserChatRoomRepository userChatRoomRepository;
 
     private final RedissonClient redissonClient;
+
+    private final HeartRepository heartRepository;
 
     @Override
     @Transactional
@@ -261,4 +265,32 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         return chatRoomDtos;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChatRoomDto> myHeartRoomList(Long userId, Pageable pageable) {
+        getUser(userId);
+        List<Heart> heart = heartRepository.findByUserId(userId);
+        if (heart.isEmpty()) {
+            throw new CustomException(ErrorCode.NOT_FOUND_HEART);
+        }
+        List<Long> ids = new ArrayList<>();
+        for(Heart heart1 : heart) {
+            Long id = heart1.getChatRoom().getId();
+            ids.add(id);
+        }
+        Page<ChatRoom> chatRoomByInId = chatRoomRepository.findChatRoomByInId(ids, pageable);
+        List<ChatRoom> chatRoomList = chatRoomByInId.toList();
+        List<ChatRoomDto> chatRoomDtos = new ArrayList<>();
+        for (ChatRoom chatRoom : chatRoomList) {
+            ChatRoomDto build = ChatRoomDto.builder()
+                    .id(chatRoom.getId())
+                    .title(chatRoom.getTitle())
+                    .heartCount(chatRoom.getHearts().size())
+                    .currentUserCount((long) chatRoom.getUserChatRooms().size())
+                    .userCountMax(chatRoom.getUserCountMax())
+                    .build();
+            chatRoomDtos.add(build);
+        }
+        return chatRoomDtos;
+    }
 }

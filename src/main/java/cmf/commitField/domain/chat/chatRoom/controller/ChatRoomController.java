@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.*;
@@ -189,12 +190,29 @@ public class ChatRoomController {
     @LoginCheck
     public GlobalResponse<Object> roomHeartSort(Pageable pageable) {
         List<ChatRoomDto> roomList = chatRoomService.getRoomHeartSortList(pageable);
-        if (roomList.size() == 0) {
+        if (roomList.isEmpty()) {
             return GlobalResponse.error(ErrorCode.NO_ROOM);
         } else {
             return GlobalResponse.success(roomList);
         }
     }
+
+    // 사용자(자신)가 좋아요 누른 방 리스트 조회
+    @GetMapping("/room/myHeart/list")
+    @LoginCheck
+    public GlobalResponse<Object> getMyHeartRoomList(
+            Pageable pageable,
+            @AuthenticationPrincipal CustomOAuth2User principal) { // 인증된 사용자 정보 주입
+
+        Long userId = principal.getId(); // 현재 로그인된 사용자 ID 가져오기
+        List<ChatRoomDto> list = chatRoomService.myHeartRoomList(userId, pageable);
+
+        if (list.isEmpty()) {
+            return GlobalResponse.error(ErrorCode.NO_ROOM_FOUND);
+        }
+        return GlobalResponse.success("좋아요 누른 채팅방 리스트 조회 완료", list);
+    }
+
 
 
 

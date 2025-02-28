@@ -32,5 +32,6 @@ public interface ChatRoomService {
 
     List<ChatRoomDto> getRoomHeartSortList(Pageable pageable);
 
+    List<ChatRoomDto> myHeartRoomList(Long userId, Pageable pageable);
 
 }

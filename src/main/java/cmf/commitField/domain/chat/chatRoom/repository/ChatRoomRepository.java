@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -31,5 +32,8 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
             "GROUP BY c.id " +
             "ORDER BY COUNT(h.user.id) DESC")
     Page<ChatRoom> findAllByOrderByHearts(Pageable pageable);
+
+    @Query("SELECT c FROM ChatRoom c WHERE c.id IN :ids ORDER BY c.createdAt DESC")
+    Page<ChatRoom> findChatRoomByInId(@Param("ids") List<Long> ids, Pageable pageable);
 
 }
