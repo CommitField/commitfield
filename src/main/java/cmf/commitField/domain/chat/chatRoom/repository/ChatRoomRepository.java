@@ -27,4 +27,9 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     @Query(value = "SELECT ROOM_CREATOR FROM chat_room WHERE ID = ?", nativeQuery = true)
     Optional<Long> findChatRoomIdByRoomId(@Param("roomId") Long roomId);
 
+    @Query("SELECT c FROM ChatRoom c LEFT JOIN Heart h ON c.id = h.chatRoom.id " +
+            "GROUP BY c.id " +
+            "ORDER BY COUNT(h.user.id) DESC")
+    Page<ChatRoom> findAllByOrderByHearts(Pageable pageable);
+
 }

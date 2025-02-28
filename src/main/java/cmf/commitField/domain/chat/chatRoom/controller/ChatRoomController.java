@@ -115,6 +115,7 @@ public class ChatRoomController {
         }
     }
 
+    //채팅방 제목 수정
     @PutMapping("/room/update/{roomId}")
     @LoginCheck
     public GlobalResponse<Object> updateRoom(
@@ -182,6 +183,19 @@ public class ChatRoomController {
             throw new IllegalArgumentException("로그인 후에 이용해 주세요.");
         }
     }
+
+    // 전체 리스트에서 좋아요 순으로 정렬
+    @GetMapping("/room/heart")
+    @LoginCheck
+    public GlobalResponse<Object> roomHeartSort(Pageable pageable) {
+        List<ChatRoomDto> roomList = chatRoomService.getRoomHeartSortList(pageable);
+        if (roomList.size() == 0) {
+            return GlobalResponse.error(ErrorCode.NO_ROOM);
+        } else {
+            return GlobalResponse.success(roomList);
+        }
+    }
+
 
 
 

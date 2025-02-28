@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -73,19 +74,9 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     // 방 조회 DTO 변환 메서드 추출
     private static List<ChatRoomDto> getChatRoomDtos(Page<ChatRoom> all) {
-        List<ChatRoomDto> chatRoomList = new ArrayList<>();
-
-        for (ChatRoom list : all) {
-            ChatRoomDto dto = ChatRoomDto.builder()
-                    .id(list.getId())
-                    .title(list.getTitle())
-                    .currentUserCount((long) list.getUserChatRooms().size())
-                    .userCountMax(list.getUserCountMax())
-                    .build();
-
-            chatRoomList.add(dto);
-        }
-        return chatRoomList;
+        return all.stream()
+                .map(ChatRoomDto::of)
+                .collect(Collectors.toList());
     }
 
 
@@ -248,6 +239,26 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             chatRoomUserDtos.add(build);
         }
         return chatRoomUserDtos;
+    }
+
+    // 좋아요 순으로 정렬 후 방 전체 조회
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChatRoomDto> getRoomHeartSortList(Pageable pageable) {
+        Page<ChatRoom> all = chatRoomRepository.findAllByOrderByHearts(pageable);
+        List<ChatRoom> chatRooms = all.toList();
+        List<ChatRoomDto> chatRoomDtos = new ArrayList<>();
+        for (ChatRoom chatRoom : chatRooms) {
+            ChatRoomDto build = ChatRoomDto.builder()
+                    .id(chatRoom.getId())
+                    .title(chatRoom.getTitle())
+                    .userCountMax(chatRoom.getUserCountMax())
+                    .currentUserCount((long) chatRoom.getUserChatRooms().size())
+                    .heartCount(chatRoom.getHearts().size())
+                    .build();
+            chatRoomDtos.add(build);
+        }
+        return chatRoomDtos;
     }
 
 }
