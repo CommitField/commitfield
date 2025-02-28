@@ -1,4 +1,4 @@
-package cmf.commitField.domain.commit.sinceCommit.service;
+package cmf.commitField.domain.commit.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

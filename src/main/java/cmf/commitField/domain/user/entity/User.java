@@ -5,6 +5,7 @@ import cmf.commitField.domain.chat.chatRoom.entity.ChatRoom;
 import cmf.commitField.domain.chat.userChatRoom.entity.UserChatRoom;
 import cmf.commitField.domain.heart.entity.Heart;
 import cmf.commitField.domain.pet.entity.Pet;
+import cmf.commitField.domain.season.entity.Rank;
 import cmf.commitField.global.jpa.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -39,6 +40,9 @@ public class User extends BaseEntity {
         USER, ADMIN
     }
 
+    @Enumerated(EnumType.STRING)
+    private Rank rank;
+
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<ChatRoom> chatRooms = new ArrayList<>();
 
@@ -60,6 +64,7 @@ public class User extends BaseEntity {
         this.nickname=nickname;
         this.avatarUrl=avatarUrl;
         this.status= status;
+        this.rank = Rank.SEED;
         this.role = Role.USER;
         this.chatRooms = cr;
         this.userChatRooms = ucr;

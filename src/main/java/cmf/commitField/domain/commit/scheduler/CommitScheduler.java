@@ -1,6 +1,5 @@
 package cmf.commitField.domain.commit.scheduler;
 
-import cmf.commitField.domain.commit.sinceCommit.service.CommitCacheService;
 import cmf.commitField.domain.commit.totalCommit.service.TotalCommitService;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
