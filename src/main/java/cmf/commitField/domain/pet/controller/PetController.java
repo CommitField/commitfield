@@ -46,4 +46,9 @@ public class PetController {
     public void deletePet(@PathVariable Long petId) {
         petService.deletePet(petId);
     }
+
+    public void getExpPet(User user, int commitCount){
+        petService.getExpPet(user, commitCount);
+
+    }
 }

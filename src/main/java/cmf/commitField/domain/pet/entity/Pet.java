@@ -51,4 +51,10 @@ public class Pet extends BaseEntity {
     public enum Grow {
         EGG, HATCH, GROWN
     }
+
+    public int addExp(int commit){
+        exp+=commit;
+
+        return exp;
+    }
 }
