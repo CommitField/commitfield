@@ -9,6 +9,8 @@ import cmf.commitField.domain.chat.chatRoom.entity.ChatRoom;
 import cmf.commitField.domain.chat.chatRoom.repository.ChatRoomRepository;
 import cmf.commitField.domain.chat.userChatRoom.entity.UserChatRoom;
 import cmf.commitField.domain.chat.userChatRoom.repository.UserChatRoomRepository;
+import cmf.commitField.domain.heart.entity.Heart;
+import cmf.commitField.domain.heart.repository.HeartRepository;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
 import cmf.commitField.global.error.ErrorCode;
@@ -26,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +43,8 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private final UserChatRoomRepository userChatRoomRepository;
 
     private final RedissonClient redissonClient;
+
+    private final HeartRepository heartRepository;
 
     @Override
     @Transactional
@@ -73,19 +78,9 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     // 방 조회 DTO 변환 메서드 추출
     private static List<ChatRoomDto> getChatRoomDtos(Page<ChatRoom> all) {
-        List<ChatRoomDto> chatRoomList = new ArrayList<>();
-
-        for (ChatRoom list : all) {
-            ChatRoomDto dto = ChatRoomDto.builder()
-                    .id(list.getId())
-                    .title(list.getTitle())
-                    .currentUserCount((long) list.getUserChatRooms().size())
-                    .userCountMax(list.getUserCountMax())
-                    .build();
-
-            chatRoomList.add(dto);
-        }
-        return chatRoomList;
+        return all.stream()
+                .map(ChatRoomDto::of)
+                .collect(Collectors.toList());
     }
 
 
@@ -250,4 +245,52 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         return chatRoomUserDtos;
     }
 
+    // 좋아요 순으로 정렬 후 방 전체 조회
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChatRoomDto> getRoomHeartSortList(Pageable pageable) {
+        Page<ChatRoom> all = chatRoomRepository.findAllByOrderByHearts(pageable);
+        List<ChatRoom> chatRooms = all.toList();
+        List<ChatRoomDto> chatRoomDtos = new ArrayList<>();
+        for (ChatRoom chatRoom : chatRooms) {
+            ChatRoomDto build = ChatRoomDto.builder()
+                    .id(chatRoom.getId())
+                    .title(chatRoom.getTitle())
+                    .userCountMax(chatRoom.getUserCountMax())
+                    .currentUserCount((long) chatRoom.getUserChatRooms().size())
+                    .heartCount(chatRoom.getHearts().size())
+                    .build();
+            chatRoomDtos.add(build);
+        }
+        return chatRoomDtos;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChatRoomDto> myHeartRoomList(Long userId, Pageable pageable) {
+        getUser(userId);
+        List<Heart> heart = heartRepository.findByUserId(userId);
+        if (heart.isEmpty()) {
+            throw new CustomException(ErrorCode.NOT_FOUND_HEART);
+        }
+        List<Long> ids = new ArrayList<>();
+        for(Heart heart1 : heart) {
+            Long id = heart1.getChatRoom().getId();
+            ids.add(id);
+        }
+        Page<ChatRoom> chatRoomByInId = chatRoomRepository.findChatRoomByInId(ids, pageable);
+        List<ChatRoom> chatRoomList = chatRoomByInId.toList();
+        List<ChatRoomDto> chatRoomDtos = new ArrayList<>();
+        for (ChatRoom chatRoom : chatRoomList) {
+            ChatRoomDto build = ChatRoomDto.builder()
+                    .id(chatRoom.getId())
+                    .title(chatRoom.getTitle())
+                    .heartCount(chatRoom.getHearts().size())
+                    .currentUserCount((long) chatRoom.getUserChatRooms().size())
+                    .userCountMax(chatRoom.getUserCountMax())
+                    .build();
+            chatRoomDtos.add(build);
+        }
+        return chatRoomDtos;
+    }
 }
