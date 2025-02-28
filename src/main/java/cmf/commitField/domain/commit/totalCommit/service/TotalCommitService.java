@@ -213,4 +213,48 @@ public class TotalCommitService {
 
         return new StreakResult(currentStreak, maxStreak);
     }
+
+    // 시간별 커밋 분석
+    public TotalCommitResponseDto getUpdateCommits(String username, LocalDateTime since, LocalDateTime until) {
+        String query = String.format("""
+        query {
+            user(login: "%s") {
+                contributionsCollection(from: "%s", to: "%s") {
+                    commitContributionsByRepository {
+                        contributions(first: 100) {
+                            nodes {
+                                occurredAt  # ✅ 시간 정보 포함
+                            }
+                        }
+                    }
+                }
+            }
+        }""", username, since.format(DateTimeFormatter.ISO_DATE_TIME), until.format(DateTimeFormatter.ISO_DATE_TIME));
+
+        Map<String, String> requestBody = Map.of("query", query);
+
+        TotalCommitGraphQLResponse response = webClient.post()
+                .header("Authorization", "bearer " + PAT)
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToMono(TotalCommitGraphQLResponse.class)
+                .block();
+
+        if (response == null || response.getData() == null || response.getData().getUser() == null) {
+            throw new RuntimeException("Failed to fetch GitHub data");
+        }
+
+        TotalCommitGraphQLResponse.ContributionsCollection contributions =
+                response.getData().getUser().getContributionsCollection();
+
+        List<LocalDate> commitDates = extractCommitDates(contributions.getContributionCalendar());
+        StreakResult streaks = calculateStreaks(commitDates);
+
+        return new TotalCommitResponseDto(
+                contributions.getTotalCommitContributions(),
+                contributions.getRestrictedContributionsCount(),
+                streaks.currentStreak,
+                streaks.maxStreak
+        );
+    }
 }
