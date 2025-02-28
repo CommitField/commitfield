@@ -247,14 +247,9 @@ public class TotalCommitService {
         TotalCommitGraphQLResponse.ContributionsCollection contributions =
                 response.getData().getUser().getContributionsCollection();
 
-        List<LocalDate> commitDates = extractCommitDates(contributions.getContributionCalendar());
-        StreakResult streaks = calculateStreaks(commitDates);
-
         return new TotalCommitResponseDto(
                 contributions.getTotalCommitContributions(),
-                contributions.getRestrictedContributionsCount(),
-                streaks.currentStreak,
-                streaks.maxStreak
+                contributions.getRestrictedContributionsCount()
         );
     }
 }
