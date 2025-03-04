@@ -44,13 +44,13 @@ public class ChatRoomController {
 
     //채팅방 입장
     @PostMapping("/room/join/{roomId}")
-    public GlobalResponse<Object> joinRoom(@PathVariable Long roomId) {
+    public GlobalResponse<Object> joinRoom(@PathVariable Long roomId, @RequestBody ChatRoomRequest chatRoomRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication instanceof OAuth2AuthenticationToken) {
             CustomOAuth2User principal = (CustomOAuth2User) authentication.getPrincipal();
             Long userId = principal.getId();  // getId()를 통해 userId를 추출
-            chatRoomService.joinRoom(roomId, userId);  // userId를 전달
+            chatRoomService.joinRoom(roomId, userId, chatRoomRequest);  // userId를 전달
             return GlobalResponse.success("해당 채팅방에 입장하셨습니다");
         } else {
             throw new IllegalArgumentException("로그인 후에 이용해 주세요.");

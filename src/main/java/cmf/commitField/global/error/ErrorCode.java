@@ -32,8 +32,10 @@ public enum ErrorCode {
 
     TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "토큰이 만료되었습니다."),
 
-    // member
+    // user_room
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다"),
+    NEED_TO_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호를 입력해야 합니다."),
+    ROOM_PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "방 비밀번호가 일치하지 않습니다."),
 
     // season
     NOT_FOUND_SEASON(HttpStatus.NOT_FOUND, "시즌을 찾을 수 없습니다."),
@@ -56,6 +58,7 @@ public enum ErrorCode {
     ALREADY_JOIN_ROOM(HttpStatus.BAD_REQUEST, "사용자는 이미 해당 방에 참여하고 있습니다."),
     NOT_EXIST_CLIENT(HttpStatus.NOT_FOUND, "채팅방에 사용자가 존재하지 않습니다."),
     NOT_ROOM_MEMBER(HttpStatus.FORBIDDEN, "채팅방에 속한 유저가 아닙니다."),
+
 
     //chatMessage
     EMPTY_MESSAGE(HttpStatus.BAD_REQUEST, "채팅 메시지는 공백으로 보낼 수 없습니다."),

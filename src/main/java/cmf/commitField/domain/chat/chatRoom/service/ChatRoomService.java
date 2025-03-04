@@ -34,4 +34,5 @@ public interface ChatRoomService {
 
     List<ChatRoomDto> myHeartRoomList(Long userId, Pageable pageable);
 
+    void joinRoom(Long roomId, Long userId, ChatRoomRequest chatRoomRequest);
 }
