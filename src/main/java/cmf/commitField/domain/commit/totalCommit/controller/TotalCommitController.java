@@ -25,7 +25,6 @@ public class TotalCommitController {
     @GetMapping("/api/commits")
     public TotalCommitResponseDto getTotalCommits(@AuthenticationPrincipal CustomOAuth2User oAuth2User) {
         String username = oAuth2User.getName();  // CustomOAuth2User의 getName()은 user.getUsername()을 반환
-
         return totalCommitService.getTotalCommitCount(username);
     }
 

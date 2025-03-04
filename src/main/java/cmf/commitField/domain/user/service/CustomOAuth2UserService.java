@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
@@ -63,8 +64,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             pet = new Pet("알알", user); // 변경 필요
             petRepository.save(pet);
 
+            long commitCount;
             user.addPets(pet);
             user.setCommitCount(totalCommitService.getTotalCommitCount(user.getUsername()).getTotalCommitContributions());
+
 
             // 회원가입한 유저는 커밋 기록에 상관없이 Redis에 입력해둔다.
             commitCacheService.updateCachedCommitCount(user.getUsername(),0);
