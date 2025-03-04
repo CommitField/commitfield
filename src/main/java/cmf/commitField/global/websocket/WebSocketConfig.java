@@ -14,12 +14,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // 클라이언트가 연결할 WebSocket 엔드포인트
-        registry.addEndpoint("/ws-stomp")
+        // commit수 반영을 위한 웹소켓
+        registry.addEndpoint("/ws/commit")
                 .setAllowedOriginPatterns("*") // setAllowedOriginPatterns 사용
                 // SockJS 사용 (WebSocket 미지원 브라우저 대응)
                 .withSockJS();
 
+        // 채팅 웹소켓
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns("*") // setAllowedOriginPatterns 사용
                 .withSockJS();
@@ -33,4 +34,5 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // 메시지를 구독하는 경로(prefix)
         registry.enableSimpleBroker("/sub", "/topic", "/queue");
     }
+
 }
