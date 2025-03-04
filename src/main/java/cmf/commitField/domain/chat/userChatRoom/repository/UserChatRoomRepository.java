@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserChatRoomRepository extends JpaRepository<UserChatRoom, Long> {
@@ -34,5 +35,9 @@ public interface UserChatRoomRepository extends JpaRepository<UserChatRoom, Long
     List<UserChatRoom> findUserChatRoomByChatRoomId(Long roomId);
     //out room 조회
     List<UserChatRoom> findUserByChatRoomId(Long roomId);
+
+    Optional<UserChatRoom> findByUserId(Long userId);
+    //채팅방 join한 user
+    Optional<UserChatRoom> findByUserIdAndChatRoomId(Long userId, Long chatRoomId);
 
 }

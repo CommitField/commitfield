@@ -23,12 +23,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static java.time.LocalDateTime.now;
 
 @Service
 @RequiredArgsConstructor
@@ -64,8 +65,8 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 .roomCreator(findUser.getId())
                 .title(chatRoomRequest.getTitle())
                 .userCountMax(chatRoomRequest.getUserCountMax())
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
+                .createdAt(now())
+                .modifiedAt(now())
                 .isPrivate(false)
                 .build();
         if (password != null) {
@@ -78,6 +79,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         UserChatRoom userChatRoom = UserChatRoom.builder()
                 .user(findUser)
                 .chatRoom(savedChatRoom)
+                .joinDt(now())
                 .build();
         userChatRoomRepository.save(userChatRoom);
     }
@@ -86,6 +88,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     public void joinRoom(Long roomId, Long userId) {
 
     }
+
 
     // 방 조회 DTO 변환 메서드 추출
     private static List<ChatRoomDto> getChatRoomDtos(Page<ChatRoom> all) {
@@ -164,6 +167,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             UserChatRoom userChatRoom = UserChatRoom.builder()
                     .user(findUser)
                     .chatRoom(chatRoom)
+                    .joinDt(now())
                     .build();
             userChatRoomRepository.save(userChatRoom);
             // 비즈니스 로직 끝
@@ -228,7 +232,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         if (currentRoomTitle.equals(chatRoomUpdateRequest.getTitle())) {
             throw new CustomException(ErrorCode.REQUEST_SAME_AS_CURRENT_TITLE);
         }
-        room.update(chatRoomUpdateRequest.getTitle(), LocalDateTime.now());
+        room.update(chatRoomUpdateRequest.getTitle(), now());
         chatRoomRepository.save(room);
     }
 
