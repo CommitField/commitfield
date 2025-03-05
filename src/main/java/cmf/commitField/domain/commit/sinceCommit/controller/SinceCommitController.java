@@ -51,8 +51,8 @@ public class SinceCommitController {
             @RequestParam String repo
     ) {
         int currentYear = LocalDateTime.now().getYear();
-        LocalDateTime since = LocalDateTime.of(2024, 3, 1, 0, 0);
-        LocalDateTime until = LocalDateTime.of(2024, 5, 31, 23, 59, 59);
+        LocalDateTime since = LocalDateTime.of(2025, 3, 1, 0, 0);
+        LocalDateTime until = LocalDateTime.of(2025, 5, 31, 23, 59, 59);
 
         CommitAnalysisResponseDto analysis = sinceCommitService.getCommitAnalysis(owner, repo, since, until);
         return ResponseEntity.ok(analysis);
@@ -93,7 +93,7 @@ public class SinceCommitController {
             @RequestParam String repo
     ) {
         int currentYear = LocalDateTime.now().getYear();
-        LocalDateTime since = LocalDateTime.of(2023, 12, 1, 0, 0);
+        LocalDateTime since = LocalDateTime.of(2024, 12, 1, 0, 0);
         LocalDateTime until = LocalDateTime.of(2024 + 1, 2, 1, 23, 59, 59)
                 .with(TemporalAdjusters.lastDayOfMonth());
 
