@@ -55,3 +55,11 @@ springdoc:
 
   kafka:
     bootstrap-servers: localhost:9092
+
+logging:
+  level:
+    com.commit-field.commitField: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+    org.hibernate.orm.jdbc.extract: TRACE
+    org.springframework.transaction.interceptor: TRACE

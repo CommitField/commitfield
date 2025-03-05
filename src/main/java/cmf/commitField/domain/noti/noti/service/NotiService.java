@@ -5,6 +5,9 @@ import cmf.commitField.domain.noti.noti.entity.NotiDetailType;
 import cmf.commitField.domain.noti.noti.entity.NotiMessageTemplates;
 import cmf.commitField.domain.noti.noti.entity.NotiType;
 import cmf.commitField.domain.noti.noti.repository.NotiRepository;
+import cmf.commitField.domain.season.entity.Season;
+import cmf.commitField.domain.season.repository.SeasonRepository;
+import cmf.commitField.domain.season.service.SeasonService;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
 import cmf.commitField.global.error.ErrorCode;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,44 +27,57 @@ import java.text.MessageFormat;
 public class NotiService {
     private final NotiRepository notiRepository;
     private final UserRepository userRepository;
+    private final SeasonRepository seasonRepository;
+    private final SeasonService seasonService;
 
     // 알림 메시지 생성
     public static String generateMessage(NotiDetailType type, Object... params) {
         String template = NotiMessageTemplates.getTemplate(type);
-        return MessageFormat.format(template, params);
+        log.info("generateMessage - params: {}", params);
+        log.info("generateMessage - template: {}", template);  // template 자체를 출력
+        String message = MessageFormat.format(template, params);  // params 배열을 그대로 전달
+        log.info("generateMessage - message: {}", message);
+        return message;
     }
 
-    // 연속 커밋 알림 생성
+
+    public List<Noti> getNotReadNoti(User receiver) {
+        log.info("getNotReadNoti - receiver: {}", receiver);
+        List<Noti> notis = notiRepository.findNotiByReceiverAndIsRead(receiver, false).orElse(null);
+        log.info("getNotReadNoti - notis: {}", notis);
+        return notis;
+    }
+
+    public List<Noti> getSeasonNotiCheck(User receiver, long seasonId) {
+        log.info("getSeasonNotiCheck - receiver: {}, seasonId: {}", receiver, seasonId);
+        return notiRepository.findNotiByReceiverAndRelId(receiver, seasonId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ERROR_CHECK)); // 알림이 없을 경우 예외 발생
+    }
+
+    // 새 시즌 알림 생성
     @Transactional
-    public Noti createCommitStreak(String username, NotiType type, NotiDetailType detailType, Object... params) {
+    public void createNewSeason(Season season) {
+        log.info("createNewSeason - season: {}", season.getName());
         // 메시지 생성
-        String message = NotiService.generateMessage(detailType, params);
+        String message = NotiService.generateMessage(NotiDetailType.SEASON_START, season.getName());
+        log.info("createNewSeason - message: {}", message);
 
-        // 사용자 조회 (없으면 예외 처리)
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+        // 모든 사용자 조회
+        Iterable<User> users = userRepository.findAll();
 
-        // 알림 객체 생성 후 저장
-        Noti noti = Noti.builder()
-                .typeCode(type)
-                .type2Code(detailType)
-                .receiver(user)
-                .isRead(false)
-                .message(message)
-                .build();
+        // 모든 유저 알림 객체 생성
+        users.forEach(user -> {
+            Noti noti = Noti.builder()
+                    .typeCode(NotiType.SEASON)
+                    .type2Code(NotiDetailType.SEASON_START)
+                    .receiver(user)
+                    .isRead(false)
+                    .message(message)
+                    .relId(season.getId())
+                    .relTypeCode(season.getModelName())
+                    .build();
 
-        return notiRepository.save(noti);
+            notiRepository.save(noti);
+        });
     }
-
-
-
-//    public CommitAnalysisResponseDto getCommitAnalysis(String owner, String repo, String username, LocalDateTime since, LocalDateTime until) {
-//        List<SinceCommitResponseDto> commits = getSinceCommits(owner, repo, since, until);
-//        StreakResult streakResult = calculateStreaks(commits);
-//
-//        // 연속 커밋 수 Redis 업데이트 및 알림
-//        streakService.updateStreak(username, streakResult.currentStreak, streakResult.maxStreak);
-//
-//        return new CommitAnalysisResponseDto(commits, streakResult.currentStreak, streakResult.maxStreak);
-//    }
-
 }

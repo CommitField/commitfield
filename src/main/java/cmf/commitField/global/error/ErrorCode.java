@@ -67,6 +67,9 @@ public enum ErrorCode {
     // Lock
     FAILED_GET_LOCK(HttpStatus.LOCKED, "락을 획득하지 못했습니다."),
 
+    // Check
+    ERROR_CHECK(HttpStatus.BAD_REQUEST, "에러 체크"),
+
     //Heart
     NOT_EXIST_ROOM_HEART(HttpStatus.BAD_REQUEST, "해당 채팅방에 좋아요가 눌러져 있지 않습니다."),
     ALREADY_HEART_TO_ROOM(HttpStatus.BAD_REQUEST, "이미 해당 채팅방에 좋아요를 누르셨습니다."),
