@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum PetGrowthLevel {
+    LEVEL_0(0),
     LEVEL_1(150),
     LEVEL_2(300);
 
@@ -19,7 +20,7 @@ public enum PetGrowthLevel {
 
     // 현재 경험치에 맞는 레벨 찾기
     public static PetGrowthLevel getLevelByExp(int exp) {
-        PetGrowthLevel currentLevel = LEVEL_1;
+        PetGrowthLevel currentLevel = LEVEL_0;
         for (PetGrowthLevel level : values()) {
             if (exp >= level.getRequiredExp()) {
                 currentLevel = level;
