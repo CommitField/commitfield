@@ -244,6 +244,8 @@ public class TotalCommitService {
             throw new RuntimeException("Failed to fetch GitHub data");
         }
 
+
+        System.out.println("메소드 작동 확인 : "+response.getData().getUser());
         TotalCommitGraphQLResponse.ContributionsCollection contributions =
                 response.getData().getUser().getContributionsCollection();
 
