@@ -4,7 +4,6 @@ import cmf.commitField.domain.commit.scheduler.CommitCacheService;
 import cmf.commitField.domain.commit.totalCommit.service.TotalCommitService;
 import cmf.commitField.domain.pet.entity.Pet;
 import cmf.commitField.domain.pet.repository.PetRepository;
-import cmf.commitField.domain.season.entity.Rank;
 import cmf.commitField.domain.user.entity.CustomOAuth2User;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
@@ -69,7 +68,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             // 유저 펫, 커밋 카운트, 랭크를 서렂ㅇ
             user.addPets(pet);
             user.setCommitCount(totalCommitService.getTotalCommitCount(user.getUsername()).getTotalCommitContributions());
-            user.setRank(Rank.getLevelByExp((int) totalCommitService.getSeasonCommits(
+            user.setTier(User.Tier.getLevelByExp((int) totalCommitService.getSeasonCommits(
                     user.getUsername(),
                     LocalDateTime.of(2025,03,01,00,00),
                     LocalDateTime.now()).getTotalCommitContributions()

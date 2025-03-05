@@ -43,10 +43,10 @@ public class User extends BaseEntity {
     private Tier tier;
 
     public enum Tier {
-        SEED(94),      // 씨앗
-        SPROUT(188),    // 새싹
-        FLOWER(282),    // 꽃
-        FRUIT(376),     // 열매
+        SEED(0),      // 씨앗
+        SPROUT(95),    // 새싹
+        FLOWER(189),    // 꽃
+        FRUIT(283),     // 열매
         TREE(377);       // 나무
 
         private final int requiredExp;

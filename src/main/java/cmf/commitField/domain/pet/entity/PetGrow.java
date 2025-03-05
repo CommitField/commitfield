@@ -3,14 +3,14 @@ package cmf.commitField.domain.pet.entity;
 import lombok.Getter;
 
 @Getter
-public enum PetGrowthLevel {
-    LEVEL_0(0),
-    LEVEL_1(150),
-    LEVEL_2(300);
+public enum PetGrow {
+    EGG(0),
+    HATCH(150),
+    GROWN(300);
 
     private final int requiredExp;
 
-    PetGrowthLevel(int requiredExp) {
+    PetGrow(int requiredExp) {
         this.requiredExp = requiredExp;
     }
 
@@ -19,9 +19,9 @@ public enum PetGrowthLevel {
     }
 
     // 현재 경험치에 맞는 레벨 찾기
-    public static PetGrowthLevel getLevelByExp(int exp) {
-        PetGrowthLevel currentLevel = LEVEL_0;
-        for (PetGrowthLevel level : values()) {
+    public static PetGrow getLevelByExp(int exp) {
+        PetGrow currentLevel = EGG;
+        for (PetGrow level : values()) {
             if (exp >= level.getRequiredExp()) {
                 currentLevel = level;
             }

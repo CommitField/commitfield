@@ -1,7 +1,7 @@
 package cmf.commitField.domain.pet.service;
 
 import cmf.commitField.domain.pet.entity.Pet;
-import cmf.commitField.domain.pet.entity.PetGrowthLevel;
+import cmf.commitField.domain.pet.entity.PetGrow;
 import cmf.commitField.domain.pet.repository.PetRepository;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.global.aws.s3.S3Service;
@@ -56,8 +56,8 @@ public class PetService {
         pet.addExp(commitCount); // 경험치 증가
 
         // 경험치 증가 후, 만약 레벨업한다면 레벨업 시킨다.
-        if( (pet.getGrow()== Pet.Grow.EGG && pet.getExp()>= PetGrowthLevel.LEVEL_1.getRequiredExp()) ||
-                (pet.getGrow()== Pet.Grow.HATCH && pet.getExp()>=PetGrowthLevel.LEVEL_2.getRequiredExp()))
+        if( (pet.getGrow()== PetGrow.EGG && pet.getExp()>= PetGrow.EGG.getRequiredExp()) ||
+                (pet.getGrow()== PetGrow.HATCH && pet.getExp()>= PetGrow.HATCH.getRequiredExp()))
             levelUp(pet);
 
         return petRepository.save(pet);
@@ -67,10 +67,10 @@ public class PetService {
     public void levelUp(Pet pet){
         switch (pet.getGrow()){
             case EGG :
-                pet.setGrow(Pet.Grow.HATCH);
+                pet.setGrow(PetGrow.HATCH);
                 break;
             case HATCH :
-                pet.setGrow(Pet.Grow.GROWN);
+                pet.setGrow(PetGrow.GROWN);
                 break;
         }
     }
