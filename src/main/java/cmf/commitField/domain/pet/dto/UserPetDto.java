@@ -17,6 +17,5 @@ public class UserPetDto {
         this.username = userPet.getUser().getUsername();
         this.petId = userPet.getPet().getId();
         this.petName = userPet.getPet().getName();
-        this.isHatched = userPet.isHatched();
     }
 }
