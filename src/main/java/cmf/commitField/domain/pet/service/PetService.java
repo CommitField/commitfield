@@ -1,9 +1,11 @@
 package cmf.commitField.domain.pet.service;
 
+import cmf.commitField.domain.pet.dto.UserPetDto;
 import cmf.commitField.domain.pet.entity.Pet;
 import cmf.commitField.domain.pet.entity.PetGrow;
 import cmf.commitField.domain.pet.repository.PetRepository;
 import cmf.commitField.domain.user.entity.User;
+import cmf.commitField.domain.user.repository.UserRepository;
 import cmf.commitField.global.aws.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +19,7 @@ import java.util.Random;
 @Service
 @RequiredArgsConstructor
 public class PetService {
-
+    private final UserRepository userRepository;
     private final PetRepository petRepository;
     private final S3Service s3Service;
 
@@ -51,16 +53,25 @@ public class PetService {
     }
 
     // 펫 성장
-    public Pet getExpPet(User user, int commitCount) {
+    public UserPetDto getExpPet(String username, int commitCount) {
+        User user = userRepository.findByUsername(username).get();
         Pet pet = user.getPets().get(0);
         pet.addExp(commitCount); // 경험치 증가
 
         // 경험치 증가 후, 만약 레벨업한다면 레벨업 시킨다.
         if( (pet.getGrow()== PetGrow.EGG && pet.getExp()>= PetGrow.EGG.getRequiredExp()) ||
-                (pet.getGrow()== PetGrow.HATCH && pet.getExp()>= PetGrow.HATCH.getRequiredExp()))
+                (pet.getGrow()== PetGrow.HATCH && pet.getExp()>= PetGrow.HATCH.getRequiredExp())) {
+            System.out.println("펫 레벨 업, 현재 경험치 : "+pet.getExp());
             levelUp(pet);
+        }
 
-        return petRepository.save(pet);
+        return UserPetDto.builder().
+                username(username).
+                petId(pet.getId()).
+                petName(pet.getName()).
+                exp(pet.getExp()).
+                grow(String.valueOf(pet.getGrow())).
+                build();
     }
 
     // 펫 레벨 업
