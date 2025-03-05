@@ -206,16 +206,14 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             return;
         }
         // 방장이라면 방 삭제
-        chatMessageRepository.deleteChatMsgByChatRoom_Id(roomId); //방 삭제 시 채팅도 다 삭제(필요 시)
+        chatMessageRepository.deleteChatMsgByChatRoom_Id(roomId); //방 삭제 시 채팅도 다 삭제
+        // 방 삭제시 채탱 메세지 전체 삭제(포함)
         userChatRoomRepository.deleteUserChatRoomByChatRoom_Id(roomId);
+
+        //채팅방 삭제
         chatRoomRepository.deleteById(roomId);
 
-        // 방의 생성자와 현재 사용자가 같은지 확인
-        boolean isCreator = Objects.equals(room.getRoomCreator(), userId);
 
-        // 방장 여부와 상관없이 항상 사용자-채팅방 연결만 제거
-        // 방이 삭제되지 않고 목록에 계속 표시됨
-        userChatRoomRepository.deleteUserChatRoomByChatRoom_IdAndUserId(roomId, userId);
     }
 
     // 방 삭제는 별도의 메소드로 분리
