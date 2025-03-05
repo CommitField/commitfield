@@ -23,10 +23,7 @@ public interface UserChatRoomRepository extends JpaRepository<UserChatRoom, Long
     void deleteUserChatRoomByChatRoom_Id(Long chatRoomId);
     // 특정 방에서 특정 사용자만 삭제
     void deleteUserChatRoomByChatRoom_IdAndUserId(Long chatRoomId, Long userId);
-    // 특정 방과 사용자 관계 삭제
-    void deleteUserChatRoomByUserId(Long userId);
-    // 사용자가 해당 방에 참여한 여부 확인
-    boolean existsByChatRoomIdAndUserId(Long roomId, Long userId);
+
     // 특정 방에 참여한 모든 UserChatRoom 관계 조회
     List<UserChatRoom> findByChatRoom_Id(Long chatRoomId);
     @Query("select u.user.id from UserChatRoom u where u.chatRoom.id = ?1")
@@ -36,7 +33,6 @@ public interface UserChatRoomRepository extends JpaRepository<UserChatRoom, Long
     //out room 조회
     List<UserChatRoom> findUserByChatRoomId(Long roomId);
 
-    Optional<UserChatRoom> findByUserId(Long userId);
     //채팅방 join한 user
     Optional<UserChatRoom> findByUserIdAndChatRoomId(Long userId, Long chatRoomId);
 
