@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static cmf.commitField.global.error.ErrorCode.NOT_FOUND_ROOM;
 import static java.time.LocalDateTime.now;
 
 @Service
@@ -138,7 +139,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
             // room 조회
             ChatRoom chatRoom = chatRoomRepository.findById(roomId) // lock (기존)
-                    .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ROOM));
+                    .orElseThrow(() -> new CustomException(NOT_FOUND_ROOM));
 
             // user_chatroom 현재 인원 카운트 (비즈니스 로직)
             Long currentUserCount = userChatRoomRepository.countNonLockByChatRoomId(roomId); // lock (기존)
@@ -234,6 +235,31 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         }
         room.update(chatRoomUpdateRequest.getTitle(), now());
         chatRoomRepository.save(room);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChatRoomDto> searchRoomByTitle(String roomName, Long userId, Pageable pageable) {
+        getUser(userId);
+        Page<ChatRoom> search = chatRoomRepository.findChatRoomWithPartOfTitle(roomName, pageable);
+
+        List<ChatRoom> searchRoomList = search.toList();
+        List<ChatRoomDto> chatRoomDtos = new ArrayList<>();
+        if (searchRoomList.isEmpty()) {
+            throw new CustomException(NOT_FOUND_ROOM);
+        }
+
+        for (ChatRoom chatRoom : searchRoomList) {
+            ChatRoomDto build = ChatRoomDto.builder()
+                    .id(chatRoom.getId())
+                    .title(chatRoom.getTitle())
+                    .heartCount(chatRoom.getHearts().size())
+                    .currentUserCount((long) chatRoom.getUserChatRooms().size())
+                    .userCountMax(chatRoom.getUserCountMax())
+                    .build();
+            chatRoomDtos.add(build);
+        }
+        return chatRoomDtos;
     }
 
     private User getUser(Long userId) {

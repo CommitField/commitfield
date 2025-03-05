@@ -213,6 +213,30 @@ public class ChatRoomController {
         return GlobalResponse.success("좋아요 누른 채팅방 리스트 조회 완료", list);
     }
 
+    // 채팅방 제목 검색 조회
+    @GetMapping("/room/search")
+    @LoginCheck
+    public GlobalResponse<Object> searchRoomName(
+            @RequestParam(name = "roomName") String roomName,
+            Pageable pageable) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication instanceof OAuth2AuthenticationToken) {
+            CustomOAuth2User principal = (CustomOAuth2User) authentication.getPrincipal();
+            Long userId = principal.getId();  // Extract userId from the principal
+
+            if (roomName.isEmpty()) {
+                throw new IllegalArgumentException("원하는 채팅방의 제목을 입력하세요.");
+            }
+
+            List<ChatRoomDto> list = chatRoomService.searchRoomByTitle(roomName, userId, pageable);
+            return GlobalResponse.success(list);
+        } else {
+            throw new IllegalArgumentException("로그인 후에 이용해 주세요.");
+        }
+    }
+
 
 
 
