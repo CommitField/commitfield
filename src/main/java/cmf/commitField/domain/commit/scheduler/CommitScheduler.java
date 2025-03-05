@@ -72,7 +72,7 @@ public class CommitScheduler {
             username,
             lastCommittedTime,  // 🚀 Redis에 저장된 lastCommitted 기준으로 조회
             LocalDateTime.now()
-        ).getTotalCommitContributions();
+        ).getCommits();
         System.out.println("커밋 개수 불러들이기 완료, 현재까지 업데이트 된 커밋 수 : "+updateTotalCommit);
 
         if(currentCommit.equals("0") && updateTotalCommit > 0){

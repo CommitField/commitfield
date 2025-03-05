@@ -43,7 +43,7 @@ public class UserService {
         commitUpdateService.updateUserTier(user.getUsername());
         petService.getExpPet(user.getUsername(), 0);
 
-        long commit = totalCommitService.getUpdateCommits(username, user.getLastCommitted(), LocalDateTime.now()).getTotalCommitContributions();
+        long commit = totalCommitService.getUpdateCommits(username, user.getLastCommitted(), LocalDateTime.now()).getCommits();
         System.out.println("커밋수 테스트 : "+commit);
 
         String key = "commit_active:" + user.getUsername();

@@ -1,5 +1,6 @@
 package cmf.commitField.domain.commit.totalCommit.service;
 
+import cmf.commitField.domain.commit.totalCommit.dto.CommitUpdateDTO;
 import cmf.commitField.domain.commit.totalCommit.dto.TotalCommitGraphQLResponse;
 import cmf.commitField.domain.commit.totalCommit.dto.TotalCommitResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -215,7 +216,7 @@ public class TotalCommitService {
     }
 
     // 시간별 커밋 분석
-    public TotalCommitResponseDto getUpdateCommits(String username, LocalDateTime since, LocalDateTime until) {
+    public CommitUpdateDTO getUpdateCommits(String username, LocalDateTime since, LocalDateTime until) {
         String query = String.format("""
         query {
             user(login: "%s") {
@@ -249,9 +250,8 @@ public class TotalCommitService {
         TotalCommitGraphQLResponse.ContributionsCollection contributions =
                 response.getData().getUser().getContributionsCollection();
 
-        return new TotalCommitResponseDto(
-                contributions.getTotalCommitContributions(),
-                contributions.getRestrictedContributionsCount()
+        return new CommitUpdateDTO(
+                contributions.getTotalCommitContributions()
         );
     }
 }
