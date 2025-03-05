@@ -1,13 +1,12 @@
 package cmf.commitField.domain.noti.noti.service;
 
+import cmf.commitField.domain.noti.noti.dto.NotiDto;
 import cmf.commitField.domain.noti.noti.entity.Noti;
 import cmf.commitField.domain.noti.noti.entity.NotiDetailType;
 import cmf.commitField.domain.noti.noti.entity.NotiMessageTemplates;
 import cmf.commitField.domain.noti.noti.entity.NotiType;
 import cmf.commitField.domain.noti.noti.repository.NotiRepository;
 import cmf.commitField.domain.season.entity.Season;
-import cmf.commitField.domain.season.repository.SeasonRepository;
-import cmf.commitField.domain.season.service.SeasonService;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
 import cmf.commitField.global.error.ErrorCode;
@@ -27,29 +26,23 @@ import java.util.List;
 public class NotiService {
     private final NotiRepository notiRepository;
     private final UserRepository userRepository;
-    private final SeasonRepository seasonRepository;
-    private final SeasonService seasonService;
 
     // 알림 메시지 생성
     public static String generateMessage(NotiDetailType type, Object... params) {
         String template = NotiMessageTemplates.getTemplate(type);
-        log.info("generateMessage - params: {}", params);
-        log.info("generateMessage - template: {}", template);  // template 자체를 출력
         String message = MessageFormat.format(template, params);  // params 배열을 그대로 전달
-        log.info("generateMessage - message: {}", message);
         return message;
     }
 
 
-    public List<Noti> getNotReadNoti(User receiver) {
-        log.info("getNotReadNoti - receiver: {}", receiver);
-        List<Noti> notis = notiRepository.findNotiByReceiverAndIsRead(receiver, false).orElse(null);
-        log.info("getNotReadNoti - notis: {}", notis);
+    public List<NotiDto> getNotReadNoti(User receiver) {
+        System.out.println("알림 조회");
+        List<NotiDto> notis = notiRepository.findNotiDtoByReceiverId(receiver.getId(), false).orElse(null);
+        System.out.println("알림 조회 끝");
         return notis;
     }
 
     public List<Noti> getSeasonNotiCheck(User receiver, long seasonId) {
-        log.info("getSeasonNotiCheck - receiver: {}, seasonId: {}", receiver, seasonId);
         return notiRepository.findNotiByReceiverAndRelId(receiver, seasonId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ERROR_CHECK)); // 알림이 없을 경우 예외 발생
     }
@@ -57,10 +50,9 @@ public class NotiService {
     // 새 시즌 알림 생성
     @Transactional
     public void createNewSeason(Season season) {
-        log.info("createNewSeason - season: {}", season.getName());
+        System.out.println("새 시즌 알림 생성");
         // 메시지 생성
         String message = NotiService.generateMessage(NotiDetailType.SEASON_START, season.getName());
-        log.info("createNewSeason - message: {}", message);
 
         // 모든 사용자 조회
         Iterable<User> users = userRepository.findAll();
@@ -79,5 +71,6 @@ public class NotiService {
 
             notiRepository.save(noti);
         });
+        System.out.println("새 시즌 알림 생성 끝");
     }
 }

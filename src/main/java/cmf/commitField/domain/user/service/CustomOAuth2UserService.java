@@ -92,6 +92,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         // 알림 테이블에서 Active인 시즌의 알림을 해당 유저가 가지고 있는지 체크
         String season_key = "season_active:" + user.getUsername();
         Season season = seasonService.getActiveSeason();
+        log.info("Active season: {}", season);
         if(notiService.getSeasonNotiCheck(user, season.getId()).isEmpty()){
             log.info("User {} does not have season noti", user.getUsername());
             // 가지고 있지 않다면 알림을 추가

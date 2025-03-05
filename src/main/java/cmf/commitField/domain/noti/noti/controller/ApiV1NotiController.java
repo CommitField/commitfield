@@ -1,7 +1,6 @@
 package cmf.commitField.domain.noti.noti.controller;
 
 import cmf.commitField.domain.noti.noti.dto.NotiDto;
-import cmf.commitField.domain.noti.noti.entity.Noti;
 import cmf.commitField.domain.noti.noti.service.NotiService;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -35,19 +33,14 @@ public class ApiV1NotiController {
     @GetMapping("")
     public GlobalResponse<List<NotiDto>> getNoti() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        log.info("getNoti - userRequest: {}", authentication);
 
         if (authentication instanceof OAuth2AuthenticationToken) {
             OAuth2User principal = (OAuth2User) authentication.getPrincipal();
             Map<String, Object> attributes = principal.getAttributes();
             String username = (String) attributes.get("login");  // GitHub ID
             User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
-            List<Noti> notis = notiService.getNotReadNoti(user);
-
-            List<NotiDto> notiDtos = notis.stream()
-                    .map(NotiDto::new)
-                    .collect(Collectors.toList());
-            return GlobalResponse.success(notiDtos);
+            List<NotiDto> notis = notiService.getNotReadNoti(user);
+            return GlobalResponse.success(notis);
         }
 
         return GlobalResponse.error(ErrorCode.LOGIN_REQUIRED);
