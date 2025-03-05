@@ -39,15 +39,4 @@ public class CommitUpdateService {
                 .tier(user.getTier().name())
                 .build();
     }
-
-    public User updateUserPet(String username){
-        User user = userRepository.findByUsername(username).get();
-
-        //추가된 펫 경험치
-        long totalcommits;
-        totalcommits = totalCommitService.getUpdateCommits(user.getUsername(), user.getCreatedAt(), LocalDateTime.now()).getTotalCommitContributions();
-
-        petService.getExpPet(user, (int)totalcommits);
-        return user;
-    }
 }
