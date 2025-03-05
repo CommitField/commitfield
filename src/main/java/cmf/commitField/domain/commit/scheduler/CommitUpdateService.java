@@ -29,7 +29,6 @@ public class CommitUpdateService {
         userRepository.save(user);
 
         return UserInfoDto.builder()
-                .userId(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .avatarUrl(user.getAvatarUrl())
