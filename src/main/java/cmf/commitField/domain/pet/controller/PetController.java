@@ -3,7 +3,6 @@ package cmf.commitField.domain.pet.controller;
 import cmf.commitField.domain.pet.dto.UserPetDto;
 import cmf.commitField.domain.pet.entity.Pet;
 import cmf.commitField.domain.pet.service.PetService;
-import cmf.commitField.domain.user.dto.UserInfoDto;
 import cmf.commitField.domain.user.entity.CustomOAuth2User;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.service.CustomOAuth2UserService;
@@ -29,7 +28,7 @@ public class PetController {
         String username = oAuth2User.getName();  // CustomOAuth2User의 getName()은 user.getUsername()을 반환
 
         System.out.println("/pet/exp, Username: "+username);
-        UserPetDto userPetDto = petService.getExpPet(username);
+        UserPetDto userPetDto = petService.getExpPet(username, 0);
         return ResponseEntity.ok(userPetDto);
     }
 
@@ -67,7 +66,7 @@ public class PetController {
     }
 
     public void getExpPet(User user, int commitCount){
-        petService.getExpPet(user, commitCount);
+        petService.getExpPet(user.getUsername(), commitCount);
 
     }
 }
