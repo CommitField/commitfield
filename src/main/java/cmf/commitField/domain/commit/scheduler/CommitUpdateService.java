@@ -6,6 +6,7 @@ import cmf.commitField.domain.user.dto.UserInfoDto;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -16,6 +17,8 @@ public class CommitUpdateService {
     private final TotalCommitService totalCommitService;
     private final UserRepository userRepository;
     private final PetService petService;
+
+    private final ApplicationEventPublisher eventPublisher;
 
     public UserInfoDto updateUserTier(String username){
         User user = userRepository.findByUsername(username).get();

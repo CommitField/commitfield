@@ -10,7 +10,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,25 +29,19 @@ public class CommitScheduler {
         log.info("🔍 updateUserCommits 실행중");
         int count = counter.incrementAndGet();
 
-        if (count % 10 == 0) {
-            List<User> allUsers = userRepository.findAll();
-            log.info("🔍 All User Count: {}", allUsers.size());
+        // 최근 로그인이 이루어진 (접근 가능성이 높은) 유저만 실시간으로 커밋 수 변경 추적 후 갱신
+        // 최근 로그인이 이루어지지 않은 유저는 페이지 최초 로그인 시 갱신이 발생한다.
+        Set<String> activeUsers = redisTemplate.keys("commit_active:*");
+        log.info("🔍 Active User Count: {}", activeUsers.size());
 
-            for (User user : allUsers) {
+        for (String key : activeUsers) {
+            String username = key.replace("commit_active:", "");
+            User user = userRepository.findByUsername(username).orElse(null);
+            if (user != null) {
                 processUserCommit(user);
             }
-        } else {
-            Set<String> activeUsers = redisTemplate.keys("commit_active:*");
-            log.info("🔍 Active User Count: {}", activeUsers.size());
-
-            for (String key : activeUsers) {
-                String username = key.replace("commit_active:", "");
-                User user = userRepository.findByUsername(username).orElse(null);
-                if (user != null) {
-                    processUserCommit(user);
-                }
-            }
         }
+
     }
 
     // 🔹 유저 커밋 검사 및 반영
