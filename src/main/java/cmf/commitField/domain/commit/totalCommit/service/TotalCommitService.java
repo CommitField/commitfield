@@ -223,7 +223,7 @@ public class TotalCommitService {
                     commitContributionsByRepository {
                         contributions(first: 100) {
                             nodes {
-                                occurredAt  # ✅ 시간 정보 포함
+                                occurredAt  # 시간 정보 포함
                             }
                         }
                     }

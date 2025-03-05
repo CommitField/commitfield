@@ -10,6 +10,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,56 +36,69 @@ public class CommitScheduler {
         Set<String> activeUsers = redisTemplate.keys("commit_active:*");
         log.info("🔍 Active User Count: {}", activeUsers.size());
 
+        // 현재 접속 기록이 있는 유저, 커밋 기록이 있는 유저는 주기적으로 갱신
         for (String key : activeUsers) {
             String username = key.replace("commit_active:", "");
-            User user = userRepository.findByUsername(username).orElse(null);
-            if (user != null) {
-                processUserCommit(user);
-            }
-        }
 
+            String lastcmKey = "commit_lastCommitted:" + username; // active유저의 key
+            String lastCommitted = redisTemplate.opsForValue().get(lastcmKey); // 마지막 커밋 시간
+
+            System.out.println("username: "+username);
+            System.out.println("user lastCommitted: "+lastCommitted);
+            if(username!=null && lastCommitted!=null) processUserCommit(username);
+        }
     }
 
     // 🔹 유저 커밋 검사 및 반영
-    private void processUserCommit(User user) {
-        // Redis에서 lastCommitted 값 가져오기
-        String redisKey = "commit_last:" + user.getUsername();
-        String lastCommittedStr = redisTemplate.opsForValue().get(redisKey);
-        LocalDateTime lastCommitted;
-        if(lastCommittedStr != null){
-            lastCommitted=LocalDateTime.parse(lastCommittedStr);
-        }else{
-            user.setLastCommitted(LocalDateTime.now()); // 레디스에 저장되어있지 않았다면 등록 시점에 lastCommitted를 갱신
-            lastCommitted=user.getLastCommitted();  // Redis에 없으면 DB값 사용;
+    private void processUserCommit(String username) {
+        // 유저가 접속한 동안 추가한 commit수를 확인.
+        String key = "commit_active:" + username; // active유저의 key
+        String lastcmKey = "commit_lastCommitted:" + username; // active유저의 key
+        String currentCommit = redisTemplate.opsForValue().get(key); // 현재까지 확인한 커밋 개수
+        String lastcommitted = redisTemplate.opsForValue().get(lastcmKey); // 마지막 커밋 시간
+        long updateTotalCommit, newCommitCount;
+
+
+        LocalDateTime lastCommittedTime;
+        try {
+            lastCommittedTime = LocalDateTime.parse(lastcommitted, DateTimeFormatter.ISO_DATE_TIME);
+        } catch (DateTimeParseException e) {
+            System.out.println("lastcommitted 값이 올바르지 않음: " + lastcommitted);
+            lastCommittedTime = LocalDateTime.now().minusHours(1);
         }
 
         // 현재 커밋 개수 조회
-        long currentCommitCount = totalCommitService.getUpdateCommits(
-                user.getUsername(),
-                lastCommitted,  // 🚀 Redis에 저장된 lastCommitted 기준으로 조회
-                LocalDateTime.now()
+        updateTotalCommit = totalCommitService.getUpdateCommits(
+            username,
+            lastCommittedTime,  // 🚀 Redis에 저장된 lastCommitted 기준으로 조회
+            LocalDateTime.now()
         ).getTotalCommitContributions();
+        System.out.println("커밋 개수 불러들이기 완료, 현재까지 업데이트 된 커밋 수 : "+updateTotalCommit);
 
-        // Redis에서 이전 커밋 개수 가져오기
-        Integer previousCommitCount = commitCacheService.getCachedCommitCount(user.getUsername());
-        long newCommitCount = previousCommitCount == null ? 0 : (currentCommitCount - previousCommitCount);
+        if(currentCommit.equals("0") && updateTotalCommit > 0){
+            User user = userRepository.findByUsername(username).get();
+            LocalDateTime now = LocalDateTime.now();
+            //이번 기간에 처음으로 커밋 수가 갱신된 경우, 이 시간을 기점으로 commitCount를 계산한다.
+            user.setLastCommitted(now);
+            userRepository.save(user);
 
-        if (newCommitCount > 0) {
-            updateCommitData(user, currentCommitCount, newCommitCount);
+            String redisKey = "commit_update:" + username; // 변경 알림을 위한 변수
+            redisTemplate.opsForValue().set(redisKey, String.valueOf(updateTotalCommit), 3, TimeUnit.HOURS);
+
+            redisTemplate.opsForValue().set(lastcmKey, String.valueOf(now), 3, TimeUnit.HOURS);
         }
 
-        log.info("🔍 User: {}, New Commits: {}, Total Commits: {}", user.getUsername(), newCommitCount, currentCommitCount);
-    }
+        //기존 커밋이 있고 커밋 수에 변화가 있는 경우 처리
+        newCommitCount = updateTotalCommit - Long.parseLong(currentCommit); // 새로 추가된 커밋 수
+        if(newCommitCount>0){
+            String redisKey = "commit_update:" + username; // 변경 알림을 위한 변수
+            redisTemplate.opsForValue().set(redisKey, String.valueOf(newCommitCount), 3, TimeUnit.HOURS);
 
-    // 🔹 새 커밋이 있으면 데이터 업데이트
-    private void updateCommitData(User user, long currentCommitCount, long newCommitCount) {
-        // 1️⃣ Redis에 lastCommitted 업데이트 (3시간 TTL)
-        String redisKey = "commit_last:" + user.getUsername();
-        redisTemplate.opsForValue().set(redisKey, LocalDateTime.now().toString(), 3, TimeUnit.HOURS);
+            updateTotalCommit+=newCommitCount;
+            redisTemplate.opsForValue().set(key, String.valueOf(updateTotalCommit), 3, TimeUnit.HOURS);
+        }
 
-        // 2️⃣ Redis에 최신 커밋 개수 저장 (3시간 동안 유지)
-        commitCacheService.updateCachedCommitCount(user.getUsername(), currentCommitCount);
-
-        log.info("✅ 커밋 반영 완료 - User: {}, New Commits: {}", user.getUsername(), newCommitCount);
+        // FIXME: 차후 리팩토링 필요
+        log.info("🔍 User: {}, LastCommitted: {}, New Commits: {}, Total Commits: {}", username, lastcommitted, newCommitCount, currentCommit);
     }
 }
