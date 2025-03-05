@@ -1,6 +1,6 @@
 package cmf.commitField.domain.user.service;
 
-import cmf.commitField.domain.commit.sinceCommit.service.CommitCacheService;
+import cmf.commitField.domain.commit.scheduler.CommitCacheService;
 import cmf.commitField.domain.commit.totalCommit.service.TotalCommitService;
 import cmf.commitField.domain.pet.entity.Pet;
 import cmf.commitField.domain.pet.repository.PetRepository;
@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
@@ -27,6 +28,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final HttpServletRequest request;  // HttpServletRequest를 주입 받음.
     private final CommitCacheService commitCacheService;
     private final TotalCommitService totalCommitService;
+
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) {
@@ -60,13 +62,20 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user = new User(username, email, name, avatarUrl,true, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
             userRepository.save(user);
 
-            pet = new Pet("알알", user); // 변경 필요
+            pet = new Pet("알알", user); // TODO: 변경 필요
             petRepository.save(pet);
 
+            // 유저 펫, 커밋 카운트, 랭크를 서렂ㅇ
             user.addPets(pet);
             user.setCommitCount(totalCommitService.getTotalCommitCount(user.getUsername()).getTotalCommitContributions());
+            user.setTier(User.Tier.getLevelByExp((int) totalCommitService.getSeasonCommits(
+                    user.getUsername(),
+                    LocalDateTime.of(2025,03,01,00,00),
+                    LocalDateTime.now()).getTotalCommitContributions()
+                )
+            );
 
-            // 회원가입한 유저는 커밋 기록에 상관없이 Redis에 입력해둔다.
+            // 로그인하거나 회원가입한 유저는 커밋 기록에 상관없이 Redis에 입력해둔다.
             commitCacheService.updateCachedCommitCount(user.getUsername(),0);
         }
 

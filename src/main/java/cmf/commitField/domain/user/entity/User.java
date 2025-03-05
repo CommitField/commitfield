@@ -32,12 +32,45 @@ public class User extends BaseEntity {
     private LocalDateTime lastCommitted; // 마지막 커밋 시간
     private long commitCount;
 
-    @Enumerated(EnumType.STRING)  // DB에 저장될 때 String 형태로 저장됨
+    @Enumerated(EnumType.STRING)  // 권한
     private Role role;
 
     public enum Role {
         USER, ADMIN
     }
+
+    @Enumerated(EnumType.STRING)  // DB에 저장될 때 String 형태로 저장됨
+    private Tier tier;
+
+    public enum Tier {
+        SEED(0),      // 씨앗
+        SPROUT(95),    // 새싹
+        FLOWER(189),    // 꽃
+        FRUIT(283),     // 열매
+        TREE(377);       // 나무
+
+        private final int requiredExp;
+
+        Tier(int requiredExp) {
+            this.requiredExp = requiredExp;
+        }
+
+        public int getRequiredExp() {
+            return requiredExp;
+        }
+
+        // 현재 경험치에 맞는 레벨 찾기
+        public static Tier getLevelByExp(int exp) {
+            Tier currentLevel = SEED;
+            for (Tier level : values()) {
+                if (exp >= level.getRequiredExp()) {
+                    currentLevel = level;
+                }
+            }
+            return currentLevel;
+        }
+    }
+
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<ChatRoom> chatRooms = new ArrayList<>();
@@ -61,6 +94,7 @@ public class User extends BaseEntity {
         this.avatarUrl=avatarUrl;
         this.status= status;
         this.role = Role.USER;
+        this.tier = Tier.SEED;
         this.chatRooms = cr;
         this.userChatRooms = ucr;
         this.chatMsgs = cmsg;

@@ -25,7 +25,7 @@ public class Pet extends BaseEntity {
     private int exp; // 펫 경험치
 
     @Enumerated(EnumType.STRING)  // DB에 저장될 때 String 형태로 저장됨
-    private Grow grow; // 성장 정도
+    private PetGrow grow; // 성장 정도
 
     public Pet(String name, User user){
         Random random = new Random();
@@ -40,17 +40,13 @@ public class Pet extends BaseEntity {
         }
         this.name = name;
         this.exp = 0;
-        this.grow = Grow.EGG;
+        this.grow = PetGrow.EGG;
         this.user = user;
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-    public enum Grow {
-        EGG, HATCH, GROWN
-    }
 
     public int addExp(int commit){
         exp+=commit;
