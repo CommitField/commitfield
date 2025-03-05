@@ -141,36 +141,33 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         ChatRoom room = chatRoomRepository
                 .findChatRoomById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NO_ROOM_FOUND));
-        // 방장이 아니라면
-        if (!Objects.equals(room.getRoomCreator(), userId)) {
-            userChatRoomRepository.deleteUserChatRoomByChatRoom_IdAndUserId(roomId, userId);
-            return;
-        }
-        // 방장이라면 방 삭제
-        chatMessageRepository.deleteChatMsgByChatRoom_Id(roomId); //방 삭제 시 채팅도 다 삭제(필요 시)
-        userChatRoomRepository.deleteUserChatRoomByChatRoom_Id(roomId);
-        chatRoomRepository.deleteById(roomId);
 
+        // 방의 생성자와 현재 사용자가 같은지 확인
+        boolean isCreator = Objects.equals(room.getRoomCreator(), userId);
+
+        // 방장 여부와 상관없이 항상 사용자-채팅방 연결만 제거
+        // 방이 삭제되지 않고 목록에 계속 표시됨
+        userChatRoomRepository.deleteUserChatRoomByChatRoom_IdAndUserId(roomId, userId);
     }
 
-
+    // 방 삭제는 별도의 메소드로 분리
     @Override
     @Transactional
     public void deleteRoom(Long userId, Long roomId) {
         ChatRoom room = chatRoomRepository
                 .findChatRoomById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NO_ROOM));
+
         //방장이 아닐 경우, 삭제 불가
         if (!Objects.equals(room.getRoomCreator(), userId)) {
             throw new CustomException(ErrorCode.NOT_ROOM_CREATOR);
         }
+
         //모든 사용자 제거 후 방 삭제
         chatMessageRepository.deleteChatMsgByChatRoom_Id(roomId);
         userChatRoomRepository.deleteUserChatRoomByChatRoom_Id(roomId);
         chatRoomRepository.deleteById(roomId);
-
-}
-
+    }
 
 
 }
