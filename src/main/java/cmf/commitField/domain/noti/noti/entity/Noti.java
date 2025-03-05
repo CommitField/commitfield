@@ -24,6 +24,7 @@ import static lombok.AccessLevel.PROTECTED;
 public class Noti extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private NotiType typeCode; // 알림 타입
+    @Enumerated(EnumType.STRING)
     private NotiDetailType type2Code; // 알림 세부 타입
     @ManyToOne
     private User receiver; // 알림을 받는 사람
@@ -32,7 +33,7 @@ public class Noti extends BaseEntity {
     private String message; // 알림 메시지
 
     // TODO: 알림이 연결된 객체 어떻게 처리할지 고민 필요.
-//    private String relTypeCode; // 알림이 연결된 실제 객체 유형
-//    private long relId; // 알림 객체의 Id
+    private String relTypeCode; // 알림이 연결된 실제 객체 유형
+    private long relId; // 알림 객체의 Id
 
 }

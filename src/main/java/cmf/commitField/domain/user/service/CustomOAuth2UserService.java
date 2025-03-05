@@ -2,14 +2,19 @@ package cmf.commitField.domain.user.service;
 
 import cmf.commitField.domain.commit.sinceCommit.service.CommitCacheService;
 import cmf.commitField.domain.commit.totalCommit.service.TotalCommitService;
+import cmf.commitField.domain.noti.noti.service.NotiService;
 import cmf.commitField.domain.pet.entity.Pet;
 import cmf.commitField.domain.pet.repository.PetRepository;
+import cmf.commitField.domain.season.entity.Season;
+import cmf.commitField.domain.season.service.SeasonService;
 import cmf.commitField.domain.user.entity.CustomOAuth2User;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -21,12 +26,16 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final UserRepository userRepository;
     private final PetRepository petRepository;
     private final HttpServletRequest request;  // HttpServletRequest를 주입 받음.
     private final CommitCacheService commitCacheService;
     private final TotalCommitService totalCommitService;
+    private final NotiService notiService;
+    private final SeasonService seasonService;
+    private final StringRedisTemplate redisTemplate;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) {
@@ -68,6 +77,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
             // 회원가입한 유저는 커밋 기록에 상관없이 Redis에 입력해둔다.
             commitCacheService.updateCachedCommitCount(user.getUsername(),0);
+        }
+
+        // 시즌 알림 처리
+        // 알림 테이블에서 Active인 시즌의 알림을 해당 유저가 가지고 있는지 체크
+        String season_key = "season_active:" + user.getUsername();
+        Season season = seasonService.getActiveSeason();
+        if(notiService.getSeasonNotiCheck(user, season.getId()).isEmpty()){
+            log.info("User {} does not have season noti", user.getUsername());
+            // 가지고 있지 않다면 알림을 추가
+            notiService.createNewSeason(season);
+//            redisTemplate.opsForValue().set(season_key, String.valueOf(count), Duration.ofHours(3)); // 3시간 캐싱
         }
 
         // 세션에 사용자 정보 저장

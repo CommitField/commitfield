@@ -1,3 +1,4 @@
+// java/cmf/commitField/global/scheduler/SeasonScheduler.java
 package cmf.commitField.global.scheduler;
 
 import cmf.commitField.domain.season.entity.Rank;
@@ -29,8 +30,8 @@ public class SeasonScheduler {
     private final UserRepository userRepository;
     private final SeasonService seasonService;
 
-    // 매일 자정마다 시즌 확인 및 생성
-    @Scheduled(cron = "0 0 0 * * *")
+//     매년 3, 6, 9, 12월 1일 자정마다 시즌 확인 및 생성
+    @Scheduled(cron = "0 0 0 1 3,6,9,12 *")
     public void checkAndCreateNewSeason() {
         LocalDate today = LocalDate.now();
         String seasonName = today.getYear() + " " + getSeasonName(today.getMonthValue());
@@ -43,7 +44,7 @@ public class SeasonScheduler {
             LocalDateTime startDate = getSeasonStartDate(today.getYear(), today.getMonth());
             LocalDateTime endDate = startDate.plusMonths(3).minusSeconds(1);
 
-            //현재 활성 시즌 종료
+            // 현재 활성 시즌 종료
             if (activeSeason != null) {
                 activeSeason.setStatus(SeasonStatus.INACTIVE);
                 seasonRepository.save(activeSeason);
@@ -55,6 +56,9 @@ public class SeasonScheduler {
             // 모든 유저의 랭크 초기화
             resetUserRanks(newSeason);
 
+            // 새 시즌 시작 알림 저장 및 알림 전송
+//            String message = notiService.createNewSeason(newSeason.getName());
+//            notiWebSocketHandler.sendNotificationToAllUsers(message);
             System.out.println("새 시즌 생성: " + newSeason.getName());
         } else {
             System.out.println("이미 활성화된 시즌: " + activeSeason.getName());
