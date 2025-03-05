@@ -34,7 +34,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     private final UserChatRoomRepository userChatRoomRepository;
 
     @Override
-    @Transactional
+//    @Transactional
     public ChatMsgResponse sendMessage(ChatMsgRequest message, Long userId, Long roomId) {
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
