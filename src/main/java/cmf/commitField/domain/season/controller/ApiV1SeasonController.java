@@ -4,9 +4,11 @@ import cmf.commitField.domain.season.entity.Season;
 import cmf.commitField.domain.season.service.SeasonService;
 import cmf.commitField.global.scheduler.SeasonScheduler;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.swing.*;
 import java.time.LocalDateTime;
 
 @RestController
@@ -20,7 +22,7 @@ public class ApiV1SeasonController {
     @PostMapping
     public Season createSeason() {
         String name = "2025 1분기";
-        LocalDateTime start = LocalDateTime.of(2025, 1, 1, 0, 0, 0);
+        LocalDateTime start = LocalDateTime.of(2024, 12, 1, 0, 0, 0);
         LocalDateTime end = LocalDateTime.of(2025, 2, 28, 23, 59, 59);
 
         return seasonService.createNewSeason(name, start, end);

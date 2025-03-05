@@ -2,8 +2,6 @@ package cmf.commitField.domain.commit.sinceCommit.service;
 
 import cmf.commitField.domain.commit.sinceCommit.dto.CommitAnalysisResponseDto;
 import cmf.commitField.domain.commit.sinceCommit.dto.SinceCommitResponseDto;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

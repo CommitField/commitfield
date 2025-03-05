@@ -1,24 +1,21 @@
 package cmf.commitField.domain.chat.chatRoom.repository;
 
 import cmf.commitField.domain.chat.chatRoom.entity.ChatRoom;
-import jakarta.persistence.LockModeType;
-import jakarta.persistence.QueryHint;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value ="1000")})
+//    @Lock(LockModeType.PESSIMISTIC_WRITE)
+//    @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value ="1000")})
     Optional<ChatRoom> findById(Long aLong);
 
     Optional<ChatRoom> findChatRoomById(Long id);
@@ -28,7 +25,15 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
     Page<ChatRoom> findAllByUserChatRoomsUserId(Long userId,Pageable pageable);
 
-    @Query(value = "SELECT ROOM_CREATOR FROM chat_room WHERE CHAT_ROOM_ID = ?", nativeQuery = true)
+    @Query(value = "SELECT ROOM_CREATOR FROM chat_room WHERE ID = ?", nativeQuery = true)
     Optional<Long> findChatRoomIdByRoomId(@Param("roomId") Long roomId);
+
+    @Query("SELECT c FROM ChatRoom c LEFT JOIN Heart h ON c.id = h.chatRoom.id " +
+            "GROUP BY c.id " +
+            "ORDER BY COUNT(h.user.id) DESC")
+    Page<ChatRoom> findAllByOrderByHearts(Pageable pageable);
+
+    @Query("SELECT c FROM ChatRoom c WHERE c.id IN :ids ORDER BY c.createdAt DESC")
+    Page<ChatRoom> findChatRoomByInId(@Param("ids") List<Long> ids, Pageable pageable);
 
 }

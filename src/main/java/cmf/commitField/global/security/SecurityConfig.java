@@ -29,6 +29,10 @@ public class SecurityConfig {
     @Bean
     protected SecurityFilterChain config(HttpSecurity http) throws Exception {
         http
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("**").permitAll()  // TODO: 차후 인증 관련 추가 필요 
+                )
+
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정 추가
                 .csrf(AbstractHttpConfigurer::disable) // CSRF 보호 비활성화
                 .sessionManagement(session -> session
@@ -47,7 +51,6 @@ public class SecurityConfig {
 
                             // 디버깅 로그
                             System.out.println("OAuth2 로그인 성공: " + username);
-
                             response.sendRedirect("http://localhost:5173/home");  // 로그인 성공 후 리다이렉트
                         })
                 )

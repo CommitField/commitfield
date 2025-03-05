@@ -1,7 +1,9 @@
 package cmf.commitField.domain.chat.chatRoom.controller;
 
 import cmf.commitField.domain.chat.chatRoom.controller.request.ChatRoomRequest;
+import cmf.commitField.domain.chat.chatRoom.controller.request.ChatRoomUpdateRequest;
 import cmf.commitField.domain.chat.chatRoom.dto.ChatRoomDto;
+import cmf.commitField.domain.chat.chatRoom.dto.ChatRoomUserDto;
 import cmf.commitField.domain.chat.chatRoom.service.ChatRoomService;
 import cmf.commitField.domain.user.entity.CustomOAuth2User;
 import cmf.commitField.global.error.ErrorCode;
@@ -11,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.*;
@@ -41,13 +44,13 @@ public class ChatRoomController {
 
     //채팅방 입장
     @PostMapping("/room/join/{roomId}")
-    public GlobalResponse<Object> joinRoom(@PathVariable Long roomId) {
+    public GlobalResponse<Object> joinRoom(@PathVariable Long roomId, @RequestBody ChatRoomRequest chatRoomRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication instanceof OAuth2AuthenticationToken) {
             CustomOAuth2User principal = (CustomOAuth2User) authentication.getPrincipal();
             Long userId = principal.getId();  // getId()를 통해 userId를 추출
-            chatRoomService.joinRoom(roomId, userId);  // userId를 전달
+            chatRoomService.joinRoom(roomId, userId, chatRoomRequest);  // userId를 전달
             return GlobalResponse.success("해당 채팅방에 입장하셨습니다");
         } else {
             throw new IllegalArgumentException("로그인 후에 이용해 주세요.");
@@ -113,6 +116,24 @@ public class ChatRoomController {
         }
     }
 
+    //채팅방 제목 수정
+    @PutMapping("/room/update/{roomId}")
+    @LoginCheck
+    public GlobalResponse<Object> updateRoom(
+            @PathVariable Long roomId,
+            @RequestBody @Valid ChatRoomUpdateRequest chatRoomUpdateRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication instanceof OAuth2AuthenticationToken) {
+            CustomOAuth2User principal = (CustomOAuth2User) authentication.getPrincipal();
+            Long userId = principal.getId();  // getId()를 통해 userId를 추출
+            chatRoomService.updateRoom(roomId, chatRoomUpdateRequest, userId);  // userId를 전달
+            return GlobalResponse.success("채팅방을 업데이트 했습니다.");
+        } else {
+            throw new IllegalArgumentException("로그인 후에 이용해 주세요.");
+        }
+    }
+
     // 채팅방 나가기
     @DeleteMapping("/room/out/{roomId}")
     @LoginCheck
@@ -146,5 +167,54 @@ public class ChatRoomController {
             throw new IllegalArgumentException("로그인 후에 이용해 주세요.");
         }
     }
+
+    //채팅방 유저 목록 조회
+    @GetMapping("/room/users/{roomId}")
+    @LoginCheck
+    public GlobalResponse<Object> getRoomUsers(
+            @PathVariable Long roomId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication instanceof OAuth2AuthenticationToken) {
+            CustomOAuth2User principal = (CustomOAuth2User) authentication.getPrincipal();
+            Long userId = principal.getId();  // Extract userId from the principal
+            List<ChatRoomUserDto> roomUsers = chatRoomService.getRoomUsers(roomId, userId);
+            return GlobalResponse.success(roomUsers);
+        } else {
+            throw new IllegalArgumentException("로그인 후에 이용해 주세요.");
+        }
+    }
+
+    // 전체 리스트에서 좋아요 순으로 정렬
+    @GetMapping("/room/heart")
+    @LoginCheck
+    public GlobalResponse<Object> roomHeartSort(Pageable pageable) {
+        List<ChatRoomDto> roomList = chatRoomService.getRoomHeartSortList(pageable);
+        if (roomList.isEmpty()) {
+            return GlobalResponse.error(ErrorCode.NO_ROOM);
+        } else {
+            return GlobalResponse.success(roomList);
+        }
+    }
+
+    // 사용자(자신)가 좋아요 누른 방 리스트 조회
+    @GetMapping("/room/myHeart/list")
+    @LoginCheck
+    public GlobalResponse<Object> getMyHeartRoomList(
+            Pageable pageable,
+            @AuthenticationPrincipal CustomOAuth2User principal) { // 인증된 사용자 정보 주입
+
+        Long userId = principal.getId(); // 현재 로그인된 사용자 ID 가져오기
+        List<ChatRoomDto> list = chatRoomService.myHeartRoomList(userId, pageable);
+
+        if (list.isEmpty()) {
+            return GlobalResponse.error(ErrorCode.NO_ROOM_FOUND);
+        }
+        return GlobalResponse.success("좋아요 누른 채팅방 리스트 조회 완료", list);
+    }
+
+
+
+
 
 }

@@ -27,7 +27,6 @@ public class TotalCommitController {
     @GetMapping("/api/commits")
     public TotalCommitResponseDto getTotalCommits(@AuthenticationPrincipal CustomOAuth2User oAuth2User) {
         String username = oAuth2User.getName();  // CustomOAuth2User의 getName()은 user.getUsername()을 반환
-
         return totalCommitService.getTotalCommitCount(username);
     }
 
@@ -44,9 +43,9 @@ public class TotalCommitController {
     @GetMapping("/api/commits/spring")
     public TotalCommitResponseDto getSpringSeasonCommits(@AuthenticationPrincipal CustomOAuth2User oAuth2User) {
         String username = oAuth2User.getName();
-        int currentYear = LocalDateTime.now().getYear();  // 현재는 테스트용으로 2024 대입
-        LocalDateTime since = LocalDateTime.of(2024, 3, 1, 0, 0);
-        LocalDateTime until = LocalDateTime.of(2024, 5, 31, 23, 59, 59);
+        int currentYear = LocalDateTime.now().getYear();  // 올해 대입
+        LocalDateTime since = LocalDateTime.of(2025, 3, 1, 0, 0);
+        LocalDateTime until = LocalDateTime.of(2025, 5, 31, 23, 59, 59);
         return totalCommitService.getSeasonCommits(username, since, until);
     }
 
@@ -74,9 +73,9 @@ public class TotalCommitController {
     @GetMapping("/api/commits/winter")
     public TotalCommitResponseDto getWinterSeasonCommits(@AuthenticationPrincipal CustomOAuth2User oAuth2User) {
         String username = oAuth2User.getName();
-        int currentYear = LocalDateTime.now().getYear();  // 현재는 테스트용으로 2024 대입
-        LocalDateTime since = LocalDateTime.of(2024 - 1, 12, 1, 0, 0);
-        LocalDateTime until = LocalDateTime.of(2024, 2, 1, 23, 59, 59)
+        int currentYear = LocalDateTime.now().getYear();  // 2024.12 ~ 2025.2 대입
+        LocalDateTime since = LocalDateTime.of(2025 - 1, 12, 1, 0, 0);
+        LocalDateTime until = LocalDateTime.of(2025, 2, 1, 23, 59, 59)
                 .with(TemporalAdjusters.lastDayOfMonth());
         return totalCommitService.getSeasonCommits(username, since, until);
     }

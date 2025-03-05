@@ -47,6 +47,9 @@ dependencies {
 
 	//redis
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
+	implementation ("org.redisson:redisson-spring-boot-starter:3.42.0") // redis message broker(lock)
+	implementation ("org.springframework.session:spring-session-data-redis")
+
 
 	// Security
 	implementation("org.springframework.boot:spring-boot-starter-security")
@@ -73,18 +76,6 @@ dependencies {
 	// Spring Security OAuth2
 	implementation ("org.springframework.security:spring-security-oauth2-client:6.4.2") // Or the version you're using
 	implementation ("org.springframework.security:spring-security-oauth2-core:6.4.2") // Or the version you're using
-
-	// Spring Kafka
-	implementation("org.springframework.kafka:spring-kafka")
-
-	// Kafka 클라이언트 (Redpanda와 호환)
-	implementation("org.apache.kafka:kafka-clients:3.6.0")
-
-	// JSON 직렬화/역직렬화 (Kafka 메시지 처리)
-	implementation("com.fasterxml.jackson.core:jackson-databind")
-
-	// 테스트용 Kafka 임베디드 서버 (선택 사항)
-	testImplementation("org.springframework.kafka:spring-kafka-test")
 }
 
 tasks.withType<Test> {
