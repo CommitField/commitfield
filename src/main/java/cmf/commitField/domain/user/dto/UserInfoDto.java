@@ -9,13 +9,16 @@ import java.time.LocalDateTime;
 @Getter
 public class UserInfoDto {
 
-    private Long userId;
     private String username;
     private String email;
     private String avatarUrl;
     private LocalDateTime createdAt;
     private LocalDateTime lastCommitted;
     private long commitCount;
+
+    private int petType;
+    private int petExp;
+    private String petGrow;
     private String tier;
 
     // 펫 생략, 차후 필요시 추가

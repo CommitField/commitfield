@@ -2,24 +2,31 @@ package cmf.commitField.global.security;
 
 import cmf.commitField.domain.user.service.CustomOAuth2UserService;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    @Autowired
+    private StringRedisTemplate redisTemplate;
     private final CustomOAuth2UserService customOAuth2UserService;
 
     public SecurityConfig(CustomOAuth2UserService customOAuth2UserService) {
@@ -49,6 +56,9 @@ public class SecurityConfig {
                             OAuth2User principal = (OAuth2User) authentication.getPrincipal();
                             String username = principal.getAttribute("login");
 
+                            // Redis에 유저 활성화 정보 저장
+                            setUserActive(username);
+
                             // 디버깅 로그
                             System.out.println("OAuth2 로그인 성공: " + username);
                             response.sendRedirect("http://localhost:5173/home");  // 로그인 성공 후 리다이렉트
@@ -60,6 +70,12 @@ public class SecurityConfig {
                         .clearAuthentication(true)  // 인증 정보 지우기
                         .deleteCookies("JSESSIONID")  // 세션 쿠키 삭제
                         .logoutSuccessHandler((request, response, authentication) -> {
+                            OAuth2AuthenticationToken oauth2Token = (OAuth2AuthenticationToken) authentication;
+                            OAuth2User principal = oauth2Token.getPrincipal();
+                            String username = principal.getAttribute("login");
+
+                            redisTemplate.delete("commit_active:" + username);  // Redis에서 삭제
+
                             System.out.println("로그아웃 성공");
                             response.setStatus(HttpServletResponse.SC_OK);
                             response.sendRedirect("http://localhost:5173/"); // 로그아웃 후 홈으로 이동
@@ -82,5 +98,14 @@ public class SecurityConfig {
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         source.registerCorsConfiguration("/**", config);
         return source;
+    }
+
+    public void setUserActive(String username) {
+        redisTemplate.opsForValue().set("commit_active:" + username, "0");
+        redisTemplate.opsForValue().set("commit_lastCommitted:" + username, LocalDateTime.now().toString(),3, TimeUnit.HOURS);
+    }
+
+    public void removeUserActive(String username) {
+        redisTemplate.delete("commit_active:" + username);
     }
 }

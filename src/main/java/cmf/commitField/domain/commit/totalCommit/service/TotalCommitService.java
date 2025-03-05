@@ -1,5 +1,6 @@
 package cmf.commitField.domain.commit.totalCommit.service;
 
+import cmf.commitField.domain.commit.totalCommit.dto.CommitUpdateDTO;
 import cmf.commitField.domain.commit.totalCommit.dto.TotalCommitGraphQLResponse;
 import cmf.commitField.domain.commit.totalCommit.dto.TotalCommitResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -215,7 +216,7 @@ public class TotalCommitService {
     }
 
     // 시간별 커밋 분석
-    public TotalCommitResponseDto getUpdateCommits(String username, LocalDateTime since, LocalDateTime until) {
+    public CommitUpdateDTO getUpdateCommits(String username, LocalDateTime since, LocalDateTime until) {
         String query = String.format("""
         query {
             user(login: "%s") {
@@ -223,7 +224,7 @@ public class TotalCommitService {
                     commitContributionsByRepository {
                         contributions(first: 100) {
                             nodes {
-                                occurredAt  # ✅ 시간 정보 포함
+                                occurredAt  # 시간 정보 포함
                             }
                         }
                     }
@@ -244,12 +245,13 @@ public class TotalCommitService {
             throw new RuntimeException("Failed to fetch GitHub data");
         }
 
+
+        System.out.println("메소드 작동 확인 : "+response.getData().getUser());
         TotalCommitGraphQLResponse.ContributionsCollection contributions =
                 response.getData().getUser().getContributionsCollection();
 
-        return new TotalCommitResponseDto(
-                contributions.getTotalCommitContributions(),
-                contributions.getRestrictedContributionsCount()
+        return new CommitUpdateDTO(
+                contributions.getTotalCommitContributions()
         );
     }
 }

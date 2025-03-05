@@ -15,7 +15,7 @@ public class AuthController {
     @GetMapping("/login")
     public ResponseEntity<?> user() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
+        System.out.println("/login 호출");
         if (authentication instanceof OAuth2AuthenticationToken) {
             OAuth2User principal = (OAuth2User) authentication.getPrincipal();
             return ResponseEntity.ok(principal.getAttributes()); // 사용자 정보 반환
