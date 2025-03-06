@@ -5,6 +5,7 @@ import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -19,10 +20,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequiredArgsConstructor
 public class CommitScheduler {
     private final TotalCommitService totalCommitService;
-    private final CommitCacheService commitCacheService;
     private final UserRepository userRepository;
     private final StringRedisTemplate redisTemplate;
     private final AtomicInteger counter = new AtomicInteger(0);
+
+    private final ApplicationEventPublisher eventPublisher;
+
 
     @Scheduled(fixedRate = 60000) // 1분마다 실행
     public void updateUserCommits() {
@@ -62,8 +65,6 @@ public class CommitScheduler {
         ).getTotalCommitContributions();
 
         newCommitCount = updateTotalCommit - currentCommit; // 새로 추가된 커밋 수
-        System.out.println("커밋 개수 불러들이기 완료, currentCommit : "+currentCommit);
-        System.out.println("커밋 개수 불러들이기 완료, updateTCommit : "+updateTotalCommit);
 
         if(newCommitCount > 0){
             User user = userRepository.findByUsername(username).get();
@@ -72,10 +73,12 @@ public class CommitScheduler {
             user.setLastCommitted(now);
             userRepository.save(user);
 
-            String redisKey = "commit_update:" + username; // 변경 알림을 위한 변수
             redisTemplate.opsForValue().set(activeKey, String.valueOf(updateTotalCommit), 3, TimeUnit.HOURS);
             redisTemplate.opsForValue().set(lastcmKey, String.valueOf(now), 3, TimeUnit.HOURS);
 
+            CommitUpdateEvent event = new CommitUpdateEvent(this, username, newCommitCount);
+            eventPublisher.publishEvent(event); // 이벤트 발생
+            System.out.println("CommitCreatedEvent published for user: " + username);
         }
 
         // FIXME: 차후 리팩토링 필요

@@ -17,7 +17,7 @@ public class UserInfoDto {
     private long commitCount;
 
     private int petType;
-    private int petExp;
+    private long petExp;
     private String petGrow;
     private String tier;
 

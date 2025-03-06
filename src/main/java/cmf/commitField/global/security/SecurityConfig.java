@@ -72,8 +72,8 @@ public class SecurityConfig {
                             OAuth2User principal = oauth2Token.getPrincipal();
                             String username = principal.getAttribute("login");
 
-                            redisTemplate.delete("commit_active:" + username);  // Redis에서 삭제
-                            redisTemplate.delete("commit_lastCommitted:" + username);  // Redis에서 삭제
+                            //레디스에서 정보 삭제
+                            removeUserActive(username);
 
                             System.out.println("로그아웃 성공");
                             response.setStatus(HttpServletResponse.SC_OK);
@@ -101,5 +101,6 @@ public class SecurityConfig {
 
     public void removeUserActive(String username) {
         redisTemplate.delete("commit_active:" + username);
+        redisTemplate.delete("commit_lastCommitted:" + username);
     }
 }

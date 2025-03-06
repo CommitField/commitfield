@@ -42,8 +42,8 @@ public class UserService {
         // 유저 정보 조회 후 변경사항은 업데이트
         // TODO: 스케쥴러 수정 후 펫 부분 수정 필요
         user.setCommitCount(totalCommit);
-        commitUpdateService.updateUserTier(user.getUsername());
-        petService.getExpPet(user.getUsername(), 0);
+//        commitUpdateService.updateUserTier(user.getUsername());
+//        petService.getExpPet(user.getUsername(), 0);
 
         String key = "commit_active:" + user.getUsername();
         if(redisTemplate.opsForValue().get(key)==null){
@@ -63,5 +63,22 @@ public class UserService {
                 .petExp(pet.getExp())
                 .petGrow(pet.getGrow().toString())
                 .build();
+    }
+
+    // 유저 성장
+    @Transactional
+    public boolean getExpUser(String username, long commitCount) {
+        User user = userRepository.findByUsername(username).get();
+
+        // 경험치 증가 후, 만약 레벨업한다면 레벨업 시킨다.
+        user.addExp(commitCount);
+
+        return !(user.getTier().equals(User.Tier.getLevelByExp(user.getSeasonCommitCount())));
+    }
+
+    public void updateUserCommitCount(String username, long count){
+        User user = userRepository.findByUsername(username).get();
+        user.addCommitCount(count);
+        userRepository.save(user);
     }
 }

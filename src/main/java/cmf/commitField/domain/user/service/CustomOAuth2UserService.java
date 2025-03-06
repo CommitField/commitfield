@@ -75,15 +75,19 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             pet = new Pet("알알", user); // TODO: 변경 필요
             petRepository.save(pet);
 
-            // 유저 펫, 커밋 카운트, 랭크를 서렂ㅇ
+            // 유저 펫, 커밋 카운트, 랭크를 설정
             user.addPets(pet);
             user.setCommitCount(totalCommitService.getTotalCommitCount(user.getUsername()).getTotalCommitContributions());
-            user.setTier(User.Tier.getLevelByExp((int) totalCommitService.getSeasonCommits(
+
+            long seasonCommitCount = totalCommitService.getSeasonCommits(
                     user.getUsername(),
                     LocalDateTime.of(2025,03,01,00,00),
-                    LocalDateTime.now()).getTotalCommitContributions()
-                )
-            );
+                    LocalDateTime.of(2025,05,31,23,59)
+            ).getTotalCommitContributions();
+
+            user.setSeasonCommitCount(seasonCommitCount);
+
+            user.setTier(User.Tier.getLevelByExp(seasonCommitCount));
 
             // 로그인하거나 회원가입한 유저는 커밋 기록에 상관없이 Redis에 입력해둔다.
             commitCacheService.updateCachedCommitCount(user.getUsername(),0);
