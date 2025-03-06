@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -114,5 +115,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     // email로 user 조회
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    public void setUserActive(String username) {
+        String count = String.valueOf(userRepository.findByUsername(username).get().getCommitCount());
+        System.out.println("setUserActive currentCommit:"+ count);
+        redisTemplate.opsForValue().set("commit_active:" + username, count);
+        redisTemplate.opsForValue().set("commit_lastCommitted:" + username, LocalDateTime.now().toString(),3, TimeUnit.HOURS);
+
     }
 }

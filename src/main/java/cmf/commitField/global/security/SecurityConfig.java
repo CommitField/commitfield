@@ -18,9 +18,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableWebSecurity
@@ -57,7 +55,7 @@ public class SecurityConfig {
                             String username = principal.getAttribute("login");
 
                             // Redis에 유저 활성화 정보 저장
-                            setUserActive(username);
+                            customOAuth2UserService.setUserActive(username);
 
                             // 디버깅 로그
                             System.out.println("OAuth2 로그인 성공: " + username);
@@ -75,6 +73,7 @@ public class SecurityConfig {
                             String username = principal.getAttribute("login");
 
                             redisTemplate.delete("commit_active:" + username);  // Redis에서 삭제
+                            redisTemplate.delete("commit_lastCommitted:" + username);  // Redis에서 삭제
 
                             System.out.println("로그아웃 성공");
                             response.setStatus(HttpServletResponse.SC_OK);
@@ -98,11 +97,6 @@ public class SecurityConfig {
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         source.registerCorsConfiguration("/**", config);
         return source;
-    }
-
-    public void setUserActive(String username) {
-        redisTemplate.opsForValue().set("commit_active:" + username, "0");
-        redisTemplate.opsForValue().set("commit_lastCommitted:" + username, LocalDateTime.now().toString(),3, TimeUnit.HOURS);
     }
 
     public void removeUserActive(String username) {

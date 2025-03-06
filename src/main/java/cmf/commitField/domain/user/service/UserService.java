@@ -38,17 +38,16 @@ public class UserService {
         User user = userRepository.findByUsername(username).get();
         Pet pet = petRepository.findByUserEmail(user.getEmail()).get(0); // TODO: 확장시 코드 수정 필요
 
+        long totalCommit = totalCommitService.getTotalCommitCount(username).getTotalCommitContributions();
         // 유저 정보 조회 후 변경사항은 업데이트
         // TODO: 스케쥴러 수정 후 펫 부분 수정 필요
+        user.setCommitCount(totalCommit);
         commitUpdateService.updateUserTier(user.getUsername());
         petService.getExpPet(user.getUsername(), 0);
 
-        long commit = totalCommitService.getUpdateCommits(username, user.getLastCommitted(), LocalDateTime.now()).getCommits();
-        System.out.println("커밋수 테스트 : "+commit);
-
         String key = "commit_active:" + user.getUsername();
         if(redisTemplate.opsForValue().get(key)==null){
-            redisTemplate.opsForValue().set(key, String.valueOf(0), 3, TimeUnit.HOURS);
+            redisTemplate.opsForValue().set(key, String.valueOf(user.getCommitCount()), 3, TimeUnit.HOURS);
             redisTemplate.opsForValue().set("commit_lastCommitted:" + username, LocalDateTime.now().toString(),3, TimeUnit.HOURS);
         }
 
@@ -57,7 +56,7 @@ public class UserService {
                 .email(user.getEmail())
                 .avatarUrl(user.getAvatarUrl())
                 .tier(user.getTier().toString())
-                .commitCount(user.getCommitCount())
+                .commitCount(totalCommit)
                 .createdAt(user.getCreatedAt())
                 .lastCommitted(user.getLastCommitted())
                 .petType(pet.getType())
