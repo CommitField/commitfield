@@ -66,10 +66,8 @@ public class UserService {
     }
 
     // 유저 성장
-    @Transactional
     public boolean getExpUser(String username, long commitCount) {
         User user = userRepository.findByUsername(username).get();
-
         // 경험치 증가 후, 만약 레벨업한다면 레벨업 시킨다.
         user.addExp(commitCount);
 

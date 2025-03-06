@@ -88,7 +88,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user.setSeasonCommitCount(seasonCommitCount);
 
             user.setTier(User.Tier.getLevelByExp(seasonCommitCount));
-
+            userRepository.save(user);
             // 로그인하거나 회원가입한 유저는 커밋 기록에 상관없이 Redis에 입력해둔다.
             commitCacheService.updateCachedCommitCount(user.getUsername(),0);
         }

@@ -44,8 +44,7 @@ public class CommitScheduler {
             String lastcmKey = "commit_lastCommitted:" + username; // active유저의 key
             String lastCommitted = redisTemplate.opsForValue().get(lastcmKey); // 마지막 커밋 시간
 
-            System.out.println("username: "+username);
-            System.out.println("user lastCommitted: "+lastCommitted);
+            System.out.println("username: "+username+"/ user lastCommitted: "+lastCommitted);
             if(username!=null && lastCommitted!=null) processUserCommit(username);
         }
     }
