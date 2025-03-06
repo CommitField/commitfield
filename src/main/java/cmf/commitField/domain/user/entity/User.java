@@ -31,7 +31,8 @@ public class User extends BaseEntity {
     private String avatarUrl; //아바타
     private Boolean status; //로그인 true, 로그아웃 false
     private LocalDateTime lastCommitted; // 마지막 커밋 시간
-    private long commitCount;
+    private long commitCount; // 전체
+    private long seasonCommitCount; // 이번 시즌
 
     @Enumerated(EnumType.STRING)  // 권한
     private Role role;
@@ -50,18 +51,18 @@ public class User extends BaseEntity {
         FRUIT(283),     // 열매
         TREE(377);       // 나무
 
-        private final int requiredExp;
+        private final long requiredExp;
 
-        Tier(int requiredExp) {
+        Tier(long requiredExp) {
             this.requiredExp = requiredExp;
         }
 
-        public int getRequiredExp() {
+        public long getRequiredExp() {
             return requiredExp;
         }
 
         // 현재 경험치에 맞는 레벨 찾기
-        public static Tier getLevelByExp(int exp) {
+        public static Tier getLevelByExp(long exp) {
             Tier currentLevel = SEED;
             for (Tier level : values()) {
                 if (exp >= level.getRequiredExp()) {
@@ -106,9 +107,18 @@ public class User extends BaseEntity {
         this.chatMsgs = cmsg;
         this.lastCommitted = LocalDateTime.now();
         this.commitCount = 0;
+        this.seasonCommitCount = 0;
     }
 
     public void addPets(Pet pet){
         pets.add(pet);
+    }
+
+    public void addExp(long commitCount){
+        this.seasonCommitCount+=commitCount;
+    }
+
+    public void addCommitCount(long commitCount){
+        this.commitCount+=commitCount;
     }
 }

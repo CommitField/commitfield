@@ -15,9 +15,10 @@ public class UserInfoDto {
     private LocalDateTime createdAt;
     private LocalDateTime lastCommitted;
     private long commitCount;
+    private long seasonCommitCount;
 
     private int petType;
-    private int petExp;
+    private long petExp;
     private String petGrow;
     private String tier;
 

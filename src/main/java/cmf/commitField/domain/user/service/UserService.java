@@ -38,17 +38,20 @@ public class UserService {
         User user = userRepository.findByUsername(username).get();
         Pet pet = petRepository.findByUserEmail(user.getEmail()).get(0); // TODO: 확장시 코드 수정 필요
 
-        // 유저 정보 조회 후 변경사항은 업데이트
-        // TODO: 스케쥴러 수정 후 펫 부분 수정 필요
-        commitUpdateService.updateUserTier(user.getUsername());
-        petService.getExpPet(user.getUsername(), 0);
+        // TODO: info 조회 시 user commit 수 즉시 반영은 로직 변경이 필요
+//        long totalCommit = totalCommitService.getTotalCommitCount(username).getTotalCommitContributions();
+//        long seasonCommit = totalCommitService.getSeasonCommits(username,
+//                LocalDateTime.of(2025,03,01,00,00),
+//                LocalDateTime.of(2025,05,31,23,59)
+//        ).getTotalCommitContributions();
+//
+//        user.setCommitCount(totalCommit);
+        // TODO블럭 종료
 
-        long commit = totalCommitService.getUpdateCommits(username, user.getLastCommitted(), LocalDateTime.now()).getCommits();
-        System.out.println("커밋수 테스트 : "+commit);
-
+        // 유저 정보 조회 후 active 상태가 아니면 Redis에 추가, 커밋 추적 시작
         String key = "commit_active:" + user.getUsername();
         if(redisTemplate.opsForValue().get(key)==null){
-            redisTemplate.opsForValue().set(key, String.valueOf(0), 3, TimeUnit.HOURS);
+            redisTemplate.opsForValue().set(key, String.valueOf(user.getCommitCount()), 3, TimeUnit.HOURS);
             redisTemplate.opsForValue().set("commit_lastCommitted:" + username, LocalDateTime.now().toString(),3, TimeUnit.HOURS);
         }
 
@@ -58,11 +61,27 @@ public class UserService {
                 .avatarUrl(user.getAvatarUrl())
                 .tier(user.getTier().toString())
                 .commitCount(user.getCommitCount())
+                .seasonCommitCount(user.getSeasonCommitCount())
                 .createdAt(user.getCreatedAt())
                 .lastCommitted(user.getLastCommitted())
                 .petType(pet.getType())
                 .petExp(pet.getExp())
                 .petGrow(pet.getGrow().toString())
                 .build();
+    }
+
+    // 유저 성장
+    public boolean getExpUser(String username, long commitCount) {
+        User user = userRepository.findByUsername(username).get();
+        // 경험치 증가 후, 만약 레벨업한다면 레벨업 시킨다.
+        user.addExp(commitCount);
+        userRepository.save(user);
+        return !(user.getTier().equals(User.Tier.getLevelByExp(user.getSeasonCommitCount())));
+    }
+
+    public void updateUserCommitCount(String username, long count){
+        User user = userRepository.findByUsername(username).get();
+        user.addCommitCount(count);
+        userRepository.save(user);
     }
 }

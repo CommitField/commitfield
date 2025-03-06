@@ -22,7 +22,7 @@ public class Pet extends BaseEntity {
     private int type; // 펫 타입 넘버, 현재 0~2까지 존재
     private String name;
     private String imageUrl;
-    private int exp; // 펫 경험치
+    private long exp; // 펫 경험치
 
     @Enumerated(EnumType.STRING)  // DB에 저장될 때 String 형태로 저장됨
     private PetGrow grow; // 성장 정도
@@ -48,9 +48,8 @@ public class Pet extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public int addExp(int commit){
+    public long addExp(long commit){
         exp+=commit;
-
         return exp;
     }
 }

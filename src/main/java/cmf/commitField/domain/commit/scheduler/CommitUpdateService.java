@@ -6,7 +6,6 @@ import cmf.commitField.domain.user.dto.UserInfoDto;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -18,14 +17,12 @@ public class CommitUpdateService {
     private final UserRepository userRepository;
     private final PetService petService;
 
-    private final ApplicationEventPublisher eventPublisher;
-
     public UserInfoDto updateUserTier(String username){
         User user = userRepository.findByUsername(username).get();
         long seasonCommitCount;
-//        seasonCommitCount = totalCommitService.getSeasonCommits(user.getUsername(), LocalDateTime.of(2024,12,01,0,0), LocalDateTime.of(2025,2,28,23,59)).getTotalCommitContributions();
-      seasonCommitCount = totalCommitService.getSeasonCommits(user.getUsername(), LocalDateTime.of(2025,03,01,0,0), LocalDateTime.of(2025,05,31,23,59)).getTotalCommitContributions();
+        seasonCommitCount = totalCommitService.getSeasonCommits(user.getUsername(), LocalDateTime.of(2025,03,01,0,0), LocalDateTime.of(2025,05,31,23,59)).getTotalCommitContributions();
         user.setTier(User.Tier.getLevelByExp((int)seasonCommitCount));
+        System.out.println(username+"유저 레벨 업! 현재 티어: "+user.getTier());
         userRepository.save(user);
 
         return UserInfoDto.builder()
