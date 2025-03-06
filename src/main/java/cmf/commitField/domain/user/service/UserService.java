@@ -70,7 +70,7 @@ public class UserService {
         User user = userRepository.findByUsername(username).get();
         // 경험치 증가 후, 만약 레벨업한다면 레벨업 시킨다.
         user.addExp(commitCount);
-
+        userRepository.save(user);
         return !(user.getTier().equals(User.Tier.getLevelByExp(user.getSeasonCommitCount())));
     }
 
