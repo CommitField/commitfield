@@ -34,6 +34,21 @@ public class NotiService {
         return message;
     }
 
+    @Transactional
+    public void createNoti(User receiver) {
+        System.out.println("알림 생성");
+        String message = NotiService.generateMessage(NotiDetailType.STREAK_BROKEN, receiver.getNickname());
+
+        Noti noti = Noti.builder()
+                .typeCode(NotiType.STREAK)
+                .type2Code(NotiDetailType.STREAK_BROKEN)
+                .receiver(receiver)
+                .isRead(false)
+                .message(message)
+                .build();
+        notiRepository.save(noti);
+    }
+
 
     public List<NotiDto> getNotReadNoti(User receiver) {
         System.out.println("알림 조회");

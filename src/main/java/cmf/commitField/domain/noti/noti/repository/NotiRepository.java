@@ -14,7 +14,7 @@ import java.util.Optional;
 @Repository
 public interface NotiRepository extends JpaRepository<Noti, Long> {
     Optional<List<Noti>> findNotiByReceiverAndRelId(User receiver, long season);
-    @Query("SELECT new cmf.commitField.domain.noti.noti.dto.NotiDto(n.message, n.createdAt) " +
+    @Query("SELECT new cmf.commitField.domain.noti.noti.dto.NotiDto(n.id, n.message, n.createdAt) " +
             "FROM Noti n JOIN n.receiver u WHERE u.id = :receiverId AND n.isRead = :isRead")
     Optional<List<NotiDto>> findNotiDtoByReceiverId(@Param("receiverId") Long receiverId, @Param("isRead") boolean isRead);
 

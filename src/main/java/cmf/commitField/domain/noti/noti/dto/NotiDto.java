@@ -8,11 +8,13 @@ import java.time.temporal.ChronoUnit;
 
 @Getter
 public class NotiDto {
+    private Long id;
     private String message;
     private String formattedCreatedAt; // 변환된 날짜를 저장할 필드
 
     // JPQL에서 사용할 수 있도록 필드 값 직접 받는 생성자 추가
-    public NotiDto(String message, LocalDateTime createdAt) {
+    public NotiDto(Long id, String message, LocalDateTime createdAt) {
+        this.id = id;
         this.message = message;
         this.formattedCreatedAt = formatCreatedAt(createdAt); // 변환된 날짜 저장
     }
