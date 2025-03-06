@@ -19,7 +19,7 @@ public enum PetGrow {
     }
 
     // 현재 경험치에 맞는 레벨 찾기
-    public static PetGrow getLevelByExp(int exp) {
+    public static PetGrow getLevelByExp(long exp) {
         PetGrow currentLevel = EGG;
         for (PetGrow level : values()) {
             if (exp >= level.getRequiredExp()) {

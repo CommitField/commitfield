@@ -59,11 +59,10 @@ public class PetService {
         User user = userRepository.findByUsername(username).get();
         Pet pet = user.getPets().get(0);
         pet.addExp(commitCount); // 경험치 증가
+        petRepository.save(pet);
 
         // 경험치 증가 후, 만약 레벨업한다면 레벨업 시킨다.
-        if( (pet.getGrow()== PetGrow.EGG && pet.getExp()>= PetGrow.EGG.getRequiredExp()) ||
-                (pet.getGrow()== PetGrow.HATCH && pet.getExp()>= PetGrow.HATCH.getRequiredExp())) {
-            System.out.println("펫 레벨 업, 현재 경험치 : "+pet.getExp());
+        if(!PetGrow.getLevelByExp(pet.getExp()).equals(pet.getGrow())){
             levelUp(pet);
         }
 
@@ -78,13 +77,7 @@ public class PetService {
 
     // 펫 레벨 업
     public void levelUp(Pet pet){
-        switch (pet.getGrow()){
-            case EGG :
-                pet.setGrow(PetGrow.HATCH);
-                break;
-            case HATCH :
-                pet.setGrow(PetGrow.GROWN);
-                break;
-        }
+        pet.setGrow(PetGrow.getLevelByExp(pet.getExp()));
+        petRepository.save(pet);
     }
 }
