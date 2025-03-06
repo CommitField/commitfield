@@ -1,7 +1,9 @@
 package cmf.commitField.domain.commit.scheduler;
 
+import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
+@Getter
 public class CommitUpdateEvent extends ApplicationEvent {
     private final Long userId;
     private final int commitCount;
@@ -12,11 +14,4 @@ public class CommitUpdateEvent extends ApplicationEvent {
         this.commitCount = commitCount;
     }
 
-    public Long getUserId() {
-        return userId;
-    }
-
-    public int getCommitCount() {
-        return commitCount;
-    }
 }
