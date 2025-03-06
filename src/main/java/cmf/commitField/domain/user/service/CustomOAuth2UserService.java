@@ -123,7 +123,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     public void setUserActive(String username) {
         String count = String.valueOf(userRepository.findByUsername(username).get().getCommitCount());
-        System.out.println("setUserActive currentCommit:"+ count);
         redisTemplate.opsForValue().set("commit_active:" + username, count);
         redisTemplate.opsForValue().set("commit_lastCommitted:" + username, LocalDateTime.now().toString(),3, TimeUnit.HOURS);
 
