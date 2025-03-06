@@ -47,6 +47,7 @@ public enum ErrorCode {
     CHAT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "채팅 전송에 오류가 있습니다."),
     NO_ROOM_FOUND(HttpStatus.NOT_FOUND, "채팅방이 없습니다."),
     NO_ROOM(HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),
+    FILE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "이미지 파일의 크기는 5MB 이하이어야 합니다."),
 
     //chatroom_title
     REQUEST_SAME_AS_CURRENT_TITLE(HttpStatus.BAD_REQUEST, "현재 제목과 바꾸려는 제목이 같습니다."),
