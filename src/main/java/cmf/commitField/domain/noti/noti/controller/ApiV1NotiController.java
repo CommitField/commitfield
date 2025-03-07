@@ -7,6 +7,7 @@ import cmf.commitField.domain.user.repository.UserRepository;
 import cmf.commitField.global.error.ErrorCode;
 import cmf.commitField.global.exception.CustomException;
 import cmf.commitField.global.globalDto.GlobalResponse;
+import cmf.commitField.global.websocket.NotiWebSocketHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -28,6 +29,7 @@ import java.util.Map;
 public class ApiV1NotiController {
     private final NotiService notiService;
     private final UserRepository userRepository;
+    private final NotiWebSocketHandler notiWebSocketHandler;
 
     @GetMapping("")
     public GlobalResponse<List<NotiDto>> getNoti() {
@@ -39,6 +41,9 @@ public class ApiV1NotiController {
             String username = (String) attributes.get("login");  // GitHub ID
             User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
             List<NotiDto> notis = notiService.getNotReadNoti(user);
+            // 웹소켓으로 알림 전송
+            notiWebSocketHandler.sendNotification(user, notis);
+
             return GlobalResponse.success(notis);
         }
 
@@ -48,5 +53,20 @@ public class ApiV1NotiController {
     @PostMapping("")
     public void createNoti() {
 
+    }
+
+    @PostMapping("/read")
+    public GlobalResponse<Object> readNoti() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication instanceof OAuth2AuthenticationToken) {
+            OAuth2User principal = (OAuth2User) authentication.getPrincipal();
+            Map<String, Object> attributes = principal.getAttributes();
+            String username = (String) attributes.get("login");  // GitHub ID
+            User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+            notiService.read(user);
+            return GlobalResponse.success("알림을 읽음 처리했습니다.");
+        }
+        return GlobalResponse.error(ErrorCode.LOGIN_REQUIRED);
     }
 }
