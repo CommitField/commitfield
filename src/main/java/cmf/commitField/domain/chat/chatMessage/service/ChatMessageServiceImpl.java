@@ -33,6 +33,8 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     private final ChatMessageCustomRepository chatMessageCustomRepository;
     private final UserChatRoomRepository userChatRoomRepository;
 
+    // 커밋용 주석
+
     @Override
     @Transactional
     public ChatMsgResponse sendMessage(ChatMsgRequest message, Long userId, Long roomId) {
