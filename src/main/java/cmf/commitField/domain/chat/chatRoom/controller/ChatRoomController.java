@@ -1,5 +1,6 @@
 package cmf.commitField.domain.chat.chatRoom.controller;
 
+import cmf.commitField.domain.File.service.FileService;
 import cmf.commitField.domain.chat.chatRoom.controller.request.ChatRoomRequest;
 import cmf.commitField.domain.chat.chatRoom.controller.request.ChatRoomUpdateRequest;
 import cmf.commitField.domain.chat.chatRoom.dto.ChatRoomDto;
@@ -29,6 +30,7 @@ import java.util.List;
 public class ChatRoomController {
     private final ChatRoomService chatRoomService;
     private final S3Service s3Service; // S3 파일 저장을 위한 서비스
+    private final FileService fileService; //local file 저장을 위한 서비스
 
     // 채팅방 생성 (파일 업로드 포함)
     @PostMapping(value = "/room", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -56,6 +58,7 @@ public class ChatRoomController {
             throw new IllegalArgumentException("로그인 후에 이용해 주세요.");
         }
     }
+
 
     //채팅방 입장
     @PostMapping("/room/join/{roomId}")
@@ -252,8 +255,33 @@ public class ChatRoomController {
         }
     }
 
-
-
+//    // 채팅방 생성 (파일 업로드 포함)
+//    @PostMapping(value = "/room", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public GlobalResponse<Object> createRoom(
+//            @ModelAttribute @Valid ChatRoomRequest chatRoomRequest) throws IOException {
+//
+//
+//        // 인증 확인
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//
+//        if (authentication instanceof OAuth2AuthenticationToken) {
+//            CustomOAuth2User principal = (CustomOAuth2User) authentication.getPrincipal();
+//            Long userId = principal.getId();  // getId()를 통해 userId를 추출
+//
+//            // 파일 업로드 처리
+//            String imageUrl = null;
+//            if (chatRoomRequest.getFile() != null && !chatRoomRequest.getFile().isEmpty()) {
+//                imageUrl = fileService.saveFile(chatRoomRequest.getFile());  // 파일 저장
+//            }
+//
+//            // 채팅방 생성 서비스 호출 (이미지 URL 포함)
+//            chatRoomService.createRoom(chatRoomRequest, userId, imageUrl);
+//
+//            return GlobalResponse.success("채팅방을 생성하였습니다.");
+//        } else {
+//            throw new IllegalArgumentException("로그인 후에 이용해 주세요.");
+//        }
+//    }
 
 
 }
