@@ -16,7 +16,7 @@ spring:
     redis:
       host: 172.17.0.1
       port: 6379
-      password: ${custom.secret.spring.data.redis.password}
+      password: ${spring.redis.password}
   jpa:
     hibernate:
       ddl-auto: update

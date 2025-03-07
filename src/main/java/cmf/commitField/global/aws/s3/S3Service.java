@@ -25,6 +25,7 @@ public class S3Service {
                 .bucket(BUCKET_NAME)
                 .key(fileName)
                 .contentType(file.getContentType())
+//                .acl(ObjectCannedACL.PUBLIC_READ) // Public Read 권한 추가
                 .build();
 
         s3Client.putObject(putObjectRequest,
