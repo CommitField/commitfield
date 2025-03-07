@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ChatRoomService {
 
-    void createRoom(ChatRoomRequest chatRoomRequest, Long userId);  // userId를 받도록 수정
+    void createRoom(ChatRoomRequest chatRoomRequest, Long userId, String imageUrl);  // userId를 받도록 수정
 
     void joinRoom(Long roomId, Long userId);  // userId를 받도록 수정
 

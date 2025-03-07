@@ -50,7 +50,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     @Override
     @Transactional
-    public void createRoom(ChatRoomRequest chatRoomRequest, Long userId) {
+    public void createRoom(ChatRoomRequest chatRoomRequest, Long userId, String imageUrl) {
         // 유저정보 조회
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
@@ -69,6 +69,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 .createdAt(now())
                 .modifiedAt(now())
                 .isPrivate(false)
+                .imageUrl(imageUrl)  // 이미지 URL 추가
                 .build();
         if (password != null) {
             chatRoom.setPassword(password);
