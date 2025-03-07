@@ -1,12 +1,12 @@
 package cmf.commitField.domain.chat.chatRoom.controller;
 
-import cmf.commitField.domain.File.service.FileService;
 import cmf.commitField.domain.chat.chatRoom.controller.request.ChatRoomRequest;
 import cmf.commitField.domain.chat.chatRoom.controller.request.ChatRoomUpdateRequest;
 import cmf.commitField.domain.chat.chatRoom.dto.ChatRoomDto;
 import cmf.commitField.domain.chat.chatRoom.dto.ChatRoomUserDto;
 import cmf.commitField.domain.chat.chatRoom.service.ChatRoomService;
 import cmf.commitField.domain.user.entity.CustomOAuth2User;
+import cmf.commitField.global.aws.s3.S3Service;
 import cmf.commitField.global.error.ErrorCode;
 import cmf.commitField.global.globalDto.GlobalResponse;
 import cmf.commitField.global.security.LoginCheck;
@@ -28,25 +28,24 @@ import java.util.List;
 @RequestMapping("/chat")
 public class ChatRoomController {
     private final ChatRoomService chatRoomService;
-    private final FileService fileService;
+    private final S3Service s3Service; // S3 파일 저장을 위한 서비스
 
     // 채팅방 생성 (파일 업로드 포함)
     @PostMapping(value = "/room", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public GlobalResponse<Object> createRoom(
             @ModelAttribute @Valid ChatRoomRequest chatRoomRequest) throws IOException {
 
-
         // 인증 확인
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication instanceof OAuth2AuthenticationToken) {
             CustomOAuth2User principal = (CustomOAuth2User) authentication.getPrincipal();
-            Long userId = principal.getId();  // getId()를 통해 userId를 추출
+            Long userId = principal.getId();  // getId()를 통해 userId 추출
 
             // 파일 업로드 처리
             String imageUrl = null;
             if (chatRoomRequest.getFile() != null && !chatRoomRequest.getFile().isEmpty()) {
-                imageUrl = fileService.saveFile(chatRoomRequest.getFile());  // 파일 저장
+                imageUrl = s3Service.uploadFile(chatRoomRequest.getFile(), "chat-room"); // S3에 업로드
             }
 
             // 채팅방 생성 서비스 호출 (이미지 URL 포함)
