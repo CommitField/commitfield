@@ -12,9 +12,11 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 public class WebSocketConfig implements WebSocketConfigurer {
 
     private final ChatWebSocketHandler chatWebSocketHandler;
+    private final NotiWebSocketHandler notiWebSocketHandler;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(chatWebSocketHandler, "/chat").setAllowedOrigins("*");
+        registry.addHandler(notiWebSocketHandler, "/notifications").setAllowedOrigins("*");
     }
 }

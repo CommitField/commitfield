@@ -17,5 +17,5 @@ public interface NotiRepository extends JpaRepository<Noti, Long> {
     @Query("SELECT new cmf.commitField.domain.noti.noti.dto.NotiDto(n.id, n.message, n.createdAt) " +
             "FROM Noti n JOIN n.receiver u WHERE u.id = :receiverId AND n.isRead = :isRead")
     Optional<List<NotiDto>> findNotiDtoByReceiverId(@Param("receiverId") Long receiverId, @Param("isRead") boolean isRead);
-
+    Optional<List<Noti>> findNotiByReceiver(User receiver);
 }
