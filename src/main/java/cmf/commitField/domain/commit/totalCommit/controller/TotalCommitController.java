@@ -44,8 +44,8 @@ public class TotalCommitController {
     public TotalCommitResponseDto getSpringSeasonCommits(@AuthenticationPrincipal CustomOAuth2User oAuth2User) {
         String username = oAuth2User.getName();
         int currentYear = LocalDateTime.now().getYear();  // 올해 대입
-        LocalDateTime since = LocalDateTime.of(2025, 3, 1, 0, 0);
-        LocalDateTime until = LocalDateTime.of(2025, 5, 31, 23, 59, 59);
+        LocalDateTime since = LocalDateTime.of(currentYear, 3, 1, 0, 0);
+        LocalDateTime until = LocalDateTime.of(currentYear, 5, 31, 23, 59, 59);
         return totalCommitService.getSeasonCommits(username, since, until);
     }
 
@@ -54,8 +54,8 @@ public class TotalCommitController {
     public TotalCommitResponseDto getSummerSeasonCommits(@AuthenticationPrincipal CustomOAuth2User oAuth2User) {
         String username = oAuth2User.getName();
         int currentYear = LocalDateTime.now().getYear();  // 현재는 테스트용으로 2024 대입
-        LocalDateTime since = LocalDateTime.of(2024, 6, 1, 0, 0);
-        LocalDateTime until = LocalDateTime.of(2024, 8, 31, 23, 59, 59);
+        LocalDateTime since = LocalDateTime.of(currentYear, 6, 1, 0, 0);
+        LocalDateTime until = LocalDateTime.of(currentYear, 8, 31, 23, 59, 59);
         return totalCommitService.getSeasonCommits(username, since, until);
     }
 
@@ -64,8 +64,8 @@ public class TotalCommitController {
     public TotalCommitResponseDto getFallSeasonCommits(@AuthenticationPrincipal CustomOAuth2User oAuth2User) {
         String username = oAuth2User.getName();
         int currentYear = LocalDateTime.now().getYear();  // 현재는 테스트용으로 2024 대입
-        LocalDateTime since = LocalDateTime.of(2024, 9, 1, 0, 0);
-        LocalDateTime until = LocalDateTime.of(2024, 11, 30, 23, 59, 59);
+        LocalDateTime since = LocalDateTime.of(currentYear, 9, 1, 0, 0);
+        LocalDateTime until = LocalDateTime.of(currentYear, 11, 30, 23, 59, 59);
         return totalCommitService.getSeasonCommits(username, since, until);
     }
 
@@ -74,8 +74,8 @@ public class TotalCommitController {
     public TotalCommitResponseDto getWinterSeasonCommits(@AuthenticationPrincipal CustomOAuth2User oAuth2User) {
         String username = oAuth2User.getName();
         int currentYear = LocalDateTime.now().getYear();  // 2024.12 ~ 2025.2 대입
-        LocalDateTime since = LocalDateTime.of(2025 - 1, 12, 1, 0, 0);
-        LocalDateTime until = LocalDateTime.of(2025, 2, 1, 23, 59, 59)
+        LocalDateTime since = LocalDateTime.of(currentYear - 1, 12, 1, 0, 0);
+        LocalDateTime until = LocalDateTime.of(currentYear, 2, 1, 23, 59, 59)
                 .with(TemporalAdjusters.lastDayOfMonth());
         return totalCommitService.getSeasonCommits(username, since, until);
     }
