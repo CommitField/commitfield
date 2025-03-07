@@ -75,6 +75,9 @@ docker-compose.yaml
 
 ### db파일
 db/
+.docker
+data/
+.dummy
 
 ### secret 프로필
 application-secret.yml

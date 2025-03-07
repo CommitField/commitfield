@@ -18,6 +18,7 @@ import static lombok.AccessLevel.PROTECTED;
 @NoArgsConstructor(access = PROTECTED)
 @AllArgsConstructor(access = PROTECTED)
 @Getter
+@Setter
 @SuperBuilder
 @EntityListeners(AuditingEntityListener.class)
 @ToString
@@ -35,4 +36,9 @@ public class BaseEntity {
     @CreatedDate
     @Getter
     private LocalDateTime modifiedAt;
+
+    public String getModelName() {
+        String simpleName = this.getClass().getSimpleName();
+        return Character.toLowerCase(simpleName.charAt(0)) + simpleName.substring(1);
+    }
 }

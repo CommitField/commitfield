@@ -29,19 +29,37 @@ public class GlobalResponse<T> {
         this.data = data;
     }
 
+    // 메시지와 데이터를 받는 생성자
+    private GlobalResponse(int statusCode, String message, T data) {
+        this.timestamp = LocalDateTime.now();
+        this.statusCode = statusCode;
+        this.message = message;
+        this.data = data;
+    }
+
+    // 성공 응답 (데이터 포함)
+    public static <T> GlobalResponse<T> success(String message, T data) {
+        return new GlobalResponse<>(GlobalResponseCode.OK.getCode(), message, data);
+    }
+
     // 성공 응답 (데이터 포함)
     public static <T> GlobalResponse<T> success(T data) {
         return new GlobalResponse<>(GlobalResponseCode.OK, data);
     }
 
     // 성공 응답 (데이터 없음)
-    public static <T> GlobalResponse<T> success() {
-        return success(null);
+    public static <T> GlobalResponse<T> success(String message) {
+        return success(message, null);
     }
 
     // 에러 응답 (데이터 포함)
     public static <T> GlobalResponse<T> error(ErrorCode errorCode, T data) {
         return new GlobalResponse<>(errorCode, data);
+    }
+
+    // 성공 응답 (기본 메세지)
+    public static <T> GlobalResponse<T> success() {
+        return success(null);
     }
 
     // 에러 응답 (데이터 없음)

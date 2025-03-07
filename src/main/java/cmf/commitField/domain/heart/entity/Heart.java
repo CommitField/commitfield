@@ -1,4 +1,4 @@
-package cmf.commitField.domain.chat.chatMessage.entity;
+package cmf.commitField.domain.heart.entity;
 
 import cmf.commitField.domain.chat.chatRoom.entity.ChatRoom;
 import cmf.commitField.domain.user.entity.User;
@@ -16,11 +16,7 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class ChatMessage extends BaseEntity {
-
-    private String message;
-
-//    private LocalDateTime sendTime;
+public class Heart extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

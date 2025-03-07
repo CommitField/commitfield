@@ -2,8 +2,6 @@ package cmf.commitField.domain.commit.sinceCommit.service;
 
 import cmf.commitField.domain.commit.sinceCommit.dto.CommitAnalysisResponseDto;
 import cmf.commitField.domain.commit.sinceCommit.dto.SinceCommitResponseDto;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +22,6 @@ import java.util.stream.Collectors;
 @Service
 public class SinceCommitService {
     private static final String BASE_URL = "https://api.github.com";
-    // ?since=2024-01-01T00:00:00Z&until=2025-02-1T23:59:59Z
 
     @Value("${github.token}")
     private String PAT;
@@ -55,7 +52,6 @@ public class SinceCommitService {
 
     // 연속 커밋 수 계산
 
-    // 새로운 분석 메서드 추가
     public CommitAnalysisResponseDto getCommitAnalysis(String owner, String repo, LocalDateTime since, LocalDateTime until) {
         List<SinceCommitResponseDto> commits = getSinceCommits(owner, repo, since, until);
         StreakResult streakResult = calculateStreaks(commits);

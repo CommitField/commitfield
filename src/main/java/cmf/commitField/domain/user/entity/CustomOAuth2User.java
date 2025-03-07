@@ -23,6 +23,7 @@ public class CustomOAuth2User implements OAuth2User {
         return oauth2User.getAttributes();
     }
 
+    //TODO: 관리자 권한 추가시 해당 기능 추가 처리 필요, 당장은 관리자 권한 필요 없음.
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
