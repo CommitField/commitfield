@@ -22,12 +22,15 @@ public class RedisConfig {
     @Value("${spring.redis.port}")
     public int port;
 
+    @Value("${spring.redis.password}")
+    public String password;
+
     @Bean
     public RedissonClient redissonClient() {
         Config config = new Config();
         config.useSingleServer()
                 .setAddress("redis://127.0.0.1:6379")
-                .setPassword("cmf55!!"); // 비밀번호 추가
+                .setPassword(password); // 비밀번호 추가
         return Redisson.create(config);
     }
 
@@ -45,7 +48,7 @@ public class RedisConfig {
         RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
         configuration.setHostName(host);
         configuration.setPort(port);
-        configuration.setPassword("cmf55!!");  // 비밀번호 설정
+        configuration.setPassword(password);  // 비밀번호 설정
         return new LettuceConnectionFactory(configuration);
     }
 
