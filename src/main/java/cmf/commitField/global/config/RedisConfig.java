@@ -1,5 +1,8 @@
 package cmf.commitField.global.config;
 
+import org.redisson.Redisson;
+import org.redisson.config.Config;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +23,15 @@ public class RedisConfig {
     public int port;
 
     @Bean
+    public RedissonClient redissonClient() {
+        Config config = new Config();
+        config.useSingleServer()
+                .setAddress("redis://127.0.0.1:6379")
+                .setPassword("cmf55!!"); // 비밀번호 추가
+        return Redisson.create(config);
+    }
+
+    @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setKeySerializer(new StringRedisSerializer()); // Redis 키를 문자열로 직렬화
@@ -33,6 +45,7 @@ public class RedisConfig {
         RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
         configuration.setHostName(host);
         configuration.setPort(port);
+        configuration.setPassword("cmf55!!");  // 비밀번호 설정
         return new LettuceConnectionFactory(configuration);
     }
 
