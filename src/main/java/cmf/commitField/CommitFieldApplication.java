@@ -12,5 +12,4 @@ public class CommitFieldApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(CommitFieldApplication.class, args);
 	}
-
 }

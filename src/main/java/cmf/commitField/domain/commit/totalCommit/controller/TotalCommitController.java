@@ -75,7 +75,7 @@ public class TotalCommitController {
         String username = oAuth2User.getName();
         int currentYear = LocalDateTime.now().getYear();  // 2024.12 ~ 2025.2 대입
         LocalDateTime since = LocalDateTime.of(2025 - 1, 12, 1, 0, 0);
-        LocalDateTime until = LocalDateTime.of(2025, 2, 1, 23, 59, 59)
+        LocalDateTime until = LocalDateTime.of(2025, 2, 28, 23, 59, 59)
                 .with(TemporalAdjusters.lastDayOfMonth());
         return totalCommitService.getSeasonCommits(username, since, until);
     }
