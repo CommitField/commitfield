@@ -78,6 +78,13 @@ public class CommitScheduler {
             CommitUpdateEvent event = new CommitUpdateEvent(this, username, newCommitCount);
             eventPublisher.publishEvent(event); // 이벤트 발생
             System.out.println("CommitCreatedEvent published for user: " + username);
+        } else if(newCommitCount < 0) {
+            // newCommitCount에 문제가 있을 경우 문제 상황 / 데이터 동기화 필요. db 갱신.
+            redisTemplate.opsForValue().set(activeKey, String.valueOf(updateTotalCommit), 3, TimeUnit.HOURS);
+
+            CommitUpdateEvent event = new CommitUpdateEvent(this, username, newCommitCount);
+            eventPublisher.publishEvent(event); // 이벤트 발생
+            System.out.println("커밋 수 동기화 필요, Sync for user: " + username);
         }
 
         // FIXME: 차후 리팩토링 필요
