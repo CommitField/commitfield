@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class ChatMsgResponse {
+    private Long chatMsgId;
     private Long roomId;
     //사용자(user)
     private String from;
