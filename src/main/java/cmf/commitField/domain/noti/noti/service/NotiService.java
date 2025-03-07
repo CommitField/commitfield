@@ -88,4 +88,16 @@ public class NotiService {
         });
         System.out.println("새 시즌 알림 생성 끝");
     }
+
+    // 읽음 처리
+    @Transactional
+    public List<Noti> read(User receiver) {
+        System.out.println("알림 읽음 처리");
+        List<Noti> notis = notiRepository.findNotiByReceiver(receiver).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+        notis.forEach(noti -> {
+            noti.setRead(true);
+        });
+        System.out.println("알림 읽음 처리 끝");
+        return notis;
+    }
 }
