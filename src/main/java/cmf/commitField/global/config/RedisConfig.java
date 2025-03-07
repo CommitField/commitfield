@@ -29,7 +29,7 @@ public class RedisConfig {
     public RedissonClient redissonClient() {
         Config config = new Config();
         config.useSingleServer()
-                .setAddress("redis://127.0.0.1:6379")
+                .setAddress("redis://172.17.0.1:6379")
                 .setPassword(password); // 비밀번호 추가
         return Redisson.create(config);
     }
