@@ -4,6 +4,7 @@ import cmf.commitField.domain.pet.service.PetService;
 import cmf.commitField.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,6 +13,7 @@ public class CommitUpdateListener {
     private final UserService userService;
     private final PetService petService;
     private final CommitUpdateService commitUpdateService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @EventListener
     public void handleCommitUserUpdateEvent(CommitUpdateEvent event) {
@@ -40,5 +42,15 @@ public class CommitUpdateListener {
 
         // 커밋 갱신 후에 다른 서비스에서 필요한 작업 수행 (예: DB 업데이트, 상태 갱신 등)
         System.out.println("유저명: " + username + "'s pet has updated " + commitCount + " commits.");
+    }
+
+    @EventListener
+    public void onCommitCountUpdate(CommitUpdateEvent event) {
+        // 커밋 수 업데이트가 있을 때 메시지 발송
+        String username = event.getUsername();
+        long newCommitCount = event.getNewCommitCount();
+
+        // 메시지를 WebSocket을 통해 전송
+        messagingTemplate.convertAndSend("/topic/commit/" + username, newCommitCount);
     }
 }
