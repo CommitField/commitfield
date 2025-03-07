@@ -28,8 +28,9 @@ public class RedisConfig {
     @Bean
     public RedissonClient redissonClient() {
         Config config = new Config();
+        String redisAddress = "redis://" + host + ":" + port;
         config.useSingleServer()
-                .setAddress("redis://127.0.0.1:6379")
+                .setAddress(redisAddress)
                 .setPassword(password); // 비밀번호 추가
         return Redisson.create(config);
     }
