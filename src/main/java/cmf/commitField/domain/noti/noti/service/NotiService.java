@@ -64,28 +64,35 @@ public class NotiService {
 
     // 새 시즌 알림 생성
     @Transactional
-    public void createNewSeason(Season season) {
+    public void createNewSeasonNoti(Season season, User user) {
         System.out.println("새 시즌 알림 생성");
         // 메시지 생성
         String message = NotiService.generateMessage(NotiDetailType.SEASON_START, season.getName());
 
-        // 모든 사용자 조회
-        Iterable<User> users = userRepository.findAll();
+        Noti noti = Noti.builder()
+                .typeCode(NotiType.SEASON)
+                .type2Code(NotiDetailType.SEASON_START)
+                .receiver(user)
+                .isRead(false)
+                .message(message)
+                .relId(season.getId())
+                .relTypeCode(season.getModelName())
+                .build();
 
-        // 모든 유저 알림 객체 생성
-        users.forEach(user -> {
-            Noti noti = Noti.builder()
-                    .typeCode(NotiType.SEASON)
-                    .type2Code(NotiDetailType.SEASON_START)
-                    .receiver(user)
-                    .isRead(false)
-                    .message(message)
-                    .relId(season.getId())
-                    .relTypeCode(season.getModelName())
-                    .build();
+        notiRepository.save(noti);
 
-            notiRepository.save(noti);
-        });
         System.out.println("새 시즌 알림 생성 끝");
+    }
+
+    // 읽음 처리
+    @Transactional
+    public List<Noti> read(User receiver) {
+        System.out.println("알림 읽음 처리");
+        List<Noti> notis = notiRepository.findNotiByReceiver(receiver).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+        notis.forEach(noti -> {
+            noti.setRead(true);
+        });
+        System.out.println("알림 읽음 처리 끝");
+        return notis;
     }
 }

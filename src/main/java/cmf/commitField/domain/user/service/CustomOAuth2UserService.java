@@ -101,7 +101,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         if(notiService.getSeasonNotiCheck(user, season.getId()).isEmpty()){
             log.info("User {} does not have season noti", user.getUsername());
             // 가지고 있지 않다면 알림을 추가
-            notiService.createNewSeason(season);
+            notiService.createNewSeasonNoti(season, user);
 //            redisTemplate.opsForValue().set(season_key, String.valueOf(count), Duration.ofHours(3)); // 3시간 캐싱
         }
 
