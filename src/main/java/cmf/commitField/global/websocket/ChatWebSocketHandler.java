@@ -5,8 +5,6 @@ import cmf.commitField.domain.chat.chatMessage.controller.response.ChatMsgRespon
 import cmf.commitField.domain.chat.chatMessage.service.ChatMessageService;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
-import cmf.commitField.global.error.ErrorCode;
-import cmf.commitField.global.exception.CustomException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +14,10 @@ import org.springframework.web.socket.*;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
