@@ -94,7 +94,7 @@ public class SinceCommitController {
     ) {
         int currentYear = LocalDateTime.now().getYear();
         LocalDateTime since = LocalDateTime.of(2024, 12, 1, 0, 0);
-        LocalDateTime until = LocalDateTime.of(2024 + 1, 2, 1, 23, 59, 59)
+        LocalDateTime until = LocalDateTime.of(2024 + 1, 2, 28, 23, 59, 59)
                 .with(TemporalAdjusters.lastDayOfMonth());
 
         CommitAnalysisResponseDto analysis = sinceCommitService.getCommitAnalysis(owner, repo, since, until);

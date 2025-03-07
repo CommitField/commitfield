@@ -1,11 +1,11 @@
 package cmf.commitField.domain.commit.scheduler;
 
 import cmf.commitField.domain.commit.totalCommit.service.TotalCommitService;
-import cmf.commitField.domain.pet.service.PetService;
 import cmf.commitField.domain.user.dto.UserInfoDto;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -15,8 +15,9 @@ import java.time.LocalDateTime;
 public class CommitUpdateService {
     private final TotalCommitService totalCommitService;
     private final UserRepository userRepository;
-    private final PetService petService;
+    private final SimpMessagingTemplate messagingTemplate;
 
+    // 유저 랭킹 상승 로짓
     public UserInfoDto updateUserTier(String username){
         User user = userRepository.findByUsername(username).get();
         long seasonCommitCount;
@@ -35,4 +36,5 @@ public class CommitUpdateService {
                 .tier(user.getTier().name())
                 .build();
     }
+
 }
