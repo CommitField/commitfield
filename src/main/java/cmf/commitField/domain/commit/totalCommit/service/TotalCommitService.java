@@ -1,6 +1,5 @@
 package cmf.commitField.domain.commit.totalCommit.service;
 
-import cmf.commitField.domain.commit.totalCommit.dto.CommitUpdateDTO;
 import cmf.commitField.domain.commit.totalCommit.dto.TotalCommitGraphQLResponse;
 import cmf.commitField.domain.commit.totalCommit.dto.TotalCommitResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -216,7 +215,7 @@ public class TotalCommitService {
     }
 
     // 시간별 커밋 분석
-    public CommitUpdateDTO getUpdateCommits(String username, LocalDateTime since, LocalDateTime until) {
+    public long getUpdateCommits(String username, LocalDateTime since, LocalDateTime until) {
         String query = String.format("""
         query {
             user(login: "%s") {
@@ -224,16 +223,17 @@ public class TotalCommitService {
                     commitContributionsByRepository {
                         contributions(first: 100) {
                             nodes {
-                                occurredAt  # 시간 정보 포함
+                                occurredAt
                             }
                         }
                     }
                 }
             }
-        }""", username, since.format(DateTimeFormatter.ISO_DATE_TIME), until.format(DateTimeFormatter.ISO_DATE_TIME));
+        }
+    """, username, since.format(DateTimeFormatter.ISO_DATE_TIME), until.format(DateTimeFormatter.ISO_DATE_TIME));
 
         Map<String, String> requestBody = Map.of("query", query);
-
+        System.out.println(username);
         TotalCommitGraphQLResponse response = webClient.post()
                 .header("Authorization", "bearer " + PAT)
                 .bodyValue(requestBody)
@@ -244,14 +244,52 @@ public class TotalCommitService {
         if (response == null || response.getData() == null || response.getData().getUser() == null) {
             throw new RuntimeException("Failed to fetch GitHub data");
         }
+        System.out.println(response);
 
-
-        System.out.println("메소드 작동 확인 : "+response.getData().getUser());
         TotalCommitGraphQLResponse.ContributionsCollection contributions =
                 response.getData().getUser().getContributionsCollection();
+        // 커밋 발생 시간 리스트 추출
+        List<LocalDateTime> commitTimes = extractCommitTimes(contributions.getContributionCalendar());
 
-        return new CommitUpdateDTO(
-                contributions.getTotalCommitContributions()
-        );
+        // 초 단위로 커밋 수 계산
+        long commitCount = calculateCommitsInTimeRange(commitTimes, since, until);
+
+        return commitCount;
     }
+
+    // 커밋 발생 시간을 LocalDateTime 형식으로 추출하는 메서드
+    private List<LocalDateTime> extractCommitTimes(TotalCommitGraphQLResponse.ContributionCalendar contributionCalendar) {
+        List<LocalDateTime> commitTimes = new ArrayList<>();
+
+        if (contributionCalendar == null) {
+            System.out.println("contributionCalendar is null");
+            return commitTimes; // 빈 리스트 반환
+        }
+
+        // contributionCalendar에서 각 주 단위로 데이터 추출
+        contributionCalendar.getWeeks().forEach(week -> {
+            week.getContributionDays().forEach(contributionDay -> {
+                if (contributionDay.getContributionCount() > 0) {
+                    // 각 날짜에 커밋이 있는 경우 그 날짜를 커밋 시간으로 추가
+                    LocalDate commitDate = LocalDate.parse(contributionDay.getDate());
+                    // LocalDate를 LocalDateTime으로 변환 (시간은 00:00:00로 설정)
+                    LocalDateTime commitTime = commitDate.atStartOfDay();
+                    commitTimes.add(commitTime);
+                }
+            });
+        });
+
+        return commitTimes;
+    }
+
+
+
+    // 커밋 시간 리스트에서 since와 until 사이에 발생한 커밋 수 계산
+    private long calculateCommitsInTimeRange(List<LocalDateTime> commitTimes, LocalDateTime since, LocalDateTime until) {
+        return commitTimes.stream()
+                .filter(commitTime -> !commitTime.isBefore(since) && !commitTime.isAfter(until))
+                .count();
+    }
+
+
 }

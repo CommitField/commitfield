@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -74,16 +75,20 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             pet = new Pet("알알", user); // TODO: 변경 필요
             petRepository.save(pet);
 
-            // 유저 펫, 커밋 카운트, 랭크를 서렂ㅇ
+            // 유저 펫, 커밋 카운트, 랭크를 설정
             user.addPets(pet);
             user.setCommitCount(totalCommitService.getTotalCommitCount(user.getUsername()).getTotalCommitContributions());
-            user.setTier(User.Tier.getLevelByExp((int) totalCommitService.getSeasonCommits(
+
+            long seasonCommitCount = totalCommitService.getSeasonCommits(
                     user.getUsername(),
                     LocalDateTime.of(2025,03,01,00,00),
-                    LocalDateTime.now()).getTotalCommitContributions()
-                )
-            );
+                    LocalDateTime.of(2025,05,31,23,59)
+            ).getTotalCommitContributions();
 
+            user.setSeasonCommitCount(seasonCommitCount);
+
+            user.setTier(User.Tier.getLevelByExp(seasonCommitCount));
+            userRepository.save(user);
             // 로그인하거나 회원가입한 유저는 커밋 기록에 상관없이 Redis에 입력해둔다.
             commitCacheService.updateCachedCommitCount(user.getUsername(),0);
         }
@@ -92,6 +97,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         // 알림 테이블에서 Active인 시즌의 알림을 해당 유저가 가지고 있는지 체크
         String season_key = "season_active:" + user.getUsername();
         Season season = seasonService.getActiveSeason();
+        log.info("Active season: {}", season);
         if(notiService.getSeasonNotiCheck(user, season.getId()).isEmpty()){
             log.info("User {} does not have season noti", user.getUsername());
             // 가지고 있지 않다면 알림을 추가
@@ -113,5 +119,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     // email로 user 조회
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    public void setUserActive(String username) {
+        String count = String.valueOf(userRepository.findByUsername(username).get().getCommitCount());
+        redisTemplate.opsForValue().set("commit_active:" + username, count);
+        redisTemplate.opsForValue().set("commit_lastCommitted:" + username, LocalDateTime.now().toString(),3, TimeUnit.HOURS);
+
     }
 }
