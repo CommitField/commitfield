@@ -1,5 +1,6 @@
 package cmf.commitField.domain.chat.chatRoom.controller;
 
+import cmf.commitField.domain.File.service.FileService;
 import cmf.commitField.domain.chat.chatRoom.controller.request.ChatRoomRequest;
 import cmf.commitField.domain.chat.chatRoom.controller.request.ChatRoomUpdateRequest;
 import cmf.commitField.domain.chat.chatRoom.dto.ChatRoomDto;
@@ -12,12 +13,14 @@ import cmf.commitField.global.security.LoginCheck;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -25,17 +28,30 @@ import java.util.List;
 @RequestMapping("/chat")
 public class ChatRoomController {
     private final ChatRoomService chatRoomService;
+    private final FileService fileService;
 
-    //채팅방 생성
-    @PostMapping("/room")
+    // 채팅방 생성 (파일 업로드 포함)
+    @PostMapping(value = "/room", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public GlobalResponse<Object> createRoom(
-            @RequestBody @Valid ChatRoomRequest chatRoomRequest) {
+            @ModelAttribute @Valid ChatRoomRequest chatRoomRequest) throws IOException {
+
+
+        // 인증 확인
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication instanceof OAuth2AuthenticationToken) {
             CustomOAuth2User principal = (CustomOAuth2User) authentication.getPrincipal();
             Long userId = principal.getId();  // getId()를 통해 userId를 추출
-            chatRoomService.createRoom(chatRoomRequest, userId);  // userId를 전달
+
+            // 파일 업로드 처리
+            String imageUrl = null;
+            if (chatRoomRequest.getFile() != null && !chatRoomRequest.getFile().isEmpty()) {
+                imageUrl = fileService.saveFile(chatRoomRequest.getFile());  // 파일 저장
+            }
+
+            // 채팅방 생성 서비스 호출 (이미지 URL 포함)
+            chatRoomService.createRoom(chatRoomRequest, userId, imageUrl);
+
             return GlobalResponse.success("채팅방을 생성하였습니다.");
         } else {
             throw new IllegalArgumentException("로그인 후에 이용해 주세요.");
