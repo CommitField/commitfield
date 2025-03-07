@@ -19,6 +19,9 @@ public class ChatRoomDto {
 
     private Integer heartCount;
 
+    // 이미지 URL 필드 추가
+    private String imageUrl;
+
     public static ChatRoomDto of(ChatRoom chatRoom) {
         return ChatRoomDto.builder()
                 .id(chatRoom.getId())
@@ -26,6 +29,7 @@ public class ChatRoomDto {
                 .currentUserCount((long) chatRoom.getUserChatRooms().size())
                 .userCountMax(chatRoom.getUserCountMax())
                 .heartCount(chatRoom.getHearts().size())
+                .imageUrl(chatRoom.getImageUrl())  // ChatRoom에서 imageUrl을 가져오기
                 .build();
     }
 }

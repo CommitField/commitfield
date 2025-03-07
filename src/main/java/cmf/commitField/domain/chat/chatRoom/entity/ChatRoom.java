@@ -45,6 +45,9 @@ public class ChatRoom extends BaseEntity {
 
     private Boolean isPrivate;
 
+    //채팅방 이미지 URL
+    private String imageUrl;
+
     @Override
     public String toString() {
         return "ChatRoom{" +
