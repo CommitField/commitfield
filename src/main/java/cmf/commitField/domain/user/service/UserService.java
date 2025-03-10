@@ -57,6 +57,7 @@ public class UserService {
 
         return UserInfoDto.builder()
                 .username(user.getUsername())
+                .nickname(user.getNickname())
                 .email(user.getEmail())
                 .avatarUrl(user.getAvatarUrl())
                 .tier(user.getTier().toString())

@@ -18,7 +18,7 @@ public class UserController {
     private final UserService userService;
     private final TotalCommitService totalCommitService;
 
-    @GetMapping("info")
+    @GetMapping("/info")
     public ResponseEntity<UserInfoDto> getUserInfo(@AuthenticationPrincipal CustomOAuth2User oAuth2User){
         String username = oAuth2User.getName();
 
