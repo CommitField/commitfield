@@ -30,7 +30,7 @@ public class RedisConfig {
         Config config = new Config();
         //로컬 환경에서 .setAddress("redis://127.0.0.1:6379")로 수정 필요
         config.useSingleServer()
-                .setAddress("redis://172.17.0.1:6379")
+                .setAddress("redis://redis:6379")
                 .setPassword(password); // 비밀번호 추가
         return Redisson.create(config);
     }
