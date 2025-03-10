@@ -1,6 +1,7 @@
 package cmf.commitField.domain.chat.chatRoom.service;
 
 import cmf.commitField.domain.chat.chatMessage.repository.ChatMessageRepository;
+import cmf.commitField.domain.chat.chatRoom.controller.request.ChatRoomJoinRequest;
 import cmf.commitField.domain.chat.chatRoom.controller.request.ChatRoomRequest;
 import cmf.commitField.domain.chat.chatRoom.controller.request.ChatRoomUpdateRequest;
 import cmf.commitField.domain.chat.chatRoom.dto.ChatRoomDto;
@@ -72,6 +73,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 .imageUrl(imageUrl)  // 이미지 URL 추가
                 .build();
         if (password != null) {
+            System.out.println("Setting password: " + password);
             chatRoom.setPassword(password);
             chatRoom.setIsPrivate(true);
         }
@@ -127,7 +129,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     @Override
     @Transactional
-    public void joinRoom(Long roomId, Long userId, ChatRoomRequest chatRoomRequest) {
+    public void joinRoom(Long roomId, Long userId, ChatRoomJoinRequest chatRoomJoinRequest) {
         RLock lock = redissonClient.getLock("joinRoomLock:" + roomId);
         try {
             boolean available = lock.tryLock(1, TimeUnit.SECONDS);
@@ -145,13 +147,13 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             // user_chatroom 현재 인원 카운트 (비즈니스 로직)
             Long currentUserCount = userChatRoomRepository.countNonLockByChatRoomId(roomId); // lock (기존)
 
-            if (chatRoom.getIsPrivate() && chatRoomRequest.getPassword() == null) {
+            if (chatRoom.getIsPrivate() && chatRoomJoinRequest.getPassword() == null) {
                 throw new CustomException(ErrorCode.NEED_TO_PASSWORD);
 
 
 
             }
-            if (chatRoom.getIsPrivate() && !chatRoomRequest.getPassword().equals(chatRoom.getPassword())) {
+            if (chatRoom.getIsPrivate() && !chatRoomJoinRequest.getPassword().equals(chatRoom.getPassword())) {
                 throw new CustomException(ErrorCode.ROOM_PASSWORD_MISMATCH);
             }
             List<Long> userChatRoomByChatRoomId = userChatRoomRepository
