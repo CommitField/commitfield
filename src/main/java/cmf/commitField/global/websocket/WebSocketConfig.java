@@ -21,7 +21,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
                 .setAllowedOrigins("*"); // CORS 설정, 실제 환경에서는 보안을 위해 제한적으로 설정해야 함
 
         // 알림 웹소켓 핸들러 등록
-        registry.addHandler(notiWebSocketHandler, "/notifications")
-                .setAllowedOrigins("*");
+//        registry.addHandler(notiWebSocketHandler, "/notifications")
+//                .setAllowedOrigins("*");
     }
 }
