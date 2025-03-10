@@ -51,20 +51,21 @@ public class ChatMessageServiceImpl implements ChatMessageService {
                 .chatRoom(chatRoom)
                 .build();
 
-        // 메시지 저장
-        ChatMsg savedMsg = chatMessageRepository.save(chatMsg);
+        // Response message
+        // 응답 값으로 변환
 
-        // Response - 메시지 ID 추가
         ChatMsgResponse response = ChatMsgResponse.builder()
-                .chatMsgId(savedMsg.getId()) // 저장된 메시지의 ID 추가
+
                 .roomId(roomId)
                 .from(findUser.getNickname())
                 .message(message.getMessage())
                 .sendAt(chatMsg.getCreatedAt())
                 .build();
-
+        chatMessageRepository.save(chatMsg);
         return response;
+
     }
+
 
     @Transactional(readOnly = true)
     @Override

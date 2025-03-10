@@ -200,7 +200,6 @@ public class ChatWebSocketHandler implements WebSocketHandler {
                 wsMessage.put("type", "CHAT");
                 wsMessage.put("roomId", roomId);
                 wsMessage.put("userId", userId);
-                wsMessage.put("chatMsgId", response.getChatMsgId()); // DB에 저장된 메시지 ID 추가
                 wsMessage.put("from", response.getFrom());
                 wsMessage.put("nickname", response.getFrom()); // 클라이언트 호환성을 위해 두 필드 모두 설정
                 wsMessage.put("message", message);
