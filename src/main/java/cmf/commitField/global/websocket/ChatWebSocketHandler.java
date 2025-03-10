@@ -173,13 +173,14 @@ public class ChatWebSocketHandler implements WebSocketHandler {
             Long roomId = jsonNode.get("roomId").asLong();
             Long userId = jsonNode.get("userId").asLong();
             String message = jsonNode.get("message").asText();
+            String from = jsonNode.has("from") ? jsonNode.get("from").asText() : null;
+
+            log.info("채팅 메시지: roomId={}, userId={}, message={}, from={}", roomId, userId, message, from);
 
             if (message == null || message.trim().isEmpty()) {
                 sendErrorMessage(session, "메시지 내용이 비어있습니다.");
                 return;
             }
-
-            log.info("채팅 메시지: roomId={}, userId={}, message={}", roomId, userId, message);
 
             // 사용자 정보 검증
             User user = userRepository.findById(userId).orElse(null);
@@ -194,8 +195,19 @@ public class ChatWebSocketHandler implements WebSocketHandler {
                 ChatMsgRequest chatMsgRequest = new ChatMsgRequest(message);
                 ChatMsgResponse response = chatMessageService.sendMessage(chatMsgRequest, userId, roomId);
 
-                // 메시지 포맷 변환하여 전송
-                String messageJson = objectMapper.writeValueAsString(response);
+                // 웹소켓 메시지 포맷 생성 (클라이언트와 일치시킴)
+                Map<String, Object> wsMessage = new HashMap<>();
+                wsMessage.put("type", "CHAT");
+                wsMessage.put("roomId", roomId);
+                wsMessage.put("userId", userId);
+                wsMessage.put("from", response.getFrom());
+                wsMessage.put("nickname", response.getFrom()); // 클라이언트 호환성을 위해 두 필드 모두 설정
+                wsMessage.put("message", message);
+                wsMessage.put("sendAt", response.getSendAt().toString());
+
+                // 메시지 JSON 변환
+                String messageJson = objectMapper.writeValueAsString(wsMessage);
+                log.info("Broadcasting message: {}", messageJson);
 
                 // 해당 채팅방의 모든 세션에 메시지 브로드캐스트
                 broadcastMessageToRoom(roomId, messageJson);
@@ -223,9 +235,11 @@ public class ChatWebSocketHandler implements WebSocketHandler {
             for (WebSocketSession session : roomSessions) {
                 try {
                     if (session.isOpen()) {
+                        log.debug("Broadcasting to session {}", session.getId());
                         session.sendMessage(new TextMessage(message));
                     } else {
                         failedSessions.add(session);
+                        log.debug("Session closed, adding to failed sessions: {}", session.getId());
                     }
                 } catch (IOException e) {
                     log.error("메시지 브로드캐스트 중 오류: {}", e.getMessage());

@@ -33,6 +33,8 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     private final ChatMessageCustomRepository chatMessageCustomRepository;
     private final UserChatRoomRepository userChatRoomRepository;
 
+    // 커밋용 주석
+
     @Override
     @Transactional
     public ChatMsgResponse sendMessage(ChatMsgRequest message, Long userId, Long roomId) {
@@ -48,8 +50,12 @@ public class ChatMessageServiceImpl implements ChatMessageService {
                 .user(findUser)
                 .chatRoom(chatRoom)
                 .build();
-        // Response
+
+        // Response message
+        // 응답 값으로 변환
+
         ChatMsgResponse response = ChatMsgResponse.builder()
+
                 .roomId(roomId)
                 .from(findUser.getNickname())
                 .message(message.getMessage())
@@ -57,7 +63,9 @@ public class ChatMessageServiceImpl implements ChatMessageService {
                 .build();
         chatMessageRepository.save(chatMsg);
         return response;
+
     }
+
 
     @Transactional(readOnly = true)
     @Override
