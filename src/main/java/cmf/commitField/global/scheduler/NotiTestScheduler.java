@@ -17,12 +17,11 @@ public class NotiTestScheduler {
     private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    @Scheduled(cron = "30 14 * * * *")
+//    @Scheduled(cron = "30 2 * * * *")
     public void test() {
         System.out.println("test 실행");
 
         User user = userRepository.findById(1L).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
         notiService.createNoti(user);
-//        eventPublisher.publishEvent();
         }
 }

@@ -7,10 +7,11 @@ import cmf.commitField.domain.user.repository.UserRepository;
 import cmf.commitField.global.error.ErrorCode;
 import cmf.commitField.global.exception.CustomException;
 import cmf.commitField.global.globalDto.GlobalResponse;
-import cmf.commitField.global.websocket.NotiWebSocketHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -30,24 +31,14 @@ public class ApiV1NotiController {
     private final NotiService notiService;
     private final UserRepository userRepository;
     private final NotiWebSocketHandler notiWebSocketHandler;
+    private final ApplicationEventPublisher eventPublisher;
 
     @GetMapping("")
-    public GlobalResponse<List<NotiDto>> getNoti() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication instanceof OAuth2AuthenticationToken) {
-            OAuth2User principal = (OAuth2User) authentication.getPrincipal();
-            Map<String, Object> attributes = principal.getAttributes();
-            String username = (String) attributes.get("login");  // GitHub ID
-            User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
-            List<NotiDto> notis = notiService.getNotReadNoti(user);
-            // 웹소켓으로 알림 전송
-            notiWebSocketHandler.sendNotification(user, notis);
-
-            return GlobalResponse.success(notis);
-        }
-
-        return GlobalResponse.error(ErrorCode.LOGIN_REQUIRED);
+    public GlobalResponse<List<NotiDto>> getNoti(@AuthenticationPrincipal OAuth2User oAuth2User) {
+        String username = oAuth2User.getName();
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+        List<NotiDto> notis = notiService.getNotReadNoti(user);
+        return GlobalResponse.success(notis);
     }
 
     @PostMapping("")

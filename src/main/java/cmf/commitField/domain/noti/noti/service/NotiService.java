@@ -5,6 +5,7 @@ import cmf.commitField.domain.noti.noti.entity.Noti;
 import cmf.commitField.domain.noti.noti.entity.NotiDetailType;
 import cmf.commitField.domain.noti.noti.entity.NotiMessageTemplates;
 import cmf.commitField.domain.noti.noti.entity.NotiType;
+import cmf.commitField.domain.noti.noti.event.NotiEvent;
 import cmf.commitField.domain.noti.noti.repository.NotiRepository;
 import cmf.commitField.domain.season.entity.Season;
 import cmf.commitField.domain.user.entity.User;
@@ -13,10 +14,12 @@ import cmf.commitField.global.error.ErrorCode;
 import cmf.commitField.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,6 +29,7 @@ import java.util.List;
 public class NotiService {
     private final NotiRepository notiRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     // 알림 메시지 생성
     public static String generateMessage(NotiDetailType type, Object... params) {
@@ -46,7 +50,12 @@ public class NotiService {
                 .isRead(false)
                 .message(message)
                 .build();
-        notiRepository.save(noti);
+
+        List<NotiDto> notis = new ArrayList<>();
+        Noti savedNoti = notiRepository.save(noti);
+        notis.add(new NotiDto(savedNoti.getId(), savedNoti.getMessage(), savedNoti.getCreatedAt()));
+        NotiEvent event = new NotiEvent(this, receiver.getUsername(), notis, "새로운 알림이 생성되었습니다.");
+        eventPublisher.publishEvent(event);
     }
 
 
