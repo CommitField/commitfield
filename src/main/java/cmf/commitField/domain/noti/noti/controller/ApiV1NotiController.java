@@ -1,14 +1,12 @@
 package cmf.commitField.domain.noti.noti.controller;
 
 import cmf.commitField.domain.noti.noti.dto.NotiDto;
-import cmf.commitField.domain.noti.noti.event.NotiEvent;
 import cmf.commitField.domain.noti.noti.service.NotiService;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
 import cmf.commitField.global.error.ErrorCode;
 import cmf.commitField.global.exception.CustomException;
 import cmf.commitField.global.globalDto.GlobalResponse;
-import cmf.commitField.global.websocket.NotiWebSocketHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
