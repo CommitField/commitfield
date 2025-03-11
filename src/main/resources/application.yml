@@ -18,7 +18,7 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         default_batch_fetch_size: 100
@@ -33,7 +33,7 @@ spring:
       frontUrl: "http://${custom.dev.cookieDomain}:5173"
       backUrl: "http://${custom.dev.cookieDomain}:${server.port}"
     prod:
-      cookieDomain: cmfd.seoez.site
+      cookieDomain: cmf.seoez.site
       frontUrl: "https://www.${custom.prod.cookieDomain}/"
       backUrl: "https://api.${custom.prod.cookieDomain}/"
     site:
@@ -41,6 +41,17 @@ spring:
       cookieDomain: "${custom.dev.cookieDomain}"
       frontUrl: "${custom.dev.frontUrl}"
       backUrl: "${custom.dev.backUrl}"
+    # Lettuce 클라이언트 설정 (Redis 연결을 관리하는 클라이언트)
+  redis:
+    host: localhost  # Redis 서버의 호스트명 (Docker를 사용할 경우 `localhost` 또는 `host.docker.internal` 사용)
+    port: 6379  # Redis 서버 포트
+
+  lettuce:
+    pool:
+      max-active: 10  # 최대 활성 커넥션 수
+      max-wait: -1  # 커넥션 풀에서 대기할 수 있는 최대 시간 (-1은 무제한 대기)
+      max-idle: 8  # 커넥션 풀에서의 최대 유휴 커넥션 수
+      min-idle: 4  # 커넥션 풀에서의 최소 유휴 커넥션 수
 
 # swagger 설정
 springdoc:
@@ -53,8 +64,6 @@ springdoc:
 #  paths-to-match:
 #    - /api/** # swagger-ui에 표시할 api의 엔드포인트 패턴
 
-  kafka:
-    bootstrap-servers: localhost:9092
 
 logging:
   level:

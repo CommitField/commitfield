@@ -5,7 +5,9 @@ import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -19,10 +21,35 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequiredArgsConstructor
 public class CommitScheduler {
     private final TotalCommitService totalCommitService;
-    private final CommitCacheService commitCacheService;
     private final UserRepository userRepository;
     private final StringRedisTemplate redisTemplate;
     private final AtomicInteger counter = new AtomicInteger(0);
+    private final SimpMessagingTemplate messagingTemplate;
+
+    private final ApplicationEventPublisher eventPublisher;
+
+    // TODO: 확장시 추가
+
+//    @Scheduled(fixedRate = 60000) // 1분마다 실행
+//    public void updateMatchCommitCounts() {
+//        Map<Object, Object> entries = redisTemplate.opsForHash().entries("active_matches");
+//
+//        Map<String, MatchSession> activeMatches = new HashMap<>();
+//        for (Map.Entry<Object, Object> entry : entries.entrySet()) {
+//            if (entry.getKey() instanceof String && entry.getValue() instanceof MatchSession) {
+//                activeMatches.put((String) entry.getKey(), (MatchSession) entry.getValue());
+//            }
+//        }
+//
+//        for (MatchSession match : activeMatches.values()) {
+//            long player1Commits = Long.parseLong(redisTemplate.opsForValue().get("commit_active:"+match.getPlayer1()));
+//            long player2Commits = Long.parseLong(redisTemplate.opsForValue().get("commit_active:"+match.getPlayer2()));
+//
+//            redisTemplate.opsForHash().put("active_matches", match.getMatchId(), match);
+//
+//            messagingTemplate.convertAndSend("/topic/match/" + match.getMatchId(), match);
+//        }
+//    }
 
     @Scheduled(fixedRate = 60000) // 1분마다 실행
     public void updateUserCommits() {
@@ -34,56 +61,57 @@ public class CommitScheduler {
         Set<String> activeUsers = redisTemplate.keys("commit_active:*");
         log.info("🔍 Active User Count: {}", activeUsers.size());
 
+        // 현재 접속 기록이 있는 유저, 커밋 기록이 있는 유저는 주기적으로 갱신
         for (String key : activeUsers) {
             String username = key.replace("commit_active:", "");
-            User user = userRepository.findByUsername(username).orElse(null);
-            if (user != null) {
-                processUserCommit(user);
-            }
-        }
 
+            String lastcmKey = "commit_lastCommitted:" + username; // active유저의 key
+            String lastCommitted = redisTemplate.opsForValue().get(lastcmKey); // 마지막 커밋 시간
+
+            System.out.println("username: "+username+"/ user lastCommitted: "+lastCommitted);
+            if(username!=null && lastCommitted!=null) processUserCommit(username);
+        }
     }
 
     // 🔹 유저 커밋 검사 및 반영
-    private void processUserCommit(User user) {
-        // Redis에서 lastCommitted 값 가져오기
-        String redisKey = "commit_last:" + user.getUsername();
-        String lastCommittedStr = redisTemplate.opsForValue().get(redisKey);
-        LocalDateTime lastCommitted;
-        if(lastCommittedStr != null){
-            lastCommitted=LocalDateTime.parse(lastCommittedStr);
-        }else{
-            user.setLastCommitted(LocalDateTime.now()); // 레디스에 저장되어있지 않았다면 등록 시점에 lastCommitted를 갱신
-            lastCommitted=user.getLastCommitted();  // Redis에 없으면 DB값 사용;
-        }
+    private void processUserCommit(String username) {
+        // 유저가 접속한 동안 추가한 commit수를 확인.
+        String activeKey = "commit_active:" + username; // active유저의 key
+        String lastcmKey = "commit_lastCommitted:" + username; // active유저의 key
+        Long currentCommit = Long.parseLong(redisTemplate.opsForValue().get(activeKey)); // 현재까지 확인한 커밋 개수
+        String lastcommitted = redisTemplate.opsForValue().get(lastcmKey); // 마지막 커밋 시간
+        long updateTotalCommit, newCommitCount;
 
         // 현재 커밋 개수 조회
-        long currentCommitCount = totalCommitService.getUpdateCommits(
-                user.getUsername(),
-                lastCommitted,  // 🚀 Redis에 저장된 lastCommitted 기준으로 조회
-                LocalDateTime.now()
+        updateTotalCommit = totalCommitService.getTotalCommitCount(
+            username
         ).getTotalCommitContributions();
 
-        // Redis에서 이전 커밋 개수 가져오기
-        Integer previousCommitCount = commitCacheService.getCachedCommitCount(user.getUsername());
-        long newCommitCount = previousCommitCount == null ? 0 : (currentCommitCount - previousCommitCount);
+        newCommitCount = updateTotalCommit - currentCommit; // 새로 추가된 커밋 수
 
-        if (newCommitCount > 0) {
-            updateCommitData(user, currentCommitCount, newCommitCount);
+        if(newCommitCount > 0){
+            User user = userRepository.findByUsername(username).get();
+            LocalDateTime now = LocalDateTime.now();
+            //커밋 수가 갱신된 경우, 이 시간을 기점으로 lastCommitted를 변경한다.
+            user.setLastCommitted(now);
+            userRepository.save(user);
+
+            redisTemplate.opsForValue().set(activeKey, String.valueOf(updateTotalCommit), 3, TimeUnit.HOURS);
+            redisTemplate.opsForValue().set(lastcmKey, String.valueOf(now), 3, TimeUnit.HOURS);
+
+            CommitUpdateEvent event = new CommitUpdateEvent(this, username, newCommitCount);
+            eventPublisher.publishEvent(event); // 이벤트 발생
+            System.out.println("CommitCreatedEvent published for user: " + username);
+        } else if(newCommitCount < 0) {
+            // newCommitCount에 문제가 있을 경우 문제 상황 / 데이터 동기화 필요. db 갱신.
+            redisTemplate.opsForValue().set(activeKey, String.valueOf(updateTotalCommit), 3, TimeUnit.HOURS);
+
+            CommitUpdateEvent event = new CommitUpdateEvent(this, username, newCommitCount);
+            eventPublisher.publishEvent(event); // 이벤트 발생
+            System.out.println("커밋 수 동기화 필요, Sync for user: " + username);
         }
 
-        log.info("🔍 User: {}, New Commits: {}, Total Commits: {}", user.getUsername(), newCommitCount, currentCommitCount);
-    }
-
-    // 🔹 새 커밋이 있으면 데이터 업데이트
-    private void updateCommitData(User user, long currentCommitCount, long newCommitCount) {
-        // 1️⃣ Redis에 lastCommitted 업데이트 (3시간 TTL)
-        String redisKey = "commit_last:" + user.getUsername();
-        redisTemplate.opsForValue().set(redisKey, LocalDateTime.now().toString(), 3, TimeUnit.HOURS);
-
-        // 2️⃣ Redis에 최신 커밋 개수 저장 (3시간 동안 유지)
-        commitCacheService.updateCachedCommitCount(user.getUsername(), currentCommitCount);
-
-        log.info("✅ 커밋 반영 완료 - User: {}, New Commits: {}", user.getUsername(), newCommitCount);
+        // FIXME: 차후 리팩토링 필요
+        log.info("🔍 User: {}, LastCommitted: {}, New Commits: {}, Total Commits: {}", username, lastcommitted, newCommitCount, updateTotalCommit);
     }
 }

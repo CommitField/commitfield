@@ -1,6 +1,7 @@
 package cmf.commitField.domain.chat.chatRoom.service;
 
 import cmf.commitField.domain.chat.chatMessage.repository.ChatMessageRepository;
+import cmf.commitField.domain.chat.chatRoom.controller.request.ChatRoomJoinRequest;
 import cmf.commitField.domain.chat.chatRoom.controller.request.ChatRoomRequest;
 import cmf.commitField.domain.chat.chatRoom.controller.request.ChatRoomUpdateRequest;
 import cmf.commitField.domain.chat.chatRoom.dto.ChatRoomDto;
@@ -29,6 +30,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static cmf.commitField.global.error.ErrorCode.NOT_FOUND_ROOM;
 import static java.time.LocalDateTime.now;
 
 @Service
@@ -49,7 +51,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     @Override
     @Transactional
-    public void createRoom(ChatRoomRequest chatRoomRequest, Long userId) {
+    public void createRoom(ChatRoomRequest chatRoomRequest, Long userId, String imageUrl) {
         // 유저정보 조회
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
@@ -68,8 +70,10 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 .createdAt(now())
                 .modifiedAt(now())
                 .isPrivate(false)
+                .imageUrl(imageUrl)  // 이미지 URL 추가
                 .build();
         if (password != null) {
+            System.out.println("Setting password: " + password);
             chatRoom.setPassword(password);
             chatRoom.setIsPrivate(true);
         }
@@ -125,7 +129,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     @Override
     @Transactional
-    public void joinRoom(Long roomId, Long userId, ChatRoomRequest chatRoomRequest) {
+    public void joinRoom(Long roomId, Long userId, ChatRoomJoinRequest chatRoomJoinRequest) {
         RLock lock = redissonClient.getLock("joinRoomLock:" + roomId);
         try {
             boolean available = lock.tryLock(1, TimeUnit.SECONDS);
@@ -138,18 +142,18 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
             // room 조회
             ChatRoom chatRoom = chatRoomRepository.findById(roomId) // lock (기존)
-                    .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ROOM));
+                    .orElseThrow(() -> new CustomException(NOT_FOUND_ROOM));
 
             // user_chatroom 현재 인원 카운트 (비즈니스 로직)
             Long currentUserCount = userChatRoomRepository.countNonLockByChatRoomId(roomId); // lock (기존)
 
-            if (chatRoom.getIsPrivate() && chatRoomRequest.getPassword() == null) {
+            if (chatRoom.getIsPrivate() && chatRoomJoinRequest.getPassword() == null) {
                 throw new CustomException(ErrorCode.NEED_TO_PASSWORD);
 
 
 
             }
-            if (chatRoom.getIsPrivate() && !chatRoomRequest.getPassword().equals(chatRoom.getPassword())) {
+            if (chatRoom.getIsPrivate() && !chatRoomJoinRequest.getPassword().equals(chatRoom.getPassword())) {
                 throw new CustomException(ErrorCode.ROOM_PASSWORD_MISMATCH);
             }
             List<Long> userChatRoomByChatRoomId = userChatRoomRepository
@@ -183,7 +187,11 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     @Override
     @Transactional
     public void outRoom(Long userId, Long roomId) {
-        ChatRoom room = getChatRoom(roomId);
+        ChatRoom room = chatRoomRepository
+                .findChatRoomById(roomId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NO_ROOM_FOUND));
+
+
         List<UserChatRoom> userByChatRoomId = userChatRoomRepository
                 .findUserByChatRoomId(roomId);
         List<Long> userIds = new ArrayList<>();
@@ -201,25 +209,33 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             return;
         }
         // 방장이라면 방 삭제
-        chatMessageRepository.deleteChatMsgByChatRoom_Id(roomId); //방 삭제 시 채팅도 다 삭제(필요 시)
+        chatMessageRepository.deleteChatMsgByChatRoom_Id(roomId); //방 삭제 시 채팅도 다 삭제
+        // 방 삭제시 채탱 메세지 전체 삭제(포함)
         userChatRoomRepository.deleteUserChatRoomByChatRoom_Id(roomId);
+
+        //채팅방 삭제
         chatRoomRepository.deleteById(roomId);
+
 
     }
 
+    // 방 삭제는 별도의 메소드로 분리
     @Override
     @Transactional
     public void deleteRoom(Long userId, Long roomId) {
-        ChatRoom room = getChatRoom(roomId);
+        ChatRoom room = chatRoomRepository
+                .findChatRoomById(roomId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NO_ROOM));
+
         //방장이 아닐 경우, 삭제 불가
         if (!Objects.equals(room.getRoomCreator(), userId)) {
             throw new CustomException(ErrorCode.NOT_ROOM_CREATOR);
         }
+
         //모든 사용자 제거 후 방 삭제
         chatMessageRepository.deleteChatMsgByChatRoom_Id(roomId);
         userChatRoomRepository.deleteUserChatRoomByChatRoom_Id(roomId);
         chatRoomRepository.deleteById(roomId);
-
     }
 
     @Override
@@ -236,6 +252,31 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         chatRoomRepository.save(room);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChatRoomDto> searchRoomByTitle(String roomName, Long userId, Pageable pageable) {
+        getUser(userId);
+        Page<ChatRoom> search = chatRoomRepository.findChatRoomWithPartOfTitle(roomName, pageable);
+
+        List<ChatRoom> searchRoomList = search.toList();
+        List<ChatRoomDto> chatRoomDtos = new ArrayList<>();
+        if (searchRoomList.isEmpty()) {
+            throw new CustomException(NOT_FOUND_ROOM);
+        }
+
+        for (ChatRoom chatRoom : searchRoomList) {
+            ChatRoomDto build = ChatRoomDto.builder()
+                    .id(chatRoom.getId())
+                    .title(chatRoom.getTitle())
+                    .heartCount(chatRoom.getHearts().size())
+                    .currentUserCount((long) chatRoom.getUserChatRooms().size())
+                    .userCountMax(chatRoom.getUserCountMax())
+                    .build();
+            chatRoomDtos.add(build);
+        }
+        return chatRoomDtos;
+    }
+
     private User getUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
@@ -246,7 +287,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         return chatRoomRepository
                 .findChatRoomById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NONE_ROOM));
-
     }
 
     @Override

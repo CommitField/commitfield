@@ -4,9 +4,10 @@ import lombok.Getter;
 
 @Getter
 public enum PetGrow {
+    //FIXME: 테스트를 위한 수정, 차후 15/30으로 변경 필요
     EGG(0),
-    HATCH(150),
-    GROWN(300);
+    HATCH(20),
+    GROWN(40);
 
     private final int requiredExp;
 
@@ -19,7 +20,7 @@ public enum PetGrow {
     }
 
     // 현재 경험치에 맞는 레벨 찾기
-    public static PetGrow getLevelByExp(int exp) {
+    public static PetGrow getLevelByExp(long exp) {
         PetGrow currentLevel = EGG;
         for (PetGrow level : values()) {
             if (exp >= level.getRequiredExp()) {

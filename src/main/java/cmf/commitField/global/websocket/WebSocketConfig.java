@@ -12,11 +12,11 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 public class WebSocketConfig implements WebSocketConfigurer {
 
     private final ChatWebSocketHandler chatWebSocketHandler;
-    private final NotiWebSocketHandler notiWebSocketHandler;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(chatWebSocketHandler, "/chat").setAllowedOrigins("*");
-        registry.addHandler(notiWebSocketHandler, "/notifications").setAllowedOrigins("*");
+        // 채팅 웹소켓 핸들러 등록
+        registry.addHandler(chatWebSocketHandler, "/chat-rooms")
+                .setAllowedOrigins("*"); // CORS 설정, 실제 환경에서는 보안을 위해 제한적으로 설정해야 함
     }
 }
