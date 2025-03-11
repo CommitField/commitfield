@@ -44,7 +44,6 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         ChatRoom chatRoom = chatRoomRepository.findChatRoomById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ROOM));
 
-        //채팅 메세지 생성
         ChatMsg chatMsg = ChatMsg.builder()
                 .message(message.getMessage())
                 .createdAt(LocalDateTime.now())
@@ -52,17 +51,19 @@ public class ChatMessageServiceImpl implements ChatMessageService {
                 .chatRoom(chatRoom)
                 .build();
 
+        chatMessageRepository.save(chatMsg);
+
         // Response message
-        //응답 값으로 변환
-        ChatMsgResponse response = ChatMsgResponse.builder()
+        // 응답값 변환
+        return ChatMsgResponse.builder()
+                .id(chatMsg.getId())         // chatMsgId 추가
                 .roomId(roomId)
-                .from(findUser.getUsername()) // nickname 대신 username 사용
+                .from(findUser.getUsername())
                 .message(message.getMessage())
                 .sendAt(chatMsg.getCreatedAt())
+                .avatarUrl(findUser.getAvatarUrl()) // 아바타 URL 추가
                 .build();
 
-        chatMessageRepository.save(chatMsg);
-        return response;
     }
 
     @Transactional(readOnly = true)
@@ -85,6 +86,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
                     .sendAt(chatMsg.getCreatedAt())
                     .message(chatMsg.getMessage())
                     .userId(chatMsg.getUser().getId())
+                    .avatarUrl(chatMsg.getUser().getAvatarUrl()) // avatarUrl 추가
                     .build();
             if (build.getSendAt().isAfter(joinDt)) {
                 chatMsgDtos.add(build);

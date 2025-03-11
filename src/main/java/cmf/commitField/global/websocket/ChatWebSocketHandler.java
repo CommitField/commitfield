@@ -202,6 +202,7 @@ public class ChatWebSocketHandler implements WebSocketHandler {
                 wsMessage.put("userId", userId);
                 wsMessage.put("from", user.getUsername()); // nickname 대신 username 사용
                 wsMessage.put("nickname", user.getUsername()); // nickname 대신 username 사용
+                wsMessage.put("avatarUrl", user.getAvatarUrl()); // 아바타 URL 추가
                 wsMessage.put("message", message);
                 wsMessage.put("sendAt", response.getSendAt().toString());
 
