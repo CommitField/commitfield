@@ -3,6 +3,7 @@ package cmf.commitField.domain.user.controller;
 import cmf.commitField.domain.commit.totalCommit.service.TotalCommitService;
 import cmf.commitField.domain.user.dto.UserChatInfoDto;
 import cmf.commitField.domain.user.dto.UserInfoDto;
+import cmf.commitField.domain.user.dto.UserRegacyDto;
 import cmf.commitField.domain.user.entity.CustomOAuth2User;
 import cmf.commitField.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/user")
@@ -39,5 +42,12 @@ public class UserController {
         UserInfoDto userInfoDto = userService.showUserInfo(username);
 
         return ResponseEntity.ok(userInfoDto);
+    }
+
+    @GetMapping("/tierinfo")
+    public ResponseEntity<List<UserRegacyDto>> getUserTierInfo(@AuthenticationPrincipal CustomOAuth2User oAuth2User) {
+        String username = oAuth2User.getName();
+        List<UserRegacyDto> tierList = userService.showUserRegacy(username);
+        return ResponseEntity.ok(tierList);
     }
 }
