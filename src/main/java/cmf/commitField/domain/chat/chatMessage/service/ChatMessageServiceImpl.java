@@ -43,7 +43,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
         ChatRoom chatRoom = chatRoomRepository.findChatRoomById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ROOM));
-        // 채팅 메시지 생성
+
         ChatMsg chatMsg = ChatMsg.builder()
                 .message(message.getMessage())
                 .createdAt(LocalDateTime.now())
@@ -52,20 +52,16 @@ public class ChatMessageServiceImpl implements ChatMessageService {
                 .build();
 
         // Response message
-        // 응답 값으로 변환
-
         ChatMsgResponse response = ChatMsgResponse.builder()
-
                 .roomId(roomId)
-                .from(findUser.getNickname())
+                .from(findUser.getUsername()) // nickname 대신 username 사용
                 .message(message.getMessage())
                 .sendAt(chatMsg.getCreatedAt())
                 .build();
+
         chatMessageRepository.save(chatMsg);
         return response;
-
     }
-
 
     @Transactional(readOnly = true)
     @Override
@@ -83,7 +79,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         for (ChatMsg chatMsg : chatMsgsList) {
             ChatMsgDto build = ChatMsgDto.builder()
                     .chatMsgId(chatMsg.getId())
-                    .nickname(chatMsg.getUser().getNickname())
+                    .nickname(chatMsg.getUser().getUsername()) // nickname 대신 username 사용
                     .sendAt(chatMsg.getCreatedAt())
                     .message(chatMsg.getMessage())
                     .userId(chatMsg.getUser().getId())
