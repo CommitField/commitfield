@@ -44,36 +44,6 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)  // DB에 저장될 때 String 형태로 저장됨
     private Tier tier;
 
-    public enum Tier {
-        SEED(0),      // 씨앗
-        SPROUT(95),    // 새싹
-        FLOWER(189),    // 꽃
-        FRUIT(283),     // 열매
-        TREE(377);       // 나무
-
-        private final long requiredExp;
-
-        Tier(long requiredExp) {
-            this.requiredExp = requiredExp;
-        }
-
-        public long getRequiredExp() {
-            return requiredExp;
-        }
-
-        // 현재 경험치에 맞는 레벨 찾기
-        public static Tier getLevelByExp(long exp) {
-            Tier currentLevel = SEED;
-            for (Tier level : values()) {
-                if (exp >= level.getRequiredExp()) {
-                    currentLevel = level;
-                }
-            }
-            return currentLevel;
-        }
-    }
-
-
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JsonIgnore
     private List<ChatRoom> chatRooms = new ArrayList<>();
@@ -86,9 +56,13 @@ public class User extends BaseEntity {
     @JsonIgnore
     private List<ChatMsg> chatMsgs = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, orphanRemoval = true)
     @JsonIgnore
     private List<Pet> pets = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @JsonIgnore
+    private List<TierRegacy> tiers = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @JsonIgnore
