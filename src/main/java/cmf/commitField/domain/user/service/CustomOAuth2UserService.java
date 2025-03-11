@@ -8,7 +8,10 @@ import cmf.commitField.domain.pet.repository.PetRepository;
 import cmf.commitField.domain.season.entity.Season;
 import cmf.commitField.domain.season.service.SeasonService;
 import cmf.commitField.domain.user.entity.CustomOAuth2User;
+import cmf.commitField.domain.user.entity.Tier;
+import cmf.commitField.domain.user.entity.TierRegacy;
 import cmf.commitField.domain.user.entity.User;
+import cmf.commitField.domain.user.repository.TierRegacyRepository;
 import cmf.commitField.domain.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -32,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final UserRepository userRepository;
     private final PetRepository petRepository;
+    private final TierRegacyRepository tierRegacyRepository;
     private final HttpServletRequest request;  // HttpServletRequest를 주입 받음.
     private final CommitCacheService commitCacheService;
     private final TotalCommitService totalCommitService;
@@ -59,6 +63,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         User user;
         Pet pet;
+        TierRegacy tierRegacy;
+
         if (existingUser.isPresent()) {
             //유저 정보가 있다면 유저 정보를 얻어온다.
             user = existingUser.get();
@@ -75,7 +81,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             pet = new Pet("알알", user); // TODO: 변경 필요
             petRepository.save(pet);
 
-            // 유저 펫, 커밋 카운트, 랭크를 설정
+            tierRegacy = new TierRegacy(user);
+            tierRegacy.setSeason("winter");
+
+            // 유저 펫, 커밋 카운트, 랭크, 직전 시즌 랭크를 설정
             user.addPets(pet);
             user.setCommitCount(totalCommitService.getTotalCommitCount(user.getUsername()).getTotalCommitContributions());
 
@@ -85,9 +94,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     LocalDateTime.of(2025,05,31,23,59)
             ).getTotalCommitContributions();
 
-            user.setSeasonCommitCount(seasonCommitCount);
+            long prevSeasonCommitCount = totalCommitService.getSeasonCommits(
+                    user.getUsername(),
+                    LocalDateTime.of(2024,12,01,00,00),
+                    LocalDateTime.of(2025,02,28,23,59)
+            ).getTotalCommitContributions();
 
-            user.setTier(User.Tier.getLevelByExp(seasonCommitCount));
+            user.setSeasonCommitCount(seasonCommitCount);
+            tierRegacy.setTier(Tier.getLevelByExp(prevSeasonCommitCount));
+            tierRegacyRepository.save(tierRegacy);
+
+            user.setTier(Tier.getLevelByExp(seasonCommitCount));
             userRepository.save(user);
             // 로그인하거나 회원가입한 유저는 커밋 기록에 상관없이 Redis에 입력해둔다.
             commitCacheService.updateCachedCommitCount(user.getUsername(),0);
