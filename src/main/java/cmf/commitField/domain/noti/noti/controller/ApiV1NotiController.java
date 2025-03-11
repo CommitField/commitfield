@@ -31,6 +31,10 @@ public class ApiV1NotiController {
     private final NotiService notiService;
     private final UserRepository userRepository;
 
+//    private final NotiWebSocketHandler notiWebSocketHandler;
+    private final ApplicationEventPublisher eventPublisher;
+
+
     @GetMapping("")
     public GlobalResponse<List<NotiDto>> getNoti(@AuthenticationPrincipal OAuth2User oAuth2User) {
         String username = oAuth2User.getName();
