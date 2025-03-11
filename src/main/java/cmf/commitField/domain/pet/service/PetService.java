@@ -1,5 +1,6 @@
 package cmf.commitField.domain.pet.service;
 
+import cmf.commitField.domain.pet.dto.PetsDto;
 import cmf.commitField.domain.pet.dto.UserPetDto;
 import cmf.commitField.domain.pet.entity.Pet;
 import cmf.commitField.domain.pet.entity.PetGrow;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -27,11 +29,7 @@ public class PetService {
     // 새로운 펫 생성
     public Pet createPet(String name, MultipartFile imageFile, User user) throws IOException {
 
-        // ✅ S3 업로드 로직 추가
-        String imageUrl = null;
-        if (imageFile != null && !imageFile.isEmpty()) {
-            imageUrl = s3Service.uploadFile(imageFile, "pet-images");
-        }
+
         Random random = new Random();
         Pet pet = new Pet(name, user);
         return petRepository.save(pet);
@@ -79,5 +77,24 @@ public class PetService {
     public void levelUp(Pet pet){
         pet.setGrow(PetGrow.getLevelByExp(pet.getExp()));
         petRepository.save(pet);
+    }
+
+    //유저의 모든 펫 조회
+    public List<PetsDto> getAllPets(String username){
+        List<Pet> pets = petRepository.findByUserUsername(username);
+        List<PetsDto> petsList = new ArrayList<>();
+        for(Pet pet : pets){
+            petsList.add(
+                PetsDto.builder()
+                .username(username)
+                .petId(pet.getId())
+                .petName(pet.getName())
+                .type(pet.getType())
+                .grow(String.valueOf(pet.getGrow()))
+                .build()
+            );
+        }
+
+        return petsList;
     }
 }

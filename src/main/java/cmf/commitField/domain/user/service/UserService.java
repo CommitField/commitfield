@@ -68,20 +68,10 @@ public class UserService {
         return userRegacyDtos;
     }
 
-        @Transactional
     public UserInfoDto showUserInfo(String username) {
         User user = userRepository.findByUsername(username).get();
-        Pet pet = petRepository.findByUserEmail(user.getEmail()).get(0); // TODO: 확장시 코드 수정 필요
+        Pet pet = petRepository.findLatestPetByUserEmail(user.getEmail()).get(0);
 
-        // TODO: info 조회 시 user commit 수 즉시 반영은 로직 변경이 필요
-//        long totalCommit = totalCommitService.getTotalCommitCount(username).getTotalCommitContributions();
-//        long seasonCommit = totalCommitService.getSeasonCommits(username,
-//                LocalDateTime.of(2025,03,01,00,00),
-//                LocalDateTime.of(2025,05,31,23,59)
-//        ).getTotalCommitContributions();
-//
-//        user.setCommitCount(totalCommit);
-        // TODO블럭 종료
 
         // 유저 정보 조회 후 active 상태가 아니면 Redis에 추가, 커밋 추적 시작
         String key = "commit_active:" + user.getUsername();
