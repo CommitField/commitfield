@@ -30,8 +30,10 @@ import java.util.Map;
 public class ApiV1NotiController {
     private final NotiService notiService;
     private final UserRepository userRepository;
+
 //    private final NotiWebSocketHandler notiWebSocketHandler;
     private final ApplicationEventPublisher eventPublisher;
+
 
     @GetMapping("")
     public GlobalResponse<List<NotiDto>> getNoti(@AuthenticationPrincipal OAuth2User oAuth2User) {
@@ -39,11 +41,6 @@ public class ApiV1NotiController {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
         List<NotiDto> notis = notiService.getNotReadNoti(user);
         return GlobalResponse.success(notis);
-    }
-
-    @PostMapping("")
-    public void createNoti() {
-
     }
 
     @PostMapping("/read")
