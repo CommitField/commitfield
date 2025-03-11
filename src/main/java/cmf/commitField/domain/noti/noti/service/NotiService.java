@@ -3,14 +3,11 @@ package cmf.commitField.domain.noti.noti.service;
 import cmf.commitField.domain.noti.noti.dto.NotiDto;
 import cmf.commitField.domain.noti.noti.entity.Noti;
 import cmf.commitField.domain.noti.noti.entity.NotiDetailType;
-import cmf.commitField.domain.noti.noti.entity.NotiMessageTemplates;
 import cmf.commitField.domain.noti.noti.entity.NotiType;
 import cmf.commitField.domain.noti.noti.event.NotiEvent;
 import cmf.commitField.domain.noti.noti.repository.NotiRepository;
-import cmf.commitField.domain.season.entity.Rank;
 import cmf.commitField.domain.season.entity.Season;
 import cmf.commitField.domain.user.entity.User;
-import cmf.commitField.domain.user.repository.UserRepository;
 import cmf.commitField.global.error.ErrorCode;
 import cmf.commitField.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +16,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,21 +25,13 @@ import java.util.List;
 @Slf4j
 public class NotiService {
     private final NotiRepository notiRepository;
-    private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
-
-    // 알림 메시지 생성
-    public static String generateMessage(NotiDetailType type, Object... params) {
-        String template = NotiMessageTemplates.getTemplate(type);
-        String message = MessageFormat.format(template, params);  // params 배열을 그대로 전달
-        return message;
-    }
 
     // 알림 생성
     @Transactional
     public void createNoti(User receiver, NotiType notiType, NotiDetailType notiDetailType, Long relId, String relTypeCode, Object... params) {
         // 메시지 생성
-        String message = NotiService.generateMessage(notiDetailType, params);
+        String message = notiDetailType.formatMessage(params);
 
         // 알림 엔티티 생성
         Noti noti = Noti.builder()
