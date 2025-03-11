@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -18,4 +21,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query("UPDATE User u SET u.status = :status WHERE u.username = :username")
     void updateStatus(@Param("username") String username, @Param("status") boolean status);
+
+    @Query("SELECT u FROM User u WHERE u.lastCommitted <= :date")
+    List<User> findUsersWithLastCommitBefore(@Param("date") LocalDateTime date);
 }

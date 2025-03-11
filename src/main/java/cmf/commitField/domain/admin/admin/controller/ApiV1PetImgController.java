@@ -1,4 +1,4 @@
-package cmf.commitField.domain.admin.controller;
+package cmf.commitField.domain.admin.admin.controller;
 
 import cmf.commitField.global.aws.s3.S3Service;
 import lombok.RequiredArgsConstructor;
