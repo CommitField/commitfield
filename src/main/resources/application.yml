@@ -18,7 +18,7 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         default_batch_fetch_size: 100
@@ -33,7 +33,7 @@ spring:
       frontUrl: "http://${custom.dev.cookieDomain}:5173"
       backUrl: "http://${custom.dev.cookieDomain}:${server.port}"
     prod:
-      cookieDomain: cmfd.seoez.site
+      cookieDomain: cmf.seoez.site
       frontUrl: "https://www.${custom.prod.cookieDomain}/"
       backUrl: "https://api.${custom.prod.cookieDomain}/"
     site:

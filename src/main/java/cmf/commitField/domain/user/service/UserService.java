@@ -5,8 +5,13 @@ import cmf.commitField.domain.commit.totalCommit.service.TotalCommitService;
 import cmf.commitField.domain.pet.entity.Pet;
 import cmf.commitField.domain.pet.repository.PetRepository;
 import cmf.commitField.domain.pet.service.PetService;
+import cmf.commitField.domain.user.dto.UserChatInfoDto;
 import cmf.commitField.domain.user.dto.UserInfoDto;
+import cmf.commitField.domain.user.dto.UserRegacyDto;
+import cmf.commitField.domain.user.entity.Tier;
+import cmf.commitField.domain.user.entity.TierRegacy;
 import cmf.commitField.domain.user.entity.User;
+import cmf.commitField.domain.user.repository.TierRegacyRepository;
 import cmf.commitField.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -14,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -22,6 +29,7 @@ public class UserService {
     private final StringRedisTemplate redisTemplate;
     private final UserRepository userRepository;
     private final PetRepository petRepository;
+    private final TierRegacyRepository tierRegacyRepository;
     // FIXME: 수정 필요
     private final TotalCommitService totalCommitService;
     private final CommitUpdateService commitUpdateService;
@@ -33,7 +41,34 @@ public class UserService {
         userRepository.updateStatus(username, status);
     }
 
-    @Transactional
+    public UserChatInfoDto showUserChatInfo(String username) {
+        User user = userRepository.findByUsername(username).get();
+
+        return UserChatInfoDto.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .nickname(user.getNickname())
+                .username(user.getUsername())
+                .build();
+    }
+
+    public List<UserRegacyDto> showUserRegacy(String username) {
+        User user = userRepository.findByUsername(username).get();
+        List<UserRegacyDto> userRegacyDtos = new ArrayList<>();
+        for(TierRegacy tierRegacy : tierRegacyRepository.findByUser(user)){
+            userRegacyDtos.add(
+                UserRegacyDto.builder()
+                    .user_id(user.getId())
+                    .year(tierRegacy.getYear())
+                    .season(tierRegacy.getSeason())
+                    .tier(tierRegacy.getTier().toString())
+                    .build()
+            );
+        }
+        return userRegacyDtos;
+    }
+
+        @Transactional
     public UserInfoDto showUserInfo(String username) {
         User user = userRepository.findByUsername(username).get();
         Pet pet = petRepository.findByUserEmail(user.getEmail()).get(0); // TODO: 확장시 코드 수정 필요
@@ -57,6 +92,7 @@ public class UserService {
 
         return UserInfoDto.builder()
                 .username(user.getUsername())
+                .nickname(user.getNickname())
                 .email(user.getEmail())
                 .avatarUrl(user.getAvatarUrl())
                 .tier(user.getTier().toString())
@@ -76,7 +112,7 @@ public class UserService {
         // 경험치 증가 후, 만약 레벨업한다면 레벨업 시킨다.
         user.addExp(commitCount);
         userRepository.save(user);
-        return !(user.getTier().equals(User.Tier.getLevelByExp(user.getSeasonCommitCount())));
+        return !(user.getTier().equals(Tier.getLevelByExp(user.getSeasonCommitCount())));
     }
 
     public void updateUserCommitCount(String username, long count){
