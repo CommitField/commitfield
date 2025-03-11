@@ -4,10 +4,10 @@ import lombok.Getter;
 
 @Getter
 public enum PetGrow {
-    //FIXME: 테스트를 위한 수정, 차후 15/30으로 변경 필요
+    //FIXME: 테스트를 위한 수정, 차후 150/300으로 변경 필요
     EGG(0),
-    HATCH(20),
-    GROWN(40);
+    HATCH(10),
+    GROWN(15);
 
     private final int requiredExp;
 
