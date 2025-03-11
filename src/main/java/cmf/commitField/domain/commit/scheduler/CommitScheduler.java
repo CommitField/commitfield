@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +24,32 @@ public class CommitScheduler {
     private final UserRepository userRepository;
     private final StringRedisTemplate redisTemplate;
     private final AtomicInteger counter = new AtomicInteger(0);
+    private final SimpMessagingTemplate messagingTemplate;
 
     private final ApplicationEventPublisher eventPublisher;
 
+    // TODO: 확장시 추가
+
+//    @Scheduled(fixedRate = 60000) // 1분마다 실행
+//    public void updateMatchCommitCounts() {
+//        Map<Object, Object> entries = redisTemplate.opsForHash().entries("active_matches");
+//
+//        Map<String, MatchSession> activeMatches = new HashMap<>();
+//        for (Map.Entry<Object, Object> entry : entries.entrySet()) {
+//            if (entry.getKey() instanceof String && entry.getValue() instanceof MatchSession) {
+//                activeMatches.put((String) entry.getKey(), (MatchSession) entry.getValue());
+//            }
+//        }
+//
+//        for (MatchSession match : activeMatches.values()) {
+//            long player1Commits = Long.parseLong(redisTemplate.opsForValue().get("commit_active:"+match.getPlayer1()));
+//            long player2Commits = Long.parseLong(redisTemplate.opsForValue().get("commit_active:"+match.getPlayer2()));
+//
+//            redisTemplate.opsForHash().put("active_matches", match.getMatchId(), match);
+//
+//            messagingTemplate.convertAndSend("/topic/match/" + match.getMatchId(), match);
+//        }
+//    }
 
     @Scheduled(fixedRate = 60000) // 1분마다 실행
     public void updateUserCommits() {

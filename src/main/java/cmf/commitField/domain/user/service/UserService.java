@@ -5,6 +5,7 @@ import cmf.commitField.domain.commit.totalCommit.service.TotalCommitService;
 import cmf.commitField.domain.pet.entity.Pet;
 import cmf.commitField.domain.pet.repository.PetRepository;
 import cmf.commitField.domain.pet.service.PetService;
+import cmf.commitField.domain.user.dto.UserChatInfoDto;
 import cmf.commitField.domain.user.dto.UserInfoDto;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
@@ -33,7 +34,18 @@ public class UserService {
         userRepository.updateStatus(username, status);
     }
 
-    @Transactional
+    public UserChatInfoDto showUserChatInfo(String username) {
+        User user = userRepository.findByUsername(username).get();
+
+        return UserChatInfoDto.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .nickname(user.getNickname())
+                .username(user.getUsername())
+                .build();
+    }
+
+        @Transactional
     public UserInfoDto showUserInfo(String username) {
         User user = userRepository.findByUsername(username).get();
         Pet pet = petRepository.findByUserEmail(user.getEmail()).get(0); // TODO: 확장시 코드 수정 필요
