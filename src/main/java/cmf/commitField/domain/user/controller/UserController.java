@@ -1,6 +1,7 @@
 package cmf.commitField.domain.user.controller;
 
 import cmf.commitField.domain.commit.totalCommit.service.TotalCommitService;
+import cmf.commitField.domain.user.dto.UserChatInfoDto;
 import cmf.commitField.domain.user.dto.UserInfoDto;
 import cmf.commitField.domain.user.entity.CustomOAuth2User;
 import cmf.commitField.domain.user.service.UserService;
@@ -18,7 +19,18 @@ public class UserController {
     private final UserService userService;
     private final TotalCommitService totalCommitService;
 
-    @GetMapping("info")
+    @GetMapping("/chatinfo")
+    public ResponseEntity<UserChatInfoDto> getUserChatInfo(@AuthenticationPrincipal CustomOAuth2User oAuth2User){
+        String username = oAuth2User.getName();
+
+        //유저 정보의 조회
+        //이 이벤트가 일어나면 유저의 정보를 확인하고, 조회한 유저를 active 상태로 만든다.
+        UserChatInfoDto userChatInfoDto = userService.showUserChatInfo(username);
+
+        return ResponseEntity.ok(userChatInfoDto);
+    }
+
+    @GetMapping("/info")
     public ResponseEntity<UserInfoDto> getUserInfo(@AuthenticationPrincipal CustomOAuth2User oAuth2User){
         String username = oAuth2User.getName();
 
