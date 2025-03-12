@@ -8,11 +8,9 @@ import cmf.commitField.domain.user.entity.CustomOAuth2User;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -45,14 +43,15 @@ public class PetController {
     // *************************************
 
     // 새로운 펫 추가
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Pet createPet(
-            @RequestParam String email,
-            @RequestParam String name,
-            @RequestPart(value = "imageFile") MultipartFile imageFile
-    ) throws Exception {
-        User user = userService.getUserByEmail(email).get();
-        return petService.createPet(name, imageFile, user);
+    @PostMapping("/new")
+    public ResponseEntity<Pet> createPet(@AuthenticationPrincipal CustomOAuth2User oAuth2User) throws Exception {
+        String username = oAuth2User.getName();
+        Pet pet = petService.createPet("알알", username);
+        if(pet == null){
+            //사용자가 현재 펫이 GROWN 상태가 아닌데도 다른 경로를 통해 요청한 경우
+            ResponseEntity.badRequest();
+        }
+        return ResponseEntity.ok(pet);
     }
 
     // 모든 펫 조회

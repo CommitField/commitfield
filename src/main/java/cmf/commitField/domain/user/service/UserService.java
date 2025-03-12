@@ -3,6 +3,7 @@ package cmf.commitField.domain.user.service;
 import cmf.commitField.domain.commit.scheduler.CommitUpdateService;
 import cmf.commitField.domain.commit.totalCommit.service.TotalCommitService;
 import cmf.commitField.domain.pet.entity.Pet;
+import cmf.commitField.domain.pet.entity.PetGrow;
 import cmf.commitField.domain.pet.repository.PetRepository;
 import cmf.commitField.domain.pet.service.PetService;
 import cmf.commitField.domain.user.dto.UserChatInfoDto;
@@ -73,6 +74,14 @@ public class UserService {
         User user = userRepository.findByUsername(username).get();
         Pet pet = petRepository.findLatestPetByUserEmail(user.getEmail()).get(0);
 
+        if(user.getTier() != Tier.getLevelByExp(user.getSeasonCommitCount())){
+            user.setTier(Tier.getLevelByExp(user.getSeasonCommitCount()));
+            userRepository.save(user);
+        }
+        if(pet.getGrow() != PetGrow.getLevelByExp(pet.getExp())){
+            pet.setGrow(PetGrow.getLevelByExp(pet.getExp()));
+            petRepository.save(pet);
+        }
 
         // 유저 정보 조회 후 active 상태가 아니면 Redis에 추가, 커밋 추적 시작
         String key = "commit_active:" + user.getUsername();
