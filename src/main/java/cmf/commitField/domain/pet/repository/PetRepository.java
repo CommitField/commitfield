@@ -17,4 +17,6 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
 
     @Query("SELECT p FROM Pet p WHERE p.user.email = :email ORDER BY p.id DESC")
     List<Pet> findLatestPetByUserEmail(@Param("email") String email);
+    @Query("SELECT p FROM Pet p WHERE p.user.username = :username ORDER BY p.id DESC")
+    List<Pet> findLatestPetByUserUsername(@Param("username") String username);
 }

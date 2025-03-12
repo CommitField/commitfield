@@ -26,10 +26,15 @@ public class PetService {
     private final S3Service s3Service;
 
     // 새로운 펫 생성
-    public Pet createPet(String name, User user) throws IOException {
+    public Pet createPet(String petname, String username) throws IOException {
         Random random = new Random();
-        Pet pet = new Pet(name, user);
-        return petRepository.save(pet);
+        User user = userRepository.findByUsername(username).get();
+        Pet pet = petRepository.findLatestPetByUserUsername(username).get(0);
+        if(pet.getGrow() != PetGrow.GROWN){
+            return null;
+        }
+        Pet newPet = new Pet("알알", user);
+        return petRepository.save(newPet);
     }
 
     // 모든 펫 조회
