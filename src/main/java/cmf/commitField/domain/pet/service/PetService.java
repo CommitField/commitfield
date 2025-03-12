@@ -11,7 +11,6 @@ import cmf.commitField.global.aws.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,9 +26,7 @@ public class PetService {
     private final S3Service s3Service;
 
     // 새로운 펫 생성
-    public Pet createPet(String name, MultipartFile imageFile, User user) throws IOException {
-
-
+    public Pet createPet(String name, User user) throws IOException {
         Random random = new Random();
         Pet pet = new Pet(name, user);
         return petRepository.save(pet);

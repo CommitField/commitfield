@@ -12,7 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -48,11 +47,10 @@ public class PetController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Pet createPet(
             @RequestParam String email,
-            @RequestParam String name,
-            @RequestPart(value = "imageFile") MultipartFile imageFile
+            @RequestParam String name
     ) throws Exception {
         User user = userService.getUserByEmail(email).get();
-        return petService.createPet(name, imageFile, user);
+        return petService.createPet(name, user);
     }
 
     // 모든 펫 조회
