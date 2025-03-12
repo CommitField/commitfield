@@ -312,8 +312,9 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         List<ChatRoomUserDto> chatRoomUserDtos = new ArrayList<>();
         for (UserChatRoom userChatRoom : userIds) {
             ChatRoomUserDto build = ChatRoomUserDto.builder()
-                    .nickname(userChatRoom.getUser().getNickname())
+                    .nickname(userChatRoom.getUser().getUsername())
                     .status(userChatRoom.getUser().getStatus())
+                    .imageUrl(userChatRoom.getUser().getAvatarUrl())
                     .build();
             chatRoomUserDtos.add(build);
         }
