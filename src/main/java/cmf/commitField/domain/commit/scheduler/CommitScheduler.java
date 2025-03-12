@@ -1,9 +1,6 @@
 package cmf.commitField.domain.commit.scheduler;
 
 import cmf.commitField.domain.commit.totalCommit.service.TotalCommitService;
-import cmf.commitField.domain.noti.noti.entity.NotiDetailType;
-import cmf.commitField.domain.noti.noti.entity.NotiType;
-import cmf.commitField.domain.noti.noti.event.NotiEvent;
 import cmf.commitField.domain.noti.noti.service.CommitSteakNotiService;
 import cmf.commitField.domain.noti.noti.service.NotiService;
 import cmf.commitField.domain.user.entity.User;
@@ -29,8 +26,6 @@ public class CommitScheduler {
     private final UserRepository userRepository;
     private final StringRedisTemplate redisTemplate;
     private final AtomicInteger counter = new AtomicInteger(0);
-    private final SimpMessagingTemplate messagingTemplate;
-    private final NotiService notiService;
     private final CommitSteakNotiService commitSteakNotiService;
 
     private final ApplicationEventPublisher eventPublisher;
@@ -110,6 +105,7 @@ public class CommitScheduler {
             CommitUpdateEvent event = new CommitUpdateEvent(this, username, newCommitCount);
             eventPublisher.publishEvent(event); // 이벤트 발생
 
+            // 커밋 업데이트가 있고, 연속 커밋이 3일 이상, 10의 배수 이상인 경우 알림 생성
             commitSteakNotiService.checkAndCreateSteakNoti(user, currentStreakCommit);
 
             System.out.println("CommitCreatedEvent published for user: " + username);

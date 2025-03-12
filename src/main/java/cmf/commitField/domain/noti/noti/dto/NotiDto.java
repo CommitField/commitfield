@@ -12,13 +12,14 @@ public class NotiDto {
     private String message;
     private String formattedCreatedAt; // 변환된 날짜를 저장할 필드
 
-    // JPQL에서 사용할 수 있도록 필드 값 직접 받는 생성자 추가
+    // 필드 값 직접 받는 생성자 추가
     public NotiDto(Long id, String message, LocalDateTime createdAt) {
         this.id = id;
         this.message = message;
         this.formattedCreatedAt = formatCreatedAt(createdAt); // 변환된 날짜 저장
     }
 
+    // 날짜 변환 메서드 (오늘, 어제, 3일 전까지 이후 yyyy-MM-dd)
     private String formatCreatedAt(LocalDateTime createdAt) {
         LocalDateTime today = LocalDateTime.now();
         long daysBetween = ChronoUnit.DAYS.between(createdAt, today);
