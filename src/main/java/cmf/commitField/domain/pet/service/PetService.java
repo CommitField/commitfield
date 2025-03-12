@@ -11,7 +11,6 @@ import cmf.commitField.global.aws.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,12 +26,15 @@ public class PetService {
     private final S3Service s3Service;
 
     // 새로운 펫 생성
-    public Pet createPet(String name, MultipartFile imageFile, User user) throws IOException {
-
-
+    public Pet createPet(String petname, String username) throws IOException {
         Random random = new Random();
-        Pet pet = new Pet(name, user);
-        return petRepository.save(pet);
+        User user = userRepository.findByUsername(username).get();
+        Pet pet = petRepository.findLatestPetByUserUsername(username).get(0);
+        if(pet.getGrow() != PetGrow.GROWN){
+            return null;
+        }
+        Pet newPet = new Pet("알알", user);
+        return petRepository.save(newPet);
     }
 
     // 모든 펫 조회
@@ -55,7 +57,7 @@ public class PetService {
     @Transactional
     public UserPetDto getExpPet(String username, long commitCount) {
         User user = userRepository.findByUsername(username).get();
-        Pet pet = user.getPets().get(0);
+        Pet pet = petRepository.findLatestPetByUserUsername(username).get(0);
         pet.addExp(commitCount); // 경험치 증가
         petRepository.save(pet);
 

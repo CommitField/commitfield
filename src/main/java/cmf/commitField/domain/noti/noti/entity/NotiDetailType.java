@@ -27,6 +27,12 @@ public enum NotiDetailType {
         return paramNames;
     }
 
+    /**
+     * 메시지 포맷팅입니다.
+     * 잘못된 파라미터 개수일 경우 IllegalArgumentException을 던집니다.
+     * @param params
+     * @return template에 파라미터를 적용한 메시지
+     */
     public String formatMessage(Object... params) {
         if (paramNames.length != params.length) {
             throw new IllegalArgumentException("🚨 잘못된 파라미터 개수! 필요: " +
