@@ -58,6 +58,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         return ChatMsgResponse.builder()
                 .id(chatMsg.getId())         // chatMsgId 추가
                 .roomId(roomId)
+                .userId(userId)              // userId 추가
                 .from(findUser.getUsername())
                 .message(message.getMessage())
                 .sendAt(chatMsg.getCreatedAt())
