@@ -4,6 +4,7 @@ import cmf.commitField.domain.noti.noti.dto.NotiDto;
 import cmf.commitField.domain.noti.noti.service.NotiService;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
+import cmf.commitField.domain.user.service.UserService;
 import cmf.commitField.global.error.ErrorCode;
 import cmf.commitField.global.exception.CustomException;
 import cmf.commitField.global.globalDto.GlobalResponse;
@@ -29,32 +30,22 @@ import java.util.Map;
 @Slf4j
 public class ApiV1NotiController {
     private final NotiService notiService;
-    private final UserRepository userRepository;
-
-//    private final NotiWebSocketHandler notiWebSocketHandler;
-    private final ApplicationEventPublisher eventPublisher;
+    private final UserService userService;
 
 
     @GetMapping("")
     public GlobalResponse<List<NotiDto>> getNoti(@AuthenticationPrincipal OAuth2User oAuth2User) {
         String username = oAuth2User.getName();
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+        User user = userService.findByUsername(username);
         List<NotiDto> notis = notiService.getNotReadNoti(user);
         return GlobalResponse.success(notis);
     }
 
     @PostMapping("/read")
-    public GlobalResponse<Object> readNoti() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication instanceof OAuth2AuthenticationToken) {
-            OAuth2User principal = (OAuth2User) authentication.getPrincipal();
-            Map<String, Object> attributes = principal.getAttributes();
-            String username = (String) attributes.get("login");  // GitHub ID
-            User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
-            notiService.read(user);
-            return GlobalResponse.success("알림을 읽음 처리했습니다.");
-        }
-        return GlobalResponse.error(ErrorCode.LOGIN_REQUIRED);
+    public GlobalResponse<Object> readNoti(@AuthenticationPrincipal OAuth2User oAuth2User) {
+        String username = oAuth2User.getName();
+        User user = userService.findByUsername(username);
+        notiService.read(user);
+        return GlobalResponse.success("알림을 읽음 처리했습니다.");
     }
 }

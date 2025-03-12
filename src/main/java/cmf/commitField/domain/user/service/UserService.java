@@ -14,6 +14,8 @@ import cmf.commitField.domain.user.entity.TierRegacy;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.TierRegacyRepository;
 import cmf.commitField.domain.user.repository.UserRepository;
+import cmf.commitField.global.error.ErrorCode;
+import cmf.commitField.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -119,5 +121,10 @@ public class UserService {
         User user = userRepository.findByUsername(username).get();
         user.addCommitCount(count);
         userRepository.save(user);
+    }
+
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(() -> new
+                CustomException(ErrorCode.NOT_FOUND_USER));
     }
 }

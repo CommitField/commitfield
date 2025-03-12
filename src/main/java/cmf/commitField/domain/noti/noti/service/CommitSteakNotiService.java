@@ -42,6 +42,11 @@ public class CommitSteakNotiService {
         }
     }
 
+    /**
+     * 연속 커밋 알림을 생성
+     * @param user
+     * @param currentStreakCommit
+     */
     public void checkAndCreateSteakNoti(User user, int currentStreakCommit) {
         boolean alreadyNotified = notiRepository.existsByReceiverAndType2CodeAndCreatedAtAfter(
                 user, NotiDetailType.STREAK_CONTINUED, LocalDate.now().atStartOfDay()
@@ -57,7 +62,7 @@ public class CommitSteakNotiService {
 
 
     /**
-     * 특정 연속 커밋 횟수에 도달했는지 확인
+     * 특정 연속 커밋 횟수(3회, 10의 배수 횟수)에 도달했는지 확인
      */
     public boolean shouldNotify(int streak) {
         return streak == 3 || (streak % 10 == 0);

@@ -25,5 +25,6 @@ public interface NotiRepository extends JpaRepository<Noti, Long> {
     // 최근 10일 내 동일한 커밋 부재 알림이 있는지 확인
     boolean existsByReceiverAndTypeCodeAndType2CodeAndCreatedAtAfter(User receiver, NotiType type, NotiDetailType detailType, LocalDateTime after);
 
+    // 해당 타입의 알림이 오늘 이후에 있는지 확인
     boolean existsByReceiverAndType2CodeAndCreatedAtAfter(User receiver, NotiDetailType notiDetailType, LocalDateTime todayStart);
 }

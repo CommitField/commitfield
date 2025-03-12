@@ -42,7 +42,11 @@ public class CommitAbsenceNotiService {
         }
     }
 
-    // 최근 10일 내 커밋 부재 알림이 있었는지 확인
+    /**
+     * 최근 10일 내 커밋 부재 알림이 있었는지 확인
+     * @param user
+     * @return
+     */
     private boolean hasRecentAbsenceNoti(User user) {
         log.info("커밋 부재 알림 확인: {}", user.getUsername());
         LocalDateTime checkDate = LocalDateTime.now().minusDays(10);
