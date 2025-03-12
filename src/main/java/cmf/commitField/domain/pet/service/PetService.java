@@ -57,7 +57,7 @@ public class PetService {
     @Transactional
     public UserPetDto getExpPet(String username, long commitCount) {
         User user = userRepository.findByUsername(username).get();
-        Pet pet = user.getPets().get(0);
+        Pet pet = petRepository.findLatestPetByUserUsername(username).get(0);
         pet.addExp(commitCount); // 경험치 증가
         petRepository.save(pet);
 
