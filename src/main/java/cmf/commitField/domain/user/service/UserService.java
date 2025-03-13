@@ -117,13 +117,13 @@ public class UserService {
                 LocalDateTime.of(2025,05,31,23,59)
         ).getTotalCommitContributions();
 
+        // 경험치 증가 후, 만약 레벨업한다면 레벨업 시킨다.
+        user.addExp(commitCount);
+
         // 경험치 동기화가 제대로 되어 있지 않으면 동기화해준다.
         if(user.getSeasonCommitCount() != seasonCommitCount){
             user.setSeasonCommitCount(seasonCommitCount);
         }
-
-        // 경험치 증가 후, 만약 레벨업한다면 레벨업 시킨다.
-        user.addExp(commitCount);
         userRepository.save(user);
         return !(user.getTier().equals(Tier.getLevelByExp(user.getSeasonCommitCount())));
     }
