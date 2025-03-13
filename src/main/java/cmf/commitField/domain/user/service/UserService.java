@@ -111,6 +111,17 @@ public class UserService {
     // 유저 성장
     public boolean getExpUser(String username, long commitCount) {
         User user = userRepository.findByUsername(username).get();
+        long seasonCommitCount = totalCommitService.getSeasonCommits(
+                user.getUsername(),
+                LocalDateTime.of(2025,03,01,00,00),
+                LocalDateTime.of(2025,05,31,23,59)
+        ).getTotalCommitContributions();
+
+        // 경험치 동기화가 제대로 되어 있지 않으면 동기화해준다.
+        if(user.getSeasonCommitCount() != seasonCommitCount){
+            user.setSeasonCommitCount(seasonCommitCount);
+        }
+
         // 경험치 증가 후, 만약 레벨업한다면 레벨업 시킨다.
         user.addExp(commitCount);
         userRepository.save(user);
