@@ -7,7 +7,6 @@ import cmf.commitField.domain.user.entity.Tier;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
