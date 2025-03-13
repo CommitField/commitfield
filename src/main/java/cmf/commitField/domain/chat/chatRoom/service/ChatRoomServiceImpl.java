@@ -271,6 +271,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                     .heartCount(chatRoom.getHearts().size())
                     .currentUserCount((long) chatRoom.getUserChatRooms().size())
                     .userCountMax(chatRoom.getUserCountMax())
+                    .imageUrl(chatRoom.getImageUrl())
                     .build();
             chatRoomDtos.add(build);
         }
@@ -335,6 +336,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                     .userCountMax(chatRoom.getUserCountMax())
                     .currentUserCount((long) chatRoom.getUserChatRooms().size())
                     .heartCount(chatRoom.getHearts().size())
+                    .imageUrl(chatRoom.getImageUrl())
                     .build();
             chatRoomDtos.add(build);
         }
@@ -364,6 +366,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                     .heartCount(chatRoom.getHearts().size())
                     .currentUserCount((long) chatRoom.getUserChatRooms().size())
                     .userCountMax(chatRoom.getUserCountMax())
+                    .imageUrl(chatRoom.getImageUrl())
                     .build();
             chatRoomDtos.add(build);
         }
