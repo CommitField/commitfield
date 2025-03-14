@@ -82,11 +82,10 @@
   
 
 ## 🌷 채팅
-
-<div style="display: flex; justify-content: space-between;">
-  <img src="https://github.com/user-attachments/assets/f29670ac-4dbe-4af0-87d5-3e9360a9246e" width="48%" />
-  <img src="https://github.com/user-attachments/assets/a09a257f-9ebf-43ec-89f3-7399678e17b2" width="48%" />
-</div>
+<img width="1600" alt="로그인" src="https://github.com/user-attachments/assets/f29670ac-4dbe-4af0-87d5-3e9360a9246e" />  
+</br>
+<img width="1600" alt="로그인" src="https://github.com/user-attachments/assets/a09a257f-9ebf-43ec-89f3-7399678e17b2" />  
+</br>
 
 
 ### 🍃 기능  
