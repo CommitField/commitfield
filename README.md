@@ -5,7 +5,7 @@
 개발인원: 5명
   
 </br>
-<img width="1629" alt="스크린샷 2025-02-13 오후 5 17 27" src="https://github.com/user-attachments/assets/d4912815-7567-4749-88b7-1461f32f41fd" />
+<img width="1629" alt="스크린샷 2025-02-13 오후 5 17 27" src="" />
 
 # 🌴 팀원 소개
 <table>
