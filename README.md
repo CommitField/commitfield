@@ -3,9 +3,9 @@
 
 총 개발기간 : `2025.2.18` ~ `2025.03.13` (22일)
 개발인원: 5명
-  
+
 </br>
-<img width="1629" alt="스크린샷 2025-02-13 오후 5 17 27" src="" />
+<img width="1629" alt="스크린샷 2025-02-13 오후 5 17 27" src="https://github.com/user-attachments/assets/5b9be8f8-f524-4bd6-bee5-99dbd2d4f591" />
 
 # 🌴 팀원 소개
 <table>
@@ -13,7 +13,7 @@
     <td><img src="https://avatars.githubusercontent.com/u/15629036?v=4" width="200" height="200"></td>
     <td><img src="https://avatars.githubusercontent.com/u/181931584?v=4" width="200" height="200"></td>
     <td><img src="https://avatars.githubusercontent.com/u/93702730?v=4" width="200" height="200"></td>
-    <td><img src="https://avatars.githubusercontent.com/u/82190411?v=4" width="200" height="200"></td>
+    <td><img src="https://avatars.githubusercontent.com/u/125850243?v=4" width="200" height="200"></td>
     <td><img src="https://avatars.githubusercontent.com/u/55117130?v=4" width="200" height="200"></td>
   </tr>
   <tr>
