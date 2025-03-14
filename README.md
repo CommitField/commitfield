@@ -13,7 +13,7 @@
     <td><img src="https://avatars.githubusercontent.com/u/15629036?v=4" width="200" height="200"></td>
     <td><img src="https://avatars.githubusercontent.com/u/181931584?v=4" width="200" height="200"></td>
     <td><img src="https://avatars.githubusercontent.com/u/93702730?v=4" width="200" height="200"></td>
-    <td><img src="https://avatars.githubusercontent.com/u/125850243?v=4" width="200" height="200"></td>
+    <td><img src="https://avatars.githubusercontent.com/u/82190411?v=4" width="200" height="200"></td>
     <td><img src="https://avatars.githubusercontent.com/u/55117130?v=4" width="200" height="200"></td>
   </tr>
   <tr>
