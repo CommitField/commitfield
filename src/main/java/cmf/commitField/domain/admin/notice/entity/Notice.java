@@ -13,6 +13,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class Notice extends BaseEntity {
+    // 관리자 공지사항
     private String title;
     private String content;
 }
