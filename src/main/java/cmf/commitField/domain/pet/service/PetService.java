@@ -1,6 +1,7 @@
 package cmf.commitField.domain.pet.service;
 
 import cmf.commitField.domain.pet.dto.UserPetDto;
+import cmf.commitField.domain.pet.dto.UserPetListDto;
 import cmf.commitField.domain.pet.entity.Pet;
 import cmf.commitField.domain.pet.entity.PetGrow;
 import cmf.commitField.domain.pet.repository.PetRepository;
@@ -13,9 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -37,9 +36,26 @@ public class PetService {
         return petRepository.save(pet);
     }
 
-    // 모든 펫 조회
-    public List<Pet> getAllPets() {
-        return petRepository.findAll();
+    // 유저가 소유한 펫 조회
+    public UserPetListDto getAllPets(String username) {
+        List<Pet> pets = petRepository.findByUserUsername(username);
+        int[] petsNum = new int[100]; //FIXME: 차후 갯수 수정 필요
+        int max = 0;
+        Map<Integer, Integer> petList = new HashMap<>();
+        for(Pet pet : pets){
+            int type = pet.getType();
+            petsNum[type]++;
+            if(max<type) max = type;
+        }
+
+        for(int i=0;i<=max;i++){
+            petList.put(i, petsNum[i]);
+        }
+
+        return UserPetListDto.builder().
+                username(username).
+                petList(petList).
+                build();
     }
 
     // 특정 펫 조회

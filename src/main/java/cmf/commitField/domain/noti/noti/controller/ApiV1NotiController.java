@@ -30,7 +30,7 @@ import java.util.Map;
 public class ApiV1NotiController {
     private final NotiService notiService;
     private final UserRepository userRepository;
-    private final NotiWebSocketHandler notiWebSocketHandler;
+//    private final NotiWebSocketHandler notiWebSocketHandler;
     private final ApplicationEventPublisher eventPublisher;
 
     @GetMapping("")

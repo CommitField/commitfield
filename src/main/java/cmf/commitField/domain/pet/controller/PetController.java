@@ -13,8 +13,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/pets")
@@ -47,11 +45,6 @@ public class PetController {
         return petService.createPet(name, imageFile, user);
     }
 
-    // 모든 펫 조회
-    @GetMapping
-    public List<Pet> getAllPets() {
-        return petService.getAllPets();
-    }
 
     // 특정 펫 조회
     @GetMapping("/{petId}")
