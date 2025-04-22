@@ -10,4 +10,6 @@ import lombok.*;
 public class ChatRoomUserDto {
     private String nickname;
     private Boolean status;
+    // 사용자 github image
+    private String imageUrl;
 }

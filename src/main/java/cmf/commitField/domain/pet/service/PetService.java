@@ -1,5 +1,6 @@
 package cmf.commitField.domain.pet.service;
 
+import cmf.commitField.domain.pet.dto.PetsDto;
 import cmf.commitField.domain.pet.dto.UserPetDto;
 import cmf.commitField.domain.pet.dto.UserPetListDto;
 import cmf.commitField.domain.pet.entity.Pet;
@@ -11,10 +12,12 @@ import cmf.commitField.global.aws.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -24,16 +27,15 @@ public class PetService {
     private final S3Service s3Service;
 
     // 새로운 펫 생성
-    public Pet createPet(String name, MultipartFile imageFile, User user) throws IOException {
-
-        // ✅ S3 업로드 로직 추가
-        String imageUrl = null;
-        if (imageFile != null && !imageFile.isEmpty()) {
-            imageUrl = s3Service.uploadFile(imageFile, "pet-images");
-        }
+    public Pet createPet(String petname, String username) throws IOException {
         Random random = new Random();
-        Pet pet = new Pet(name, user);
-        return petRepository.save(pet);
+        User user = userRepository.findByUsername(username).get();
+        Pet pet = petRepository.findLatestPetByUserUsername(username).get(0);
+        if(pet.getGrow() != PetGrow.GROWN){
+            return null;
+        }
+        Pet newPet = new Pet("알알", user);
+        return petRepository.save(newPet);
     }
 
     // 유저가 소유한 펫 조회
@@ -73,7 +75,7 @@ public class PetService {
     @Transactional
     public UserPetDto getExpPet(String username, long commitCount) {
         User user = userRepository.findByUsername(username).get();
-        Pet pet = user.getPets().get(0);
+        Pet pet = petRepository.findLatestPetByUserUsername(username).get(0);
         pet.addExp(commitCount); // 경험치 증가
         petRepository.save(pet);
 
@@ -95,5 +97,24 @@ public class PetService {
     public void levelUp(Pet pet){
         pet.setGrow(PetGrow.getLevelByExp(pet.getExp()));
         petRepository.save(pet);
+    }
+
+    //유저의 모든 펫 조회
+    public List<PetsDto> getAllPets(String username){
+        List<Pet> pets = petRepository.findByUserUsername(username);
+        List<PetsDto> petsList = new ArrayList<>();
+        for(Pet pet : pets){
+            petsList.add(
+                PetsDto.builder()
+                .username(username)
+                .petId(pet.getId())
+                .petName(pet.getName())
+                .type(pet.getType())
+                .grow(String.valueOf(pet.getGrow()))
+                .build()
+            );
+        }
+
+        return petsList;
     }
 }

@@ -33,7 +33,7 @@ public class UserController {
         return ResponseEntity.ok(userChatInfoDto);
     }
 
-    @GetMapping("/info")
+    @GetMapping("info")
     public ResponseEntity<UserInfoDto> getUserInfo(@AuthenticationPrincipal CustomOAuth2User oAuth2User){
         String username = oAuth2User.getName();
 

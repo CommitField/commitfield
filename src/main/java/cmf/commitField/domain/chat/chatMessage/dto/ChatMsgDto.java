@@ -15,4 +15,5 @@ public class ChatMsgDto {
     private String nickname;
     private String message;
     private LocalDateTime sendAt;
+    private String avatarUrl;  // avatarUrl 필드 추가
 }

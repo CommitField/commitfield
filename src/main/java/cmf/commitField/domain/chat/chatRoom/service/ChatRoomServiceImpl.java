@@ -271,6 +271,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                     .heartCount(chatRoom.getHearts().size())
                     .currentUserCount((long) chatRoom.getUserChatRooms().size())
                     .userCountMax(chatRoom.getUserCountMax())
+                    .imageUrl(chatRoom.getImageUrl())
                     .build();
             chatRoomDtos.add(build);
         }
@@ -312,8 +313,9 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         List<ChatRoomUserDto> chatRoomUserDtos = new ArrayList<>();
         for (UserChatRoom userChatRoom : userIds) {
             ChatRoomUserDto build = ChatRoomUserDto.builder()
-                    .nickname(userChatRoom.getUser().getNickname())
+                    .nickname(userChatRoom.getUser().getUsername())
                     .status(userChatRoom.getUser().getStatus())
+                    .imageUrl(userChatRoom.getUser().getAvatarUrl())
                     .build();
             chatRoomUserDtos.add(build);
         }
@@ -334,6 +336,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                     .userCountMax(chatRoom.getUserCountMax())
                     .currentUserCount((long) chatRoom.getUserChatRooms().size())
                     .heartCount(chatRoom.getHearts().size())
+                    .imageUrl(chatRoom.getImageUrl())
                     .build();
             chatRoomDtos.add(build);
         }
@@ -363,6 +366,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                     .heartCount(chatRoom.getHearts().size())
                     .currentUserCount((long) chatRoom.getUserChatRooms().size())
                     .userCountMax(chatRoom.getUserCountMax())
+                    .imageUrl(chatRoom.getImageUrl())
                     .build();
             chatRoomDtos.add(build);
         }
