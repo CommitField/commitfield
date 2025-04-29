@@ -1,5 +1,7 @@
 package cmf.commitField.global.scheduler;
 
+import cmf.commitField.domain.noti.noti.entity.NotiDetailType;
+import cmf.commitField.domain.noti.noti.entity.NotiType;
 import cmf.commitField.domain.noti.noti.service.NotiService;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
@@ -22,6 +24,6 @@ public class NotiTestScheduler {
         System.out.println("test 실행");
 
         User user = userRepository.findById(1L).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
-        notiService.createNoti(user);
+        notiService.createStreakBrokenNoti(user);
         }
 }

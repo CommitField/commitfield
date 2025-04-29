@@ -1,6 +1,8 @@
 package cmf.commitField.domain.commit.scheduler;
 
 import cmf.commitField.domain.commit.totalCommit.service.TotalCommitService;
+import cmf.commitField.domain.noti.noti.service.CommitSteakNotiService;
+import cmf.commitField.domain.noti.noti.service.NotiService;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +26,7 @@ public class CommitScheduler {
     private final UserRepository userRepository;
     private final StringRedisTemplate redisTemplate;
     private final AtomicInteger counter = new AtomicInteger(0);
-    private final SimpMessagingTemplate messagingTemplate;
+    private final CommitSteakNotiService commitSteakNotiService;
 
     private final ApplicationEventPublisher eventPublisher;
 
@@ -86,6 +88,7 @@ public class CommitScheduler {
         updateTotalCommit = totalCommitService.getTotalCommitCount(
             username
         ).getTotalCommitContributions();
+        int currentStreakCommit = totalCommitService.getTotalCommitCount(username).getCurrentStreakDays();
 
         newCommitCount = updateTotalCommit - currentCommit; // 새로 추가된 커밋 수
 
@@ -101,6 +104,10 @@ public class CommitScheduler {
 
             CommitUpdateEvent event = new CommitUpdateEvent(this, username, newCommitCount);
             eventPublisher.publishEvent(event); // 이벤트 발생
+
+            // 커밋 업데이트가 있고, 연속 커밋이 3일 이상, 10의 배수 이상인 경우 알림 생성
+            commitSteakNotiService.checkAndCreateSteakNoti(user, currentStreakCommit);
+
             System.out.println("CommitCreatedEvent published for user: " + username);
         } else if(newCommitCount < 0) {
             // newCommitCount에 문제가 있을 경우 문제 상황 / 데이터 동기화 필요. db 갱신.

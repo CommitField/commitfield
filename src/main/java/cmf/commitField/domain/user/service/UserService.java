@@ -3,6 +3,7 @@ package cmf.commitField.domain.user.service;
 import cmf.commitField.domain.commit.scheduler.CommitUpdateService;
 import cmf.commitField.domain.commit.totalCommit.service.TotalCommitService;
 import cmf.commitField.domain.pet.entity.Pet;
+import cmf.commitField.domain.pet.entity.PetGrow;
 import cmf.commitField.domain.pet.repository.PetRepository;
 import cmf.commitField.domain.pet.service.PetService;
 import cmf.commitField.domain.user.dto.UserChatInfoDto;
@@ -13,6 +14,8 @@ import cmf.commitField.domain.user.entity.TierRegacy;
 import cmf.commitField.domain.user.entity.User;
 import cmf.commitField.domain.user.repository.TierRegacyRepository;
 import cmf.commitField.domain.user.repository.UserRepository;
+import cmf.commitField.global.error.ErrorCode;
+import cmf.commitField.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -49,6 +52,7 @@ public class UserService {
                 .email(user.getEmail())
                 .nickname(user.getNickname())
                 .username(user.getUsername())
+                .avatarUrl(user.getAvatarUrl())
                 .build();
     }
 
@@ -68,20 +72,18 @@ public class UserService {
         return userRegacyDtos;
     }
 
-        @Transactional
     public UserInfoDto showUserInfo(String username) {
         User user = userRepository.findByUsername(username).get();
-        Pet pet = petRepository.findByUserEmail(user.getEmail()).get(0); // TODO: 확장시 코드 수정 필요
+        Pet pet = petRepository.findLatestPetByUserEmail(user.getEmail()).get(0);
 
-        // TODO: info 조회 시 user commit 수 즉시 반영은 로직 변경이 필요
-//        long totalCommit = totalCommitService.getTotalCommitCount(username).getTotalCommitContributions();
-//        long seasonCommit = totalCommitService.getSeasonCommits(username,
-//                LocalDateTime.of(2025,03,01,00,00),
-//                LocalDateTime.of(2025,05,31,23,59)
-//        ).getTotalCommitContributions();
-//
-//        user.setCommitCount(totalCommit);
-        // TODO블럭 종료
+        if(user.getTier() != Tier.getLevelByExp(user.getSeasonCommitCount())){
+            user.setTier(Tier.getLevelByExp(user.getSeasonCommitCount()));
+            userRepository.save(user);
+        }
+        if(pet.getGrow() != PetGrow.getLevelByExp(pet.getExp())){
+            pet.setGrow(PetGrow.getLevelByExp(pet.getExp()));
+            petRepository.save(pet);
+        }
 
         // 유저 정보 조회 후 active 상태가 아니면 Redis에 추가, 커밋 추적 시작
         String key = "commit_active:" + user.getUsername();
@@ -109,8 +111,19 @@ public class UserService {
     // 유저 성장
     public boolean getExpUser(String username, long commitCount) {
         User user = userRepository.findByUsername(username).get();
+        long seasonCommitCount = totalCommitService.getSeasonCommits(
+                user.getUsername(),
+                LocalDateTime.of(2025,03,01,00,00),
+                LocalDateTime.of(2025,05,31,23,59)
+        ).getTotalCommitContributions();
+
         // 경험치 증가 후, 만약 레벨업한다면 레벨업 시킨다.
         user.addExp(commitCount);
+
+        // 경험치 동기화가 제대로 되어 있지 않으면 동기화해준다.
+        if(user.getSeasonCommitCount() != seasonCommitCount){
+            user.setSeasonCommitCount(seasonCommitCount);
+        }
         userRepository.save(user);
         return !(user.getTier().equals(Tier.getLevelByExp(user.getSeasonCommitCount())));
     }
@@ -119,5 +132,10 @@ public class UserService {
         User user = userRepository.findByUsername(username).get();
         user.addCommitCount(count);
         userRepository.save(user);
+    }
+
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(() -> new
+                CustomException(ErrorCode.NOT_FOUND_USER));
     }
 }
