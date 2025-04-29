@@ -26,7 +26,7 @@ public class UserPetController {
     @GetMapping("/collection")
     public ResponseEntity<UserPetListDto> getUserPetCollection(@AuthenticationPrincipal CustomOAuth2User oAuth2User) {
         String username = oAuth2User.getName();
-        UserPetListDto userPetListDto = petService.getAllPets(username);
+        UserPetListDto userPetListDto = petService.getUserCollection(username);
         return ResponseEntity.ok(userPetListDto);
     }
 }

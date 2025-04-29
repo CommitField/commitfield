@@ -36,8 +36,26 @@ public class PetService {
         return petRepository.save(pet);
     }
 
-    // 유저가 소유한 펫 조회
-    public UserPetListDto getAllPets(String username) {
+    public List<UserPetDto> getAllPets(String username){
+        List<Pet> pets = petRepository.findByUserUsername(username);
+        List<UserPetDto> userPetDtoList = new ArrayList<>();
+
+        for(Pet pet : pets){
+            userPetDtoList.add(UserPetDto.builder().
+                    username(username).
+                    petId(pet.getId()).
+                    petName(pet.getName()).
+                    grow(pet.getGrow().toString()).
+                    type(pet.getType()).
+                    build());
+        }
+
+        return userPetDtoList;
+    }
+
+
+    // 유저가 소유한 펫 도감 조회
+    public UserPetListDto getUserCollection(String username) {
         List<Pet> pets = petRepository.findByUserUsername(username);
         int[] petsNum = new int[100]; //FIXME: 차후 갯수 수정 필요
         int max = 0;

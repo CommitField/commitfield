@@ -14,5 +14,6 @@ public class UserPetDto {
     private long petId;
     private String petName;
     private String grow;
+    private int type;
     private long exp;
 }

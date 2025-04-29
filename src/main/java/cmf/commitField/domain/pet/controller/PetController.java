@@ -13,12 +13,23 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/pets")
 public class PetController {
     private final CustomOAuth2UserService userService;
     private final PetService petService;
+
+    // 현재 펫 경험치 상승 및 상승 시 레벨업 처리
+    @GetMapping("/getall")
+    public ResponseEntity<List<UserPetDto>> getUserPets(@AuthenticationPrincipal CustomOAuth2User oAuth2User){
+        String username = oAuth2User.getName();  // CustomOAuth2User의 getName()은 user.getUsername()을 반환
+
+        List<UserPetDto> userPetDto = petService.getAllPets(username);
+        return ResponseEntity.ok(userPetDto);
+    }
 
     // 현재 펫 경험치 상승 및 상승 시 레벨업 처리
     @GetMapping("/exp")
