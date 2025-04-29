@@ -23,10 +23,10 @@ public class PetController {
 
     // 현재 펫 경험치 상승 및 상승 시 레벨업 처리
     @GetMapping("/getall")
-    public ResponseEntity<List<UserPetDto>> getUserPets(@AuthenticationPrincipal CustomOAuth2User oAuth2User){
+    public ResponseEntity<List<PetsDto>> getUserPets(@AuthenticationPrincipal CustomOAuth2User oAuth2User){
         String username = oAuth2User.getName();  // CustomOAuth2User의 getName()은 user.getUsername()을 반환
 
-        List<UserPetDto> userPetDto = petService.getAllPets(username);
+        List<PetsDto> userPetDto = petService.getAllPets(username);
         return ResponseEntity.ok(userPetDto);
     }
 
@@ -37,13 +37,6 @@ public class PetController {
 
         System.out.println("/pet/exp, Username: "+username);
         UserPetDto userPetDto = petService.getExpPet(username, 0);
-        return ResponseEntity.ok(userPetDto);
-    }
-
-    @GetMapping("/getall")
-    public ResponseEntity<List<PetsDto>> getUserAllPets(@AuthenticationPrincipal CustomOAuth2User oAuth2User){
-        String username = oAuth2User.getName();
-        List<PetsDto> userPetDto = petService.getAllPets(username);
         return ResponseEntity.ok(userPetDto);
     }
 

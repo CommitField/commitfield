@@ -14,10 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -37,24 +34,6 @@ public class PetService {
         Pet newPet = new Pet("알알", user);
         return petRepository.save(newPet);
     }
-
-    public List<UserPetDto> getAllPets(String username){
-        List<Pet> pets = petRepository.findByUserUsername(username);
-        List<UserPetDto> userPetDtoList = new ArrayList<>();
-
-        for(Pet pet : pets){
-            userPetDtoList.add(UserPetDto.builder().
-                    username(username).
-                    petId(pet.getId()).
-                    petName(pet.getName()).
-                    grow(pet.getGrow().toString()).
-                    type(pet.getType()).
-                    build());
-        }
-
-        return userPetDtoList;
-    }
-
 
     // 유저가 소유한 펫 도감 조회
     public UserPetListDto getUserCollection(String username) {
