@@ -5,15 +5,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 @Builder
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserPetDto {
+public class UserPetListDto {
     private String username;
-    private long petId;
-    private String petName;
-    private String grow;
-    private int type;
-    private long exp;
+    private Map<Integer, Integer> petList; // 아이디, 소유 갯수
 }

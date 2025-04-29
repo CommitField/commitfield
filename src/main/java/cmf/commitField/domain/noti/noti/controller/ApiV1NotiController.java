@@ -32,7 +32,6 @@ public class ApiV1NotiController {
     private final NotiService notiService;
     private final UserService userService;
 
-
     @GetMapping("")
     public GlobalResponse<List<NotiDto>> getNoti(@AuthenticationPrincipal OAuth2User oAuth2User) {
         String username = oAuth2User.getName();
